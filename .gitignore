@@ -1,0 +1,18 @@
+# never include aoc-inputs
+/inputs
+
+# intellij
+.idea/
+*.iml
+
+# gradle related stuffs
+.gradle
+**/build/
+!src/**/build/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+
+# sbt related stuffs
+**/target/
+!src/**/target/
