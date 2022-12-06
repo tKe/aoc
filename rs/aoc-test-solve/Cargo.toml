@@ -1,0 +1,11 @@
+[package]
+name = "aoc-test-solve"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+syn = { version = "1.0.105", features = ["full"] }
+quote = "1.0.21"
+
+[lib]
+proc-macro = true

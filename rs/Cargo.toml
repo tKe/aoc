@@ -1,0 +1,10 @@
+[package]
+name = "rust-aoc"
+version = "0.0.2022"
+authors = ["Phil Davies <224875+tKe@users.noreply.github.com>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+pico-args = "0.5.0"
+aoc-test-solve = { version = "0.1.0", path = "aoc-test-solve" }
