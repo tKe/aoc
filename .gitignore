@@ -13,6 +13,6 @@ gradle-app.setting
 !gradle-wrapper.jar
 .gradletasknamecache
 
-# sbt related stuffs
+# sbt/cargo/maven related stuffs
 **/target/
 !src/**/target/

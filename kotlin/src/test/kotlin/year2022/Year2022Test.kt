@@ -9,15 +9,23 @@ import io.kotest.core.test.AssertionMode
 import io.kotest.matchers.result.shouldBeSuccess
 
 class Year2022Test : FreeSpec({
-    assertions = AssertionMode.Warn
-    assertSoftly = true
-
     "examples" - {
         with(InputScopeProvider.mapping("input.txt" to "example.txt")) {
             checkThat<Day01Puz, _, _>(24000, 45000)
             checkThat<Day02Puz, _, _>(15, 12)
             checkThat<Day03DSL, _, _>(157, 70)
+            checkThat<Day04DSL, _, _>(2, 4)
+            checkThat<Day05DSL, _, _>("CMZ", "MCD")
         }
+//
+//        Puz.getAll<Day06DSL, _, _>().forEach {
+//            checkThat<Day06DSL, _, _>(7, 1)
+//            withInput("input.txt" to "mjqjpqmgbljsphdztnvjfqwrcgsmlb") { it.part2() shouldBe 19 }
+//            withInput("input.txt" to "bvwbjplbgvbhsrlpgdmjqwftvncz") { it.part2() shouldBe 23 }
+//            withInput("input.txt" to "nppdvjthqldpwncqszvftbrmjlhg") { it.part2() shouldBe 23 }
+//            withInput("input.txt" to "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg") { it.part2() shouldBe 29 }
+//            withInput("input.txt" to "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw") { it.part2() shouldBe 26 }
+//        }
     }
 
     "inputs" - {
@@ -25,6 +33,8 @@ class Year2022Test : FreeSpec({
             checkThat<Day01Puz, _, _>(69795, 208437)
             checkThat<Day02Puz, _, _>(9651, 10560)
             checkThat<Day03DSL, _, _>(7980, 2881)
+            checkThat<Day04DSL, _, _>(657, 938)
+            checkThat<Day05DSL, _, _>("VWLCWGSDQ", "TCGLQSLPW")
         }
     }
 })
@@ -47,8 +57,8 @@ suspend fun <A, B> Iterable<Puz<A, B>>.shouldAll(test: suspend FreeSpecContainer
     groupBy { it.year to it.day }
         .forEach { (d, puzzles) ->
             val (year, day) = d
-            val input = forPuzzle(year, day)
             "Year $year Day $day" - {
+                val input = forPuzzle(year, day)
                 puzzles.forEach { puzzle ->
                     puzzle.variant - {
                         test(input, puzzle)

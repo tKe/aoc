@@ -12,16 +12,17 @@ sealed interface PuzKey {
 interface Puz<out P1, out P2> : PuzKey {
     context(InputScope) fun part1(): P1
     context(InputScope) fun part2(): P2
+
     companion object {
         private fun query(predicate: (PuzKey) -> Boolean = { true }) = years.flatMap(::sealedObjects).filter(predicate)
-        fun getDay(year: Int, day: Int) = query { it.year == year && it.day == day }
         inline fun <reified T : Puz<P1, P2>, P1, P2> getAll() = getAll(T::class)
         fun <T : Puz<P1, P2>, P1, P2> getAll(vararg kClasses: KClass<out T>) = kClasses.flatMap(::sealedObjects)
 
         @JvmName("solveAllReified")
-        inline fun <reified T : Puz<Any, Any>> solveAll() = getAll<T, _, _>().solveAll()
+        inline fun <reified T : Puz<Any, Any>> solveAll(vararg remappings: Pair<String, String>, iterations: Int = 1) =
+            with(InputScopeProvider.mapping(*remappings)) { getAll<T, _, _>().solveAll(iterations) }
 
-        fun solveAll() = query().solveAll()
+        fun solveAll(vararg remappings: Pair<String, String>) = with(InputScopeProvider.mapping(*remappings)) { query().solveAll() }
     }
 }
 
@@ -50,52 +51,41 @@ private fun <T : Any> sealedObjects(kClass: KClass<out T>): Iterable<T> =
     (kClass.objectInstance?.let { listOf(it) } ?: emptyList()) + kClass.sealedSubclasses
         .flatMap(::sealedObjects)
 
-fun <P1, P2> Iterable<Puz<P1, P2>>.solveAll() = groupBy { it.year to it.day }
+context(InputScopeProvider)
+fun <P1, P2> Iterable<Puz<P1, P2>>.solveAll(iterations: Int = 1) = groupBy { it.year to it.day }
     .forEach { (year, day), puzzles ->
         println("Solving Year $year Day $day")
-        Either.catch { InputScope.forPuzzle(year, day) }
+        Either.catch { forPuzzle(year, day) }
             .tapLeft(System.err::println)
             .map { input ->
                 with(input) {
-                    puzzles.forEach { it.solve() }
+                    puzzles.forEach { it.solve(iterations) }
                 }
             }
     }
 
 context(InputScope)
 @JvmName("solveWithInput")
-fun <P1, P2> Puz<P1, P2>.solve() {
+fun <P1, P2> Puz<P1, P2>.solve(iterations: Int = 100) {
     fun <T> solveAndLog(part: String, block: () -> T) {
-        val c = 10_000
-        measureTimedValue {
-            repeat(c - 1) { block() }
-            runCatching(block)
-        }
-            .let { "  $variant $part (took ${it.duration/(c+1)} over $c runs): ${it.value.output}" }
-            .also(::println)
+        runCatching {
+            measureTimedValue {
+                repeat(iterations - 1) { block() }
+                block()
+            }
+        }.fold(
+            {
+                val formatted = it.value.toString().lines().run {
+                    if (size <= 1) first()
+                    else "\n" + joinToString("\n") { line -> "    $line" }
+                }
+                "  $variant $part (took ${it.duration / iterations} over $iterations runs): $formatted"
+            },
+            { "  $variant $part failed: $it" }
+        ).also(::println)
     }
     solveAndLog("part1") { part1() }
     solveAndLog("part2") { part2() }
 }
-
-private val <T> Result<T>.output: String
-    get() = fold(
-        onSuccess = { result ->
-            result.toString().lines().run {
-                if (size <= 1) first()
-                else "\n" + joinToString("\n") { line -> "    $line" }
-            }
-        },
-        onFailure = { "\n    $it" }
-    )
-
-context(InputScopeProvider)
-@JvmName("solveWithProvider")
-fun <P1, P2> Puz<P1, P2>.solve() = forPuzzle(year, day).solve(this)
-
-// break ambiguity
-private fun <P1, P2> InputScope.solve(puz: Puz<P1, P2>) = puz.solve()
-
-fun <P1, P2> Puz<P1, P2>.solve() = with(InputScope) { solve() }
 
 fun main() = Puz.solveAll()
