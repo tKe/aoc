@@ -1,6 +1,9 @@
+import Puz.Companion.query
 import arrow.core.Either
+import year2022.Day07JimFS
 import year2022.Puz22
 import kotlin.reflect.KClass
+import kotlin.time.measureTime
 import kotlin.time.measureTimedValue
 
 sealed interface PuzKey {
@@ -14,15 +17,9 @@ interface Puz<out P1, out P2> : PuzKey {
     context(InputScope) fun part2(): P2
 
     companion object {
-        private fun query(predicate: (PuzKey) -> Boolean = { true }) = years.flatMap(::sealedObjects).filter(predicate)
+        fun query(predicate: (PuzKey) -> Boolean = { true }) = years.flatMap(::sealedObjects).filter(predicate)
         inline fun <reified T : Puz<P1, P2>, P1, P2> getAll() = getAll(T::class)
         fun <T : Puz<P1, P2>, P1, P2> getAll(vararg kClasses: KClass<out T>) = kClasses.flatMap(::sealedObjects)
-
-        @JvmName("solveAllReified")
-        inline fun <reified T : Puz<Any, Any>> solveAll(vararg remappings: Pair<String, String>, iterations: Int = 1) =
-            with(InputScopeProvider.mapping(*remappings)) { getAll<T, _, _>().solveAll(iterations) }
-
-        fun solveAll(vararg remappings: Pair<String, String>) = with(InputScopeProvider.mapping(*remappings)) { query().solveAll() }
     }
 }
 
@@ -81,11 +78,62 @@ fun <P1, P2> Puz<P1, P2>.solve(iterations: Int = 100) {
                 }
                 "  $variant $part (took ${it.duration / iterations} over $iterations runs): $formatted"
             },
-            { "  $variant $part failed: $it" }
+            {
+                "  $variant $part failed: $it"
+            }
         ).also(::println)
     }
     solveAndLog("part1") { part1() }
     solveAndLog("part2") { part2() }
 }
 
-fun main() = Puz.solveAll()
+fun solveAll(
+    vararg remappings: Pair<String, String>,
+    warmupIterations: Int = 0,
+    runIterations: Int = 1,
+    predicate: (PuzKey) -> Boolean = { true }
+) = with(InputScopeProvider.mapping(*remappings)) {
+    query(predicate).solveAll(warmupIterations, runIterations)
+}
+
+@JvmName("solveAllReified")
+inline fun <reified T : Puz<*, *>> solveAll(
+    vararg remappings: Pair<String, String>,
+    warmupIterations: Int = 0,
+    runIterations: Int = 1,
+) = solveAll(*remappings, warmupIterations = warmupIterations, runIterations = runIterations) { it is T }
+
+context(InputScopeProvider)
+fun Iterable<Puz<*, *>>.solveAll(warmupIterations: Int = 0, runIterations: Int = 1) =
+    groupBy { it.year to it.day }.forEach { (year, day), puzzles ->
+        with(forPuzzle(year, day)) {
+            if (warmupIterations > 0) {
+                measureTime {
+                    repeat(warmupIterations) {
+                        puzzles.forEach {
+                            it.part1()
+                            it.part2()
+                        }
+                    }
+                }.also { println("year $year day $day warmup ($warmupIterations iterations) took $it") }
+            }
+
+            fun runPart(part: Puz<*, *>.() -> Any?) {
+                val results = puzzles.map { puz ->
+                    puz.variant to measureTimedValue {
+                        repeat(runIterations - 1) { puz.part() }
+                        puz.part()
+                    }.let { it.copy(duration = it.duration / runIterations) }
+                }.sortedBy { (_, it) -> it.duration }
+                results.forEach { (variant, it) -> println("\t $variant took ${it.duration}: ${it.value}") }
+            }
+
+            println("year $year day $day part 1")
+            runPart { part1() }
+            println("year $year day $day part 2")
+            runPart { part2() }
+        }
+        println()
+    }
+
+fun main() = solveAll(warmupIterations = 3000, runIterations = 5) { it != Day07JimFS }

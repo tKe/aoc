@@ -5,6 +5,7 @@ import Puz
 import PuzzleDefinition
 import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
+import solveAll
 
 sealed interface Day01Puz : Puz<Int, Int>
 sealed class Day01Base(variant: String? = null) : Day01Puz, Puz22Base<Int, Int>(1, variant)
@@ -68,4 +69,4 @@ object Day01TopN : Day01DSL("Top N Elves", {
     part2 { lines.topElves(3) }
 })
 
-fun main() = Puz.solveAll<Day01Puz>()
+fun main() = solveAll<Day01Puz>()

@@ -2,8 +2,9 @@ package year2022
 
 import InputScope
 import PuzzleDefinition
+import solveAll
 
-fun main() = Puz.solveAll<Day05DSL>(iterations = 1_000)
+fun main() = solveAll<Day05DSL>(runIterations = 1_000)
 
 sealed class Day05DSL(body: PuzzleDefinition<String, String>, variant: String? = null) :
     Puz22DSL<String, String>(5, variant, body)
@@ -61,10 +62,11 @@ object Day05 : Day05DSL({
 
 object Day05Strings : Day05DSL({
 
-    fun List<String>.parseStacks(): List<String> = (1..last().length step 4).map { stack ->
-        (0 until lastIndex)
-            .joinToString("") { "${this[it][stack]}".trim() }
-    }
+    fun List<String>.parseStacks(): List<String> =
+        (1..last().length step 4).map { stack ->
+            (0 until lastIndex)
+                .joinToString("") { "${this[it][stack]}".trim() }
+        }
 
     fun InputScope.rearrange(
         transfer: (from: String, to: String, n: Int) -> Pair<String, String>

@@ -1,15 +1,16 @@
 package year2022
 
 import PuzzleDefinition
+import solveAll
 
-fun main() = Puz.solveAll<Day06DSL>(iterations = 10_000)
+fun main() = solveAll<Day06DSL>(runIterations = 10_000)
 
 sealed class Day06DSL(body: PuzzleDefinition<Int, Int>, variant: String? = null) :
     Puz22DSL<Int, Int>(6, variant, body)
 
 object Day06 : Day06DSL({
     fun String.detectUniqueIndex(length: Int) =
-        windowedSequence(length, partialWindows = false)
+        windowedSequence(length)
             .indexOfFirst { it.all(mutableSetOf<Char>()::add) }
             .let { if (it == -1) -1 else it + length }
 
@@ -20,18 +21,15 @@ object Day06 : Day06DSL({
         input.detectUniqueIndex(14)
     }
 })
+
 object Day06IntArray : Day06DSL({
     fun String.detectUniqueIndex(length: Int) : Int {
-        val counts = IntArray(26)
-        operator fun IntArray.plusAssign(c: Char) { this[c - 'a'] += 1 }
-        operator fun IntArray.minusAssign(c: Char) { this[c - 'a'] -= 1 }
-        for ((index, value) in this.withIndex()) {
-            counts += value
-            if (index >= length && counts.all { it == 0 || it == 1 }) {
-                return index + 1
-            }
-            if (index + 1 >= length) {
-                counts -= this[index + 1 - length]
+        val counts = ByteArray(26)
+        for ((idx, c) in withIndex()) {
+            counts[c - 'a']++
+            if (idx >= length) {
+                counts[this[idx - length] - 'a']--
+                if (counts.none { it > 1 }) return idx + 1
             }
         }
         return -1

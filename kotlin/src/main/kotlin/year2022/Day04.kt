@@ -1,9 +1,9 @@
 package year2022
 
-import Puz
 import PuzzleDefinition
+import solveAll
 
-fun main() = Puz.solveAll<Day04DSL>()
+fun main() = solveAll<Day04DSL>()
 sealed class Day04DSL(variant: String? = null, body: PuzzleDefinition<Int, Int>) : Puz22DSL<Int, Int>(4, variant, body)
 
 

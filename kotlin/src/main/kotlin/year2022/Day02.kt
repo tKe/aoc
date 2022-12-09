@@ -1,7 +1,7 @@
 package year2022
 
 import InputScope
-import Puz
+import solveAll
 import year2022.Hand.*
 import year2022.Outcome.*
 
@@ -77,4 +77,4 @@ object Day02: Day02Puz() {
             }
 }
 
-fun main() = Puz.solveAll<Day02Puz>()
+fun main() = solveAll<Day02Puz>()

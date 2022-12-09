@@ -5,7 +5,6 @@ import InputScopeProvider
 import Puz
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.core.spec.style.scopes.FreeSpecContainerScope
-import io.kotest.core.test.AssertionMode
 import io.kotest.matchers.result.shouldBeSuccess
 
 class Year2022Test : FreeSpec({
@@ -16,10 +15,10 @@ class Year2022Test : FreeSpec({
             checkThat<Day03DSL, _, _>(157, 70)
             checkThat<Day04DSL, _, _>(2, 4)
             checkThat<Day05DSL, _, _>("CMZ", "MCD")
+            checkThat<Day06DSL, _, _>(7, 1)
         }
 //
 //        Puz.getAll<Day06DSL, _, _>().forEach {
-//            checkThat<Day06DSL, _, _>(7, 1)
 //            withInput("input.txt" to "mjqjpqmgbljsphdztnvjfqwrcgsmlb") { it.part2() shouldBe 19 }
 //            withInput("input.txt" to "bvwbjplbgvbhsrlpgdmjqwftvncz") { it.part2() shouldBe 23 }
 //            withInput("input.txt" to "nppdvjthqldpwncqszvftbrmjlhg") { it.part2() shouldBe 23 }

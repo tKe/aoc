@@ -15,6 +15,7 @@ tasks.withType<Test> { useJUnitPlatform() }
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
+        languageVersion = "1.8"
         jvmTarget = "${JavaVersion.VERSION_17}"
         freeCompilerArgs = freeCompilerArgs + listOf(
             "-Xcontext-receivers",
@@ -30,5 +31,8 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation(libs.bundles.arrow)
     implementation(libs.coroutines.core)
+
+    implementation("com.google.jimfs:jimfs:1.2") // day-07 virtual filesystem
+
     testImplementation(libs.bundles.kotest)
 }

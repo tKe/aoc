@@ -1,7 +1,7 @@
 package year2022
 
 import InputScope
-import Puz
+import solveAll
 
 private fun scorePart1(ca: Char, cx: Char): Int {
     val a = ca - 'A'
@@ -23,4 +23,4 @@ object Day02Mod : Day02Puz() {
     context(InputScope) override fun part2() = lines.process(::scorePart2)
 }
 
-fun main(): Unit = Puz.solveAll<Day02Mod>()
+fun main(): Unit = solveAll<Day02Mod>()
