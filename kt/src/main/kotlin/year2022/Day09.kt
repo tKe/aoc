@@ -8,7 +8,7 @@ import solveAll
 import java.util.*
 import kotlin.math.sign
 
-fun main() = solveAll<Day09DSL>(warmupIterations =  2_000, runIterations = 9)
+fun main() = solveAll<Day09DSL>()
 
 sealed class Day09DSL(body: PuzzleDefinition<Int, Int>, variant: String? = null) :
     Puz22DSL<Int, Int>(9, variant, body)
@@ -52,7 +52,7 @@ object Day09ImmutableRope : Day09DSL({
 
     fun InputScope.solve(ropeSize: Int) = lineSeq
         .flatMap { line -> sequence { repeat(line.substring(2).toInt()) { yield(line[0]) } } }
-        .scan(ropeOfLength(ropeSize), Rope::moveHead)
+        .runningFold(ropeOfLength(ropeSize), Rope::moveHead)
         .map(Rope::last)
         .toSet().size
 

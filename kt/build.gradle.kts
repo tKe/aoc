@@ -3,10 +3,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 @Suppress("DSL_SCOPE_VIOLATION") // https://youtrack.jetbrains.com/issue/KTIJ-19369
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.ksp)
 }
 
-group = "com.github.tke.aoc"
-version = "1.0-SNAPSHOT"
+group = "com.github.tke"
+version = "0.0.2022"
 
 repositories {
     mavenCentral()
@@ -26,14 +27,25 @@ tasks.withType<KotlinCompile> {
     }
 }
 
-val a by tasks.creating
+kotlin {
+    sourceSets.main {
+        kotlin.srcDir("$buildDir/generated/ksp/main/kotlin")
+    }
+    sourceSets.test {
+        kotlin.srcDir("$buildDir/generated/ksp/test/kotlin")
+    }
+}
 
 dependencies {
+    ksp("com.github.tke:aoksp")
+    implementation("com.github.tke:aoksp")
+
     implementation(kotlin("reflect"))
     implementation(libs.bundles.arrow)
     implementation(libs.coroutines.core)
+    implementation(libs.kotlinx.serialization.json)
 
-    implementation("com.google.jimfs:jimfs:1.2") // day-07 virtual filesystem
+    implementation("com.google.jimfs:jimfs:1.2") // year-22 day-07 virtual filesystem
 
     testImplementation(libs.bundles.kotest)
 }

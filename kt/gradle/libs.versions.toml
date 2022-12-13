@@ -2,23 +2,40 @@
 arrow = "1.1.3"
 coroutines = "1.6.4"
 kotest = "5.5.4"
-kotlin = "1.7.21"
+kotlin = "1.7.20"
+ksp = "1.7.20-1.0.7"
+kotlinpoet = "1.12.0"
+kotlinx-serialization = "1.4.1"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-fx = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+
 kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 
+ksp = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+kotlinpoet-core = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
+kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet" }
+kotlinpoet-metadata = { module = "com.squareup:kotlinpoet-metadata", version.ref = "kotlinpoet" }
+
 [bundles]
-arrow = [ "arrow-core", "arrow-fx" ]
+arrow = ["arrow-core", "arrow-fx"]
 kotest = [
     "kotest-property",
     "kotest-runner-junit5",
     "kotest-assertions-core",
 ]
+codegen = [
+    "ksp",
+    "kotlinpoet-core",
+    "kotlinpoet-ksp",
+    "kotlinpoet-metadata",
+]
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

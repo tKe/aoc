@@ -3,6 +3,7 @@ package year2022
 import InputScope
 import InputScopeProvider
 import Puz
+import getAll
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.core.spec.style.scopes.FreeSpecContainerScope
 import io.kotest.matchers.result.shouldBeSuccess
@@ -40,7 +41,7 @@ class Year2022Test : FreeSpec({
 
 context(InputScopeProvider)
 suspend inline fun <reified T : Puz<A, B>, A, B> FreeSpecContainerScope.checkThat(part1: A, part2: B) =
-    Puz.getAll<T, A, B>().shouldAll { input, puzzle ->
+    getAll<T, A, B>().shouldAll { input, puzzle ->
         with(input) {
             "part1" {
                 runCatching { puzzle.part1() } shouldBeSuccess part1
