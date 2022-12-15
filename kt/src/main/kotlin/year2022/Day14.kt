@@ -5,11 +5,12 @@ import aok.PuzzleInput
 import aoksp.AoKSolution
 import queryPuzzles
 import solveAll
-import java.util.BitSet
+import java.util.*
+import kotlin.collections.ArrayDeque
 
 fun main(): Unit = with(InputScopeProvider) {
     queryPuzzles { year == 2022 && day == 14 }.solveAll(
-        warmupIterations = 50, runIterations = 3
+        warmupIterations = 300, runIterations = 3
     )
 }
 
@@ -82,6 +83,69 @@ object Day14 {
             if (y >= data.size) data = Array(y + 1) { if (it < data.size) data[it] else BitSet(x) }
             depth = maxOf(depth, y)
             data[y].set(x)
+        }
+    }
+}
+
+@AoKSolution
+object Day14Stack {
+    context(PuzzleInput)
+    fun part1() = BitSetCave().apply { populateRocks() }.simulateSand()
+
+    context(PuzzleInput)
+    fun part2() = BitSetCave().apply { populateRocks() }.let {
+        val floor = it.depth + 2
+        object : Cave by it {
+            override val depth = floor + 1
+            override fun get(x: Int, y: Int) = y == floor || it[x, y]
+        }.run { simulateSand() }
+    }
+
+    private fun Cave.simulateSand(): Int {
+        var count = 0
+        val next = ArrayDeque(listOf(500 to 0))
+        while (next.isNotEmpty()) {
+            var (x, y) = next.removeFirst()
+            while (!get(x, y)) when {
+                y > depth -> return count
+                !get(x, y + 1) -> next.addFirst(Pair(x, y++))
+                !get(x - 1, y + 1) -> next.addFirst(Pair(x--, y++))
+                !get(x + 1, y + 1) -> next.addFirst(Pair(x++, y++))
+                else -> mark(x, y)
+            }
+            count++
+        }
+        return count
+    }
+
+    context(PuzzleInput, Cave)
+    private fun populateRocks() {
+        fun range(a: Int, b: Int) = if (a < b) a..b else b..a
+        lines.forEach { line ->
+            line.splitToSequence(" -> ", ",").map(String::toInt)
+                .windowed(4, 2).forEach { (x1, y1, x2, y2) ->
+                    if (x1 == x2) range(y1, y2).forEach { y -> mark(x1, y) }
+                    else if (y1 == y2) range(x1, x2).forEach { x -> mark(x, y1) }
+                }
+        }
+    }
+
+    private interface Cave {
+        val depth: Int
+        operator fun get(x: Int, y: Int): Boolean
+        fun mark(x: Int, y: Int)
+    }
+
+    private class BitSetCave : Cave {
+        private fun idx(x: Int, y: Int) = x + ((y + x) * (y + x + 1) shr 1)
+        private var data = BitSet()
+        override var depth = 0
+            private set
+
+        override operator fun get(x: Int, y: Int) = data[idx(x, y)]
+        override fun mark(x: Int, y: Int) {
+            data.set(idx(x, y))
+            if (y > depth) depth = y
         }
     }
 }
