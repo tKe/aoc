@@ -5,12 +5,15 @@ import aok.PuzzleInput
 import aoksp.AoKSolution
 import queryPuzzles
 import solveAll
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 
-private const val WORLD_SPACE = 4_000_000
+//private const val WORLD_SIZE = 20
+//fun main(): Unit = with(InputScopeProvider.Example) {
+private const val WORLD_SIZE = 4_000_000
 fun main(): Unit = with(InputScopeProvider) {
     queryPuzzles { year == 2022 && day == 15 }.solveAll(
-        warmupIterations = 5, runIterations = 1
+        warmupIterations = 3, runIterations = 1
     )
 }
 
@@ -37,7 +40,7 @@ object Day15 {
 
     context(PuzzleInput)
     fun part1() = parse().let { reports ->
-        val row = WORLD_SPACE / 2
+        val row = WORLD_SIZE / 2
         val objectsInRow = reports.objectsInRow(row)
         reports.sensorRanges(row).merge()
             .sumOf { range -> range.count() - objectsInRow.count { it in range } }
@@ -45,7 +48,7 @@ object Day15 {
 
     context(PuzzleInput)
     fun part2(): Long = parse().let { reports ->
-        repeat(WORLD_SPACE) { row ->
+        repeat(WORLD_SIZE) { row ->
             val all = reports.sensorRanges(row).merge()
             val inv = all.zipWithNext { a, b -> a.last + 1 until b.first }
             inv.singleOrNull { !it.isEmpty() }
@@ -92,14 +95,14 @@ object Day15Scanning {
     }
 
     context(PuzzleInput)
-    fun part1(row: Int = WORLD_SPACE / 2) = parse().let { reports ->
+    fun part1(row: Int = WORLD_SIZE / 2) = parse().let { reports ->
         reports.map { it.sensor.x to it.strengthAt(row) }
             .run { minOf { (x, s) -> x - s }..maxOf { (x, s) -> x + s } }
             .count { x -> reports.any { r -> r.inRange(x, row) && !(r.beacon.y == row && r.beacon.x == x) } }
     }
 
     context(PuzzleInput)
-    fun part2(size: Int = WORLD_SPACE): Long = with(parse()) {
+    fun part2(size: Int = WORLD_SIZE): Long = with(parse()) {
         repeat(size) { y ->
             var x = 0
             do {
@@ -108,5 +111,75 @@ object Day15Scanning {
             } while (x <= size)
         }
         error("no solution")
+    }
+}
+
+@AoKSolution
+object Day15BorderIntersection {
+    private data class Point(val x: Int, val y: Int) {
+        fun distance(ox: Int, oy: Int) = (x - ox).absoluteValue + (y - oy).absoluteValue
+        fun shift(x: Int = 0, y: Int = 0) = Point(this.x + x, this.y + y)
+    }
+
+    context(PuzzleInput)
+    private fun parse() = mutableSetOf<Point>().let { beacons ->
+        lines.map {
+            val (sx, sy, bx, by) = it.split('=', ',', ':').mapNotNull(String::toIntOrNull)
+            beacons += Point(bx, by)
+            Point(sx, sy).let { s -> s to s.distance(bx, by) }
+        } to beacons.toSet()
+    }
+
+    context(PuzzleInput)
+    fun part2(): Long {
+        val (sensors) = parse()
+        val lines = borderLines(sensors) + listOf(
+            (Point(0, 0) to Point(0, WORLD_SIZE - 1)),
+            (Point(0, WORLD_SIZE) to Point(WORLD_SIZE - 1, WORLD_SIZE)),
+            (Point(WORLD_SIZE, WORLD_SIZE) to Point(WORLD_SIZE, 1)),
+            (Point(WORLD_SIZE, 0) to Point(1, 0)),
+        )
+
+        val world = 0..WORLD_SIZE
+        for (a in lines) for (b in lines) {
+            val (x, y) = (a intersect b) ?: continue
+            if (x in world && y in world && sensors.none { (s, r) -> s.distance(x, y) <= r })
+                return x * 4_000_000L + y
+        }
+        error("no solution")
+    }
+
+    private fun borderLines(sensors: List<Pair<Point, Int>>) = sensors.flatMap { (sensor, range) ->
+        val d = range + 1
+        val t = sensor.shift(y = -d)
+        val r = sensor.shift(x = d)
+        val b = sensor.shift(y = d)
+        val l = sensor.shift(x = -d)
+        listOf(t to r, r to b, b to l, l to t)
+    }
+
+    private infix fun Pair<Point, Point>.intersect(line: Pair<Point, Point>): Point? {
+        val (x1, y1) = first
+        val (x2, y2) = second
+        val (x3, y3) = line.first
+        val (x4, y4) = line.second
+
+        check(abs(x2 - x1) == abs(y2 - y1) || x1 == x2 || y1 == y2) { "not a square line" }
+        check(abs(x4 - x3) == abs(y4 - y3) || x3 == x4 || y3 == y4) { "not a square line" }
+
+        fun det(a: Point, b: Point) = a.x.toLong() * b.y - a.y.toLong() * b.x
+        fun det(ax: Long, ay: Long, bx: Long, by: Long) = ax * by - ay * bx
+        val xdx = (x1 - x2).toLong()
+        val xdy = (x3 - x4).toLong()
+        val ydx = (y1 - y2).toLong()
+        val ydy = (y3 - y4).toLong()
+        val div = det(xdx, xdy, ydx, ydy)
+        if (div == 0L) return null
+
+        val dx = det(first, second)
+        val dy = det(line.first, line.second)
+        val x = det(dx, dy, xdx, xdy) / div
+        val y = det(dx, dy, ydx, ydy) / div
+        return Point(x.toInt(), y.toInt())
     }
 }
