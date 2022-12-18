@@ -33,10 +33,11 @@ private fun IntArray.cycle(): IntIterator = object : IntIterator() {
     var current = this@cycle.iterator()
     override fun hasNext() = true
     override fun nextInt(): Int {
-        if(!current.hasNext()) current = this@cycle.iterator()
+        if (!current.hasNext()) current = this@cycle.iterator()
         return current.nextInt()
     }
 }
+
 private fun IntIterator.onEach(block: (Int) -> Unit): IntIterator = object : IntIterator() {
     override fun hasNext() = this@onEach.hasNext()
     override fun nextInt() = this@onEach.nextInt().also(block)
@@ -90,7 +91,7 @@ object Day17 {
         val lastSeen = mutableMapOf<Pair<Int, Long>, Int>()
         var rocks = 0
         var chamber = ByteArray(0)
-        while(true) {
+        while (true) {
             for (form in RockForm.values()) {
                 chamber = chamber.simulateRockFall(gasMeter, form)
                 rocks++
@@ -132,7 +133,6 @@ object Day17 {
         chamber.merge(form, height)
         return chamber
     }
-
 
     private infix fun ByteArray.push(amount: Int) {
         when (amount) {
