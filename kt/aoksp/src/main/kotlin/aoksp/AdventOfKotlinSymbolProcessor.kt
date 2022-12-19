@@ -17,6 +17,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ExperimentalKotlinPoetApi
 import com.squareup.kotlinpoet.FileSpec
@@ -45,7 +46,7 @@ class AdventOfKotlinSymbolProcessorProvider : SymbolProcessorProvider {
 
 class AdventOfKotlinSymbolProcessor(
     private val logger: KSPLogger,
-    private val codeGenerator: CodeGenerator
+    private val codeGenerator: CodeGenerator,
 ) : SymbolProcessor {
     override fun process(resolver: Resolver) = with(logger) {
         resolver.resolveSolutions()
@@ -106,7 +107,7 @@ class AdventOfKotlinSymbolProcessor(
     @OptIn(ExperimentalKotlinPoetApi::class)
     private fun PuzKey.generateSolutionClass(
         part1: KSFunctionDeclaration?,
-        part2: KSFunctionDeclaration?
+        part2: KSFunctionDeclaration?,
     ) = objectBuilder("PuzYear${year}Day$day${variant.upperCamel}").apply {
         superclass(
             yearClassName(year).parameterizedBy(
@@ -126,13 +127,29 @@ class AdventOfKotlinSymbolProcessor(
                     .contextReceivers(PuzzleInput::class.asTypeName())
                     .addModifiers(KModifier.OVERRIDE)
 
-                if (target == null) {
-                    partImpl.addStatement("return TODO(%S)", "Not yet implemented")
-                } else when(val parent = target.parent) {
+                val targetMember = when (val parent = target?.parent) {
                     is KSClassDeclaration ->
-                        partImpl.addStatement("return %M()", parent.toClassName().member(target.simpleName.asString()))
+                        parent.toClassName().member(target.simpleName.asString())
+
                     is KSFile ->
-                        partImpl.addStatement("return %M()", MemberName(parent.packageName.asString(), target.simpleName.asString()))
+                        MemberName(parent.packageName.asString(), target.simpleName.asString())
+
+                    else -> null
+                }
+
+                if (target == null) {
+                    partImpl.addStatement("return TODO(%S)", "No implementation for $func")
+                } else if (targetMember == null) {
+                    partImpl.addStatement("return TODO(%S)", "Unable to call $target (unsupported parent)")
+                } else if (Modifier.SUSPEND in target.modifiers) {
+                    partImpl.addStatement(
+                        "return %M(%M) { %M() }",
+                        MemberName("kotlinx.coroutines", "runBlocking"),
+                        MemberName(ClassName("kotlinx.coroutines", "Dispatchers"), "Default"),
+                        targetMember
+                    )
+                } else {
+                    partImpl.addStatement("return %M()", targetMember)
                 }
 
                 partImpl.build()
@@ -144,5 +161,5 @@ class AdventOfKotlinSymbolProcessor(
 
 private fun <T, K> Iterable<T>.forEachGroup(
     key: (T) -> K,
-    block: (K, List<T>) -> Unit
+    block: (K, List<T>) -> Unit,
 ) = groupBy { key(it) }.forEach(block)

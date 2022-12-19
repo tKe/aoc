@@ -3,23 +3,21 @@ package year2022
 import aok.PuzzleInput
 import aoksp.AoKSolution
 import arrow.fx.coroutines.parMapUnordered
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.runBlocking
 import solveAll
 
-fun main() = solveAll { year == 2022 && day == 11 }
+fun main() = solveAll(warmupIterations = 1000) { year == 2022 && day == 11 }
 
 @AoKSolution
 object Day11Multithreaded {
     context(PuzzleInput)
-    fun part1(): Long {
+    suspend fun part1(): Long {
         val (items, monkeys) = parse()
         return monkeys.conductBusiness(items, 20) { it / 3 }
     }
 
     context(PuzzleInput)
-    fun part2(): Long {
+    suspend fun part2(): Long {
         val (items, monkeys) = parse()
         val factor = monkeys.fold(1) { f, m -> f * m.test }
         return monkeys.conductBusiness(items, 10_000) { it % factor }
@@ -73,11 +71,11 @@ object Day11Multithreaded {
         }
     }
 
-    private inline fun List<Monkey>.conductBusiness(
+    private suspend inline fun List<Monkey>.conductBusiness(
         items: List<List<Int>>,
         rounds: Int,
         crossinline mitigation: WorryOperation
-    ) = runBlocking(Dispatchers.Default) {
+    ): Long {
         val totals = IntArray(size)
 
         items
@@ -93,6 +91,6 @@ object Day11Multithreaded {
                 }
             }
 
-        totals.sortedDescending().let { (a, b) -> a.toLong() * b }
+        return totals.sortedDescending().let { (a, b) -> a.toLong() * b }
     }
 }
