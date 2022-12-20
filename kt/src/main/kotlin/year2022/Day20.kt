@@ -5,12 +5,13 @@ import aok.PuzzleInput
 import aoksp.AoKSolution
 import queryPuzzles
 import solveAll
-import kotlin.math.absoluteValue
+import warmup
+import warmupEach
+import kotlin.time.Duration.Companion.seconds
 
 fun main(): Unit = with(InputScopeProvider) {
-    queryPuzzles { year == 2022 && day == 20 }.solveAll(
-        warmupIterations = 25, runIterations = 1
-    )
+    queryPuzzles { year == 2022 && day == 20 }.warmupEach(10.seconds)
+        .solveAll(runIterations = 3)
 }
 
 @AoKSolution
@@ -60,7 +61,7 @@ object Day20 {
         return zero
     }
 
-    class Node(val value: Int) {
+    private class Node(val value: Int) {
         lateinit var left: Node
         lateinit var right: Node
     }
@@ -82,5 +83,40 @@ object Day20 {
         right = dest.right
         left.right = this
         right.left = this
+    }
+}
+
+@AoKSolution
+object Day20Array {
+    context(PuzzleInput)
+    fun part1() = parse().decryptCoordinates()
+
+    context(PuzzleInput)
+    fun part2() = parse().decryptCoordinates(811589153, 10)
+
+    context(PuzzleInput)
+    private fun parse() = lines.map(String::toInt).toIntArray()
+
+    private fun IntArray.decryptCoordinates(decryptionKey: Long = 1, rounds: Int = 1): Long {
+        val index = mix(decryptionKey, rounds)
+        val ofs = index.indexOf(indexOfFirst { it == 0 })
+        return decryptionKey * (get(index[(ofs + 1000) % index.size])
+                + get(index[(ofs + 2000) % index.size])
+                + get(index[(ofs + 3000) % index.size]))
+    }
+
+    private fun IntArray.mix(decryptionKey: Long, rounds: Int): IntArray {
+        val modKey = decryptionKey.mod(lastIndex)
+        val index = IntArray(size) { it }
+        repeat(rounds) {
+            for ((idx, v) in this.withIndex()) {
+                val from = index.indexOf(idx)
+                val to = (from + modKey * v.mod(lastIndex)).mod(lastIndex)
+                if (from < to) index.copyInto(index, from, from + 1, to + 1)
+                else if (from > to) index.copyInto(index, to + 1, to, from)
+                index[to] = idx
+            }
+        }
+        return index
     }
 }
