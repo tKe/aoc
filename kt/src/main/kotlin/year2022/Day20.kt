@@ -16,9 +16,9 @@ fun main(): Unit = with(InputScopeProvider) {
 object Day20 {
     context(PuzzleInput)
     private fun parse() = lines.map(String::toInt).let { ints ->
-        val end = Node(null, ints.last())
-        val head = ints.reversed().drop(1).fold(end) { tail, v ->
-            Node(tail, v).also { it ->
+        val end = Node(ints.last())
+        ints.asReversed().drop(1).fold(end) { tail, v ->
+            Node(v, tail).also {
                 it.right = tail
                 tail.left = it
             }
@@ -26,10 +26,9 @@ object Day20 {
             it.left = end
             end.right = it
         }
-        generateSequence(head, Node::next)
     }
 
-    class Node(val next: Node? = null, val value: Int) {
+    class Node(val value: Int, val next: Node? = null) {
         lateinit var left: Node
         lateinit var right: Node
     }
@@ -40,21 +39,20 @@ object Day20 {
     context(PuzzleInput)
     fun part2() = parse().decryptCoordinates(811589153, 10)
 
-    private fun Sequence<Node>.decryptCoordinates(decryptionKey: Long = 1, rounds: Int = 1): Long {
+    private fun Node.decryptCoordinates(decryptionKey: Long = 1, rounds: Int = 1): Long {
         val zero = mix(decryptionKey, rounds)
         return generateSequence(zero, Node::right).map(Node::value)
             .filterIndexed { index, _ -> index % 1000 == 0 }
             .drop(1).take(3).sum() * decryptionKey
     }
 
-    private fun Sequence<Node>.mix(decryptionKey: Long = 1, rounds: Int = 1): Node {
+    private fun Node.mix(decryptionKey: Long = 1, rounds: Int = 1): Node {
         lateinit var zero: Node
-        val n = count() - 1 // node is removed during mod
-        val first = first()
+        val n = generateSequence(this, Node::next).count() - 1 // node is removed during mod
         val keyMod = decryptionKey.mod(n)
         // ab mod n == (a mod n)(b mod n) mod n
         repeat(rounds) {
-            var cur = first
+            var cur = this
             while (true) {
                 if (cur.value == 0) {
                     zero = cur
