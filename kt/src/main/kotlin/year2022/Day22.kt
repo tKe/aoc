@@ -9,7 +9,7 @@ import queryPuzzles
 import solveAll
 import year2022.Day22.Direction.*
 
-fun main(): Unit = with(InputScopeProvider.Example) {
+fun main(): Unit = with(InputScopeProvider) {
     queryPuzzles { year == 2022 && day == 22 }
 //        .warmupEach(5.seconds)
         .solveAll(runIterations = 1)
@@ -53,7 +53,7 @@ object Day22 {
         val gridLines = grid.lines()
         val cols = gridLines.maxOf(String::length)
 
-        val fieldSize = gridLines.flatMap { it.asIterable().contiguousCounts { it != ' ' } }
+        val fieldSize = gridLines.flatMap { line -> line.asIterable().contiguousCounts { it != ' ' } }
             .plus((0..<cols).flatMap { c -> gridLines.contiguousCounts { c in it.indices && it[c] != ' ' } })
             .min()
 
@@ -196,14 +196,43 @@ object Day22 {
         }
 
         object Cubic : LayoutInterpreter {
-            // todo: generate links based on cube net. eta: never.
-            private val netLinks: Map<String, String> = mapOf(
-                "--0-:123-:--45" to "0DU3;0LU2;0RR5;0UU1;1DD4;1LD5;1RL2;2DL4;2RL3;3DU4;3RU5;4RL5", // example
-                "-01:-2-:34-:5--" to "0DU2;0LL3;0RL1;0UL5;1DR2;1RR4;1UD5;2DU4;2LU3;3DU5;3RL4;4DR5", // input
-            )
+            override fun interpretLinks(layout: List<String>) = buildList {
+                data class Edge(val field: Int, val side: Direction)
+                val edges = (0..5).flatMap { listOf(Up, Down, Left, Right).map { d -> Edge(it, d) } }.toMutableSet()
 
-            override fun interpretLinks(layout: List<String>) =
-                FieldLink.of(netLinks[layout.joinToString(":")] ?: error("no links defined for '$layout'"))
+                infix fun Edge.linksTo(other: Edge) {
+                    check(this in edges && other in edges) { "edges already linked!" }
+                    add(FieldLink(field, side, other.side, other.field))
+                    edges -= setOf(this, other)
+                }
+
+                // link layout rows
+                layout.forEach { row ->
+                    row.mapNotNull { it.digitToIntOrNull() }
+                        .zipWithNext { a, b -> Edge(a, Right) linksTo Edge(b, Left) }
+                }
+                // link layout columns
+                layout.first().indices.forEach { i ->
+                    layout.mapNotNull { it[i].digitToIntOrNull() }
+                        .zipWithNext { a, b -> Edge(a, Down) linksTo Edge(b, Up) }
+                }
+
+                fun List<FieldLink>.traverse(field: Int, edge: Direction) =
+                    firstOrNull { it.fieldA == field && it.edgeA == edge }?.let { it.fieldB to it.edgeB }
+                        ?: firstOrNull { it.fieldB == field && it.edgeB == edge }?.let { it.fieldA to it.edgeA }
+
+                fun Edge.findPair(turn: (Direction) -> Direction) =
+                    traverse(field, turn(side))
+                        ?.let { (midField, midEdge) -> traverse(midField, turn(midEdge)) }
+                        ?.let { (targetField, targetEdge) -> Edge(targetField, turn(targetEdge)) }
+
+                fun Edge.findPair() = (findPair { it.turnLeft() } ?: findPair { it.turnRight() })?.to(this)
+
+                while (edges.isNotEmpty()) {
+                    edges.firstNotNullOf(Edge::findPair)
+                        .let { (a, b) -> a linksTo b }
+                }
+            }
         }
     }
 
