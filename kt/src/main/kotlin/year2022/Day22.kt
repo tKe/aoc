@@ -53,8 +53,8 @@ object Day22 {
         val gridLines = grid.lines()
         val cols = gridLines.maxOf(String::length)
 
-        val fieldSize = gridLines.flatMap { line -> line.asIterable().contiguousCounts { it != ' ' } }
-            .plus((0..<cols).flatMap { c -> gridLines.contiguousCounts { c in it.indices && it[c] != ' ' } })
+        val fieldSize = gridLines.map { line -> line.asIterable().contiguousCounts { it != ' ' }.single() }
+            .plus((0..<cols).map { c -> gridLines.contiguousCounts { c in it.indices && it[c] != ' ' }.single() })
             .min()
 
         val walls = buildList {
@@ -198,12 +198,13 @@ object Day22 {
         object Cubic : LayoutInterpreter {
             override fun interpretLinks(layout: List<String>) = buildList {
                 data class Edge(val field: Int, val side: Direction)
-                val edges = (0..5).flatMap { listOf(Up, Down, Left, Right).map { d -> Edge(it, d) } }.toMutableSet()
+                val pending = (0..5).flatMap { listOf(Up, Down, Left, Right)
+                    .map { d -> Edge(it, d) } }.toMutableSet()
 
                 infix fun Edge.linksTo(other: Edge) {
-                    check(this in edges && other in edges) { "edges already linked!" }
+                    check(this in pending && other in pending) { "edges already linked!" }
                     add(FieldLink(field, side, other.side, other.field))
-                    edges -= setOf(this, other)
+                    pending -= setOf(this, other)
                 }
 
                 // link layout rows
@@ -228,29 +229,15 @@ object Day22 {
 
                 fun Edge.findPair() = (findPair { it.turnLeft() } ?: findPair { it.turnRight() })?.to(this)
 
-                while (edges.isNotEmpty()) {
-                    edges.firstNotNullOf(Edge::findPair)
+                while (pending.isNotEmpty()) {
+                    pending.firstNotNullOf(Edge::findPair)
                         .let { (a, b) -> a linksTo b }
                 }
             }
         }
     }
 
-    private data class FieldLink(val fieldA: Int, val edgeA: Direction, val edgeB: Direction, val fieldB: Int) {
-        companion object {
-            private fun Char.toDirection() = when (uppercaseChar()) {
-                'U' -> Up
-                'D' -> Down
-                'L' -> Left
-                'R' -> Right
-                else -> error("unknown direction $this")
-            }
-
-            fun of(linksString: String) = linksString.split(';').map {
-                FieldLink(it[0].digitToInt(), it[1].toDirection(), it[2].toDirection(), it[3].digitToInt())
-            }
-        }
-    }
+    private data class FieldLink(val fieldA: Int, val edgeA: Direction, val edgeB: Direction, val fieldB: Int)
 
     private fun <T> Iterable<T>.contiguousCounts(predicate: (T) -> Boolean) = sequence {
         var c = 0
