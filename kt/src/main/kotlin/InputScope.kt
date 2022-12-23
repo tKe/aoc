@@ -18,27 +18,19 @@ private val searchPaths by lazy {
 }
 
 fun interface InputScopeProvider {
-    fun forPuzzle(year: Int, day: Int, file: String): InputScope
+    fun forPuzzle(year: Int, day: Int): PuzzleInput
 
     companion object : InputScopeProvider {
-        val Example = mapping("input.txt" to "example.txt")
-        override fun forPuzzle(year: Int, day: Int, name: String): InputScope =
-            InputScope.of(resolveInputFile(year, day, name).readText())
+        val Example = InputScopeProvider { year, day ->
+            PuzzleInput.of(resolveInputFile(year, day, "example.txt").readText())
+        }
+        override fun forPuzzle(year: Int, day: Int): PuzzleInput =
+            PuzzleInput.of(resolveInputFile(year, day, "input.txt").readText())
 
         private fun resolveInputFile(year: Int, day: Int, name: String): Path {
             val path = "year-%d/day-%02d/%s".format(year, day, name)
             return searchPaths.firstNotNullOfOrNull { it.resolve(path).takeIf(Files::isReadable) }
                 ?: error("No input $name for $year-$day in any of $searchPaths")
         }
-
-        @Deprecated("just use an appropriate InputScope")
-        fun mapping(vararg pairs: Pair<String, String>) =
-            if (pairs.isEmpty()) InputScopeProvider
-            else {
-                val map = pairs.toMap()
-                InputScopeProvider { year, day, name ->
-                    forPuzzle(year, day, map[name] ?: name)
-                }
-            }
     }
 }

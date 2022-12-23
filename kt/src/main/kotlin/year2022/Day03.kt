@@ -1,13 +1,16 @@
 package year2022
 
+import PuzDSL
 import PuzzleDefinition
+import aoksp.AoKSolution
 import solveAll
 
-fun main() = repeat(1) { solveAll<Day03DSL>(runIterations = 1) }
-sealed class Day03DSL(variant: String? = null, body: PuzzleDefinition<Int, Int>) : Puz22DSL<Int, Int>(3, variant, body)
+fun main() = solveAll(day = 3)
 
 fun Char.toPriority() = this - if (this >= 'a') 'a' - 1 else 'A' - 27
-object Day03Sets : Day03DSL(body = {
+
+@AoKSolution
+object Day03Sets : PuzDSL({
     part1 {
         lines.map { it.chunked(it.length / 2, CharSequence::toSet) }
             .sumOf { (a, b) -> a.single(b::contains).toPriority() }
@@ -20,7 +23,8 @@ object Day03Sets : Day03DSL(body = {
     }
 })
 
-object Day03Strings : Day03DSL(body = {
+@AoKSolution
+object Day03Strings : PuzDSL({
     fun String.splitAt(idx: Int) = substring(0, idx) to substring(idx)
 
     part1 {
@@ -37,7 +41,8 @@ object Day03Strings : Day03DSL(body = {
     }
 })
 
-object Day03Bitset : Day03DSL(body = {
+@AoKSolution
+object Day03Bitset : PuzDSL({
     fun String.toBitset() = fold(0L) { v, c -> v or (1L shl c.toPriority()) }
 
     part1 {

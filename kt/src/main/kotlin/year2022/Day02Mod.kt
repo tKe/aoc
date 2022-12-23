@@ -1,6 +1,7 @@
 package year2022
 
 import InputScope
+import aoksp.AoKSolution
 import solveAll
 
 private fun scorePart1(ca: Char, cx: Char): Int {
@@ -15,12 +16,13 @@ private fun scorePart2(ca: Char, cx: Char): Int {
     return 1 + (a + x + 2) % 3 + 3 * x
 }
 
-object Day02Mod : Day02Puz() {
+@AoKSolution
+object Day02Mod {
     private inline fun List<String>.process(score: (theirs: Char, Char) -> Int) =
         sumOf { if (it.isNotBlank()) score(it[0], it[2]) else 0 }
 
-    context(InputScope) override fun part1() = lines.process(::scorePart1)
-    context(InputScope) override fun part2() = lines.process(::scorePart2)
+    context(InputScope) fun part1() = lines.process(::scorePart1)
+    context(InputScope) fun part2() = lines.process(::scorePart2)
 }
 
-fun main(): Unit = solveAll<Day02Mod>()
+fun main(): Unit = solveAll(day = 2)

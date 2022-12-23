@@ -1,24 +1,22 @@
 package year2022
 
 import InputScope
-import PuzzleDefinition
+import PuzDSL
+import aoksp.AoKSolution
 import solveAll
 import year2022.Day10NoSeq.cpu
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-import kotlin.system.exitProcess
 
-fun main() = solveAll<Day10DSL>(
+fun main() = queryDay(10).solveAll(
 //    "input.txt" to "example.txt",
     warmupIterations = 15_000,
     runIterations = 5
 )
 
-sealed class Day10DSL(body: PuzzleDefinition<Int, String>, variant: String? = null) :
-    Puz22DSL<Int, String>(10, variant, body)
-
-object Day10InitialAttempt : Day10DSL({
+@AoKSolution
+object Day10InitialAttempt : PuzDSL({
     fun InputScope.cpu() = sequence {
         var x = 1
         var cycle = 1
@@ -51,9 +49,11 @@ object Day10InitialAttempt : Day10DSL({
     }
 })
 
-object Day10NoCycle : Day10DSL({
+@AoKSolution
+object Day10NoCycle : PuzDSL({
     fun String.toIntAt(offset: Int = 0, radix: Int = 10) =
         Integer.parseInt(this, offset, length, radix)
+
     fun InputScope.cpu() = sequence {
         var x = 1
         for (line in lines) {
@@ -62,7 +62,7 @@ object Day10NoCycle : Day10DSL({
                 else -> {
                     yield(x)
                     yield(x)
-                    x += line.toIntAt( "addx ".length)
+                    x += line.toIntAt("addx ".length)
                 }
             }
         }
@@ -86,7 +86,8 @@ object Day10NoCycle : Day10DSL({
     }
 })
 
-object Day10NoSeq : Day10DSL({
+@AoKSolution
+object Day10NoSeq : PuzDSL({
 
     part1 {
         var sum = 0
@@ -106,10 +107,11 @@ object Day10NoSeq : Day10DSL({
         }
     }
 }) {
-    fun String.toIntAt(offset: Int = 0, radix: Int = 10) =
+    private fun String.toIntAt(offset: Int = 0, radix: Int = 10) =
         Integer.parseInt(this, offset, length, radix)
+
     @OptIn(ExperimentalContracts::class)
-    inline fun InputScope.cpu(process: (Int, Int) -> Unit) {
+    private inline fun InputScope.cpu(process: (Int, Int) -> Unit) {
         contract {
             callsInPlace(process, InvocationKind.AT_LEAST_ONCE)
         }

@@ -1,7 +1,6 @@
+import aok.Puz
+import aok.PuzKey
 import aok.PuzzleInput
-import kotlinx.coroutines.withTimeout
-import year2022.Day07JimFS
-import year2022.Puz22
 import year2022.AoKYear2022
 import kotlin.reflect.KClass
 import kotlin.time.Duration
@@ -10,29 +9,8 @@ import kotlin.time.TimedValue
 import kotlin.time.measureTime
 import kotlin.time.measureTimedValue
 
-typealias PuzKey = aok.PuzKey
-typealias Puz<A, B> = aok.Puz<A, B>
-
 // manually register sealed roots here (can't cross package boundaries)
-private val years = listOf(Puz22::class, AoKYear2022::class)
-
-abstract class PuzYear<P1, P2>(final override val year: Int, final override val day: Int, variant: String?) :
-    Puz<P1, P2> {
-    final override val variant: String = variant ?: defaultVariant
-}
-
-abstract class PuzYearDSL<P1, P2>(year: Int, day: Int, variant: String? = null, def: PuzzleDefinition<P1, P2>) :
-    PuzYear<P1, P2>(year, day, variant) {
-    private val solutions by def
-    context(InputScope) override fun part1(): P1 = solutions.first()
-    context(InputScope) override fun part2(): P2 = solutions.second()
-}
-
-private val Puz<*, *>.defaultVariant
-    get() = this::class.simpleName
-        ?.removePrefix("Day%02d".format(day))
-        ?.takeUnless(String::isBlank)
-        ?: "Default"
+private val years: List<KClass<out Puz<*, *>>> = listOf(AoKYear2022::class)
 
 sealed interface Warmup {
     context(PuzzleInput)
@@ -40,15 +18,17 @@ sealed interface Warmup {
 
     class Iterations(val warmupIterations: Int) : Warmup {
         context(PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) {
-            println("Warming up ${puzzles.size} puzzles $warmupIterations times for year $year day $day...")
-            measureTime {
-                repeat(warmupIterations) {
-                    puzzles.forEach {
-                        runCatching { it.part1() }
-                        runCatching { it.part2() }
+            if (warmupIterations > 0) {
+                println("Warming up ${puzzles.size} puzzles $warmupIterations times for year $year day $day...")
+                measureTime {
+                    repeat(warmupIterations) {
+                        puzzles.forEach {
+                            runCatching { it.part1() }
+                            runCatching { it.part2() }
+                        }
                     }
-                }
-            }.also { println("year $year day $day warmup ($warmupIterations iterations) took $it") }
+                }.also { println("year $year day $day warmup ($warmupIterations iterations) took $it") }
+            }
         }
     }
 
@@ -105,7 +85,7 @@ inline fun <reified T : Puz<*, *>> solveAll(
 context(InputScopeProvider)
 fun Iterable<Puz<*, *>>.warmup(warmup: Warmup) = apply {
     groupBy { it.year to it.day }.forEach { (year, day), puzzles ->
-        with(forPuzzle(year, day, "input.txt")) {
+        with(forPuzzle(year, day)) {
             warmup.run(year, day, puzzles)
         }
     }
@@ -121,12 +101,13 @@ context(InputScopeProvider)
 fun Iterable<Puz<*, *>>.warmupEach(duration: Duration) = warmup(Warmup.DurationPerSolution(duration))
 
 context(InputScopeProvider)
-fun Iterable<Puz<*, *>>.solveAll(warmupIterations: Int, runIterations: Int = 1) = warmup(warmupIterations).solveAll(runIterations)
+fun Iterable<Puz<*, *>>.solveAll(warmupIterations: Int, runIterations: Int = 1) =
+    warmup(warmupIterations).solveAll(runIterations)
 
 context(InputScopeProvider)
 fun Iterable<Puz<*, *>>.solveAll(runIterations: Int = 1) =
     groupBy { it.year to it.day }.forEach { (year, day), puzzles ->
-        with(forPuzzle(year, day, "input.txt")) {
+        with(forPuzzle(year, day)) {
             fun runPart(part: Puz<*, *>.() -> Any?) {
                 val results = puzzles.map { puz ->
                     puz.variant to runCatching {
@@ -158,7 +139,9 @@ fun Iterable<Puz<*, *>>.solveAll(runIterations: Int = 1) =
         println()
     }
 
-fun main() = solveAll(warmupIterations = 500, runIterations = 3) { this != Day07JimFS }
+fun main(): Unit = queryPuzzles().solveAll()
 fun queryPuzzles(predicate: PuzKey.() -> Boolean = { true }) = years.flatMap(::sealedObjects).filter(predicate)
+    .sortedWith(compareBy(PuzKey::year, PuzKey::day, PuzKey::variant))
+
 inline fun <reified T : Puz<P1, P2>, P1, P2> getAll() = getAll(T::class)
 fun <T : Puz<P1, P2>, P1, P2> getAll(vararg kClasses: KClass<out T>) = kClasses.flatMap(::sealedObjects)

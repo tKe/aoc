@@ -1,3 +1,5 @@
+import aok.PuzzleInput
+import aoksp.AoKSolution
 import kotlin.reflect.KProperty
 
 
@@ -19,7 +21,7 @@ fun interface PuzzleDefinition<P1, P2> {
 
 @SolutionDsl
 fun interface Solution<T> {
-    fun InputScope.solve(): T
+    fun PuzzleInput.solve(): T
 }
 
 fun <P1, P2> PuzzleDefinition<P1, P2>.toSolutions() =
@@ -40,5 +42,15 @@ fun <P1, P2> PuzzleDefinition<P1, P2>.toSolutions() =
 
 operator fun <P1, P2> PuzzleDefinition<P1, P2>.provideDelegate(thisRef: Any, property: KProperty<*>) = lazy { toSolutions() }
 
-context(InputScope)
+context(PuzzleInput)
 operator fun <T> Solution<T>.invoke(): T = with(this) { solve() }
+
+abstract class PuzDSL(body: PuzzleDefinition<*, *>) {
+    private val solutions = body.toSolutions()
+
+    context(PuzzleInput)
+    fun part1() = solutions.first()
+
+    context(PuzzleInput)
+    fun part2() = solutions.second()
+}

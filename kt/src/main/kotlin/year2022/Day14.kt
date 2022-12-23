@@ -5,7 +5,7 @@ import aok.PuzzleInput
 import aoksp.AoKSolution
 import queryPuzzles
 import solveAll
-import java.util.*
+import java.util.BitSet
 import kotlin.collections.ArrayDeque
 
 fun main(): Unit = with(InputScopeProvider) {

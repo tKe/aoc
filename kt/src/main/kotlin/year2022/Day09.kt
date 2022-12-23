@@ -3,17 +3,15 @@
 package year2022
 
 import InputScope
-import PuzzleDefinition
-import solveAll
-import java.util.*
+import PuzDSL
+import aoksp.AoKSolution
+import java.util.BitSet
 import kotlin.math.sign
 
-fun main() = solveAll<Day09DSL>()
+fun main() = solveAll(day = 9)
 
-sealed class Day09DSL(body: PuzzleDefinition<Int, Int>, variant: String? = null) :
-    Puz22DSL<Int, Int>(9, variant, body)
-
-object Day09ImmutableRope : Day09DSL({
+@AoKSolution
+object Day09ImmutableRope : PuzDSL({
     data class Point(val x: Int = 0, val y: Int = 0) {
         operator fun minus(other: Point) = Point(x - other.x, y - other.y)
         operator fun plus(other: Point) = Point(x + other.x, y + other.y)
@@ -60,7 +58,8 @@ object Day09ImmutableRope : Day09DSL({
     part2 { solve(10) }
 })
 
-object Day09Arrays : Day09DSL({
+@AoKSolution
+object Day09Arrays : PuzDSL({
     fun Int.zigZag() = shr(15) xor shl(1)
     infix fun Int.pairing(other: Int) = other + (plus(other) * plus(other+1) shr 1)
 
@@ -98,11 +97,13 @@ object Day09Arrays : Day09DSL({
         }
         return visited.cardinality()
     }
+
     part1 { solve(2) }
     part2 { solve(10) }
 })
 
-object Day09Sequences : Day09DSL({
+@AoKSolution
+object Day09Sequences : PuzDSL({
     fun InputScope.headSeq() = sequence {
         var x = 0
         var y = 0
@@ -135,7 +136,7 @@ object Day09Sequences : Day09DSL({
 
     fun InputScope.solve(ropeSize: Int) =
         (1..<ropeSize).fold(headSeq()) { it, _ -> it.follow() }
-            .count(HashSet<Any>(lines.size)::add) + 1 // remember the start
+            .distinct().count() + 1 // remember the start
 
     part1 { solve(2) }
     part2 { solve(10) }

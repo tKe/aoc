@@ -1,26 +1,23 @@
 package year2022
 
-import InputScope
-import Puz
-import PuzzleDefinition
+import PuzDSL
+import aok.PuzzleInput
+import aoksp.AoKSolution
 import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
-import solveAll
 
-sealed interface Day01Puz : Puz<Int, Int>
-sealed class Day01Base(variant: String? = null) : Day01Puz, Puz22Base<Int, Int>(1, variant)
-sealed class Day01DSL(variant: String? = null, def: PuzzleDefinition<Int, Int>): Day01Puz, Puz22DSL<Int, Int>(1, variant, def)
-
-object Day01 : Day01Base() {
-    private fun InputScope.elves() = input.splitToSequence("(?:\r?\n){2}".toRegex())
+@AoKSolution
+object Day01 {
+    private fun PuzzleInput.elves() = input.splitToSequence("(?:\r?\n){2}".toRegex())
         .map { it.lines().mapNotNull(String::toIntOrNull).sum() }
 
-    context(InputScope) override fun part1() = elves().max()
-    context(InputScope) override fun part2() = elves().sortedDescending().take(3).sum()
+    context(PuzzleInput) fun part1() = elves().max()
+    context(PuzzleInput) fun part2() = elves().sortedDescending().take(3).sum()
 }
 
-object Day01Nel : Day01DSL("NonEmptyList", {
-    fun InputScope.nelElves() = lines.map(String::toIntOrNull).fold(nonEmptyListOf(0)) { acc, i ->
+@AoKSolution(variant = "NonEmptyList")
+object Day01Nel : PuzDSL({
+    fun PuzzleInput.nelElves() = lines.map(String::toIntOrNull).fold(nonEmptyListOf(0)) { acc, i ->
         if (i == null) NonEmptyList(0, acc)
         else NonEmptyList(acc.head + i, acc.tail)
     }
@@ -28,8 +25,9 @@ object Day01Nel : Day01DSL("NonEmptyList", {
     part2 { nelElves().sortedDescending().take(3).sum() }
 })
 
-object Day01SummedRuns : Day01DSL("SummedRuns", {
-    fun InputScope.summedRuns() = buildList {
+@AoKSolution
+object Day01SummedRuns : PuzDSL({
+    fun PuzzleInput.summedRuns() = buildList {
         var sum = 0
         lines.map(String::toIntOrNull).forEach {
             if (it == null) add(sum)
@@ -41,7 +39,8 @@ object Day01SummedRuns : Day01DSL("SummedRuns", {
     part2 { summedRuns().sorted().takeLast(3).sum() }
 })
 
-object Day01TopN : Day01DSL("Top N Elves", {
+@AoKSolution
+object Day01TopN : PuzDSL({
     fun List<String>.topElves(n: Int): Int {
         require(n > 0) { "n must be positive, was $n" }
         val top = IntArray(n)
@@ -52,6 +51,7 @@ object Day01TopN : Day01DSL("Top N Elves", {
                 this[idx] = acc
             }
         }
+
         var acc = 0
         for (line in this) {
             when (val value = line.toIntOrNull()) {
@@ -59,6 +59,7 @@ object Day01TopN : Day01DSL("Top N Elves", {
                     top += acc
                     acc = 0
                 }
+
                 else -> acc += value
             }
         }
@@ -69,4 +70,4 @@ object Day01TopN : Day01DSL("Top N Elves", {
     part2 { lines.topElves(3) }
 })
 
-fun main() = solveAll<Day01Puz>()
+fun main() = solveAll(day = 1)

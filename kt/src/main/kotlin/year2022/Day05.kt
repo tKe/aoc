@@ -1,15 +1,15 @@
 package year2022
 
 import InputScope
+import PuzDSL
 import PuzzleDefinition
+import aoksp.AoKSolution
 import solveAll
 
-fun main() = solveAll<Day05DSL>(runIterations = 1_000)
+fun main() = queryDay(day = 5).solveAll(runIterations = 1_000)
 
-sealed class Day05DSL(body: PuzzleDefinition<String, String>, variant: String? = null) :
-    Puz22DSL<String, String>(5, variant, body)
-
-object Day05 : Day05DSL({
+@AoKSolution
+object Day05 : PuzDSL({
     data class Instruction(val move: Int, val from: Int, val to: Int)
 
     fun InputScope.parse(): Pair<Map<Int, ArrayDeque<Char>>, List<Instruction>> {
@@ -60,7 +60,8 @@ object Day05 : Day05DSL({
     }
 })
 
-object Day05Strings : Day05DSL({
+@AoKSolution
+object Day05Strings : PuzDSL({
 
     fun List<String>.parseStacks(): List<String> =
         (1..last().length step 4).map { stack ->

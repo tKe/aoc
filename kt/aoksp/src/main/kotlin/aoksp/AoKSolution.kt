@@ -3,7 +3,6 @@ package aoksp
 import aok.PuzKey
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAnnotationsByType
-import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -46,7 +45,7 @@ internal fun Resolver.resolveSolutions() =
             when (annotated) {
                 is KSClassDeclaration -> {
                     val deets = annotated.resolveSolutionDetails()
-                    val funcs = annotated.getDeclaredFunctions().associateBy { it.resolvePart() }
+                    val funcs = annotated.getAllFunctions().associateBy { it.resolvePart() }
                     listOfNotNull(funcs[1], funcs[2]).map { deets to it }
                 }
 

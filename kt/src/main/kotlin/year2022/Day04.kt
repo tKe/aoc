@@ -1,13 +1,12 @@
 package year2022
 
-import PuzzleDefinition
-import solveAll
+import PuzDSL
+import aoksp.AoKSolution
 
-fun main() = solveAll<Day04DSL>()
-sealed class Day04DSL(variant: String? = null, body: PuzzleDefinition<Int, Int>) : Puz22DSL<Int, Int>(4, variant, body)
+fun main() = solveAll(day = 4)
 
-
-object Day04 : Day04DSL(body = {
+@AoKSolution
+object Day04 : PuzDSL({
     infix fun IntRange.overlaps(other: IntRange) =
         first <= other.last && other.first <= last
 
@@ -28,7 +27,8 @@ object Day04 : Day04DSL(body = {
     }
 })
 
-object Day04Inequalities : Day04DSL(body = {
+@AoKSolution
+object Day04Inequalities : PuzDSL({
     fun List<String>.count(predicate: (a: Int, b: Int, c: Int, d: Int) -> Boolean) = count { it: String ->
         val (a, b, c, d) = it.split('-', ',')
         predicate(a.toInt(), b.toInt(), c.toInt(), d.toInt())

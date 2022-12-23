@@ -3,15 +3,80 @@
 package year2022
 
 import InputScope
+import PuzDSL
 import PuzzleDefinition
+import aoksp.AoKSolution
 import solveAll
 
-fun main() = solveAll<Day08String>()
+fun main() = solveAll(day = 8)
 
-sealed class Day08DSL(body: PuzzleDefinition<Int, Int>, variant: String? = null) :
-    Puz22DSL<Int, Int>(8, variant, body)
+@AoKSolution
+object Day08 : PuzDSL({
+    class IntGrid(val data: IntArray, val stride: Int) : Iterable<Triple<Int, Int, Int>> {
+        init {
+            require(data.size % stride == 0) {
+                "invalid stride $stride for array of size ${data.size}"
+            }
+        }
 
-object Day08String : Day08DSL({
+        val rows = 0..<data.size / stride
+        val cols = 0..<stride
+        operator fun get(x: Int, y: Int) = data[x + y * stride]
+        operator fun set(x: Int, y: Int, v: Int) {
+            data[x + y * stride] = v
+        }
+
+        override fun iterator(): Iterator<Triple<Int, Int, Int>> = iterator {
+            for ((idx, v) in data.withIndex()) yield(Triple(idx % stride, idx / stride, v))
+        }
+    }
+
+    fun InputScope.readGrid() = IntGrid(
+        data = input.mapNotNull(Char::digitToIntOrNull).toIntArray(),
+        stride = input.indexOf('\n')
+    )
+
+    fun IntGrid.viewsFrom(x: Int, y: Int) = sequenceOf(
+        sequence { for (it in (x - 1) downTo 0) yield(get(it, y)) },
+        sequence { for (it in (x + 1)..cols.last) yield(get(it, y)) },
+        sequence { for (it in (y - 1) downTo 0) yield(get(x, it)) },
+        sequence { for (it in (y + 1)..rows.last) yield(get(x, it)) },
+    )
+
+    fun IntGrid.isEdge(x: Int, y: Int) =
+        x == 0 || y == 0 || x == cols.last || y == rows.last
+
+    part1 {
+        fun IntGrid.isVisible(x: Int, y: Int) =
+            isEdge(x, y) || get(x, y).let { height ->
+                viewsFrom(x, y).any { view -> view.all { it < height } }
+            }
+
+        with(readGrid()) {
+            count { (x, y) -> isVisible(x, y) }
+        }
+    }
+
+    part2 {
+        fun IntGrid.scenicScore(x: Int, y: Int) =
+            if (isEdge(x, y)) 0
+            else get(x, y).let { height ->
+                viewsFrom(x, y).fold(1) { acc, view ->
+                    var score = 0
+                    for (tree in view) {
+                        score += acc
+                        if (tree >= height) break
+                    }
+                    score
+                }
+            }
+
+        with(readGrid()) { maxOf { (x, y) -> scenicScore(x, y) } }
+    }
+})
+
+@AoKSolution
+object Day08String : PuzDSL({
     part1 {
         val stride = input.indexOf('\n') + 1
         IntArray(input.length).also { marks ->
@@ -90,67 +155,3 @@ private fun String.countBackUntil(
     }
     return count
 }
-
-object Day08 : Day08DSL({
-    class IntGrid(val data: IntArray, val stride: Int) : Iterable<Triple<Int, Int, Int>> {
-        init {
-            require(data.size % stride == 0) {
-                "invalid stride $stride for array of size ${data.size}"
-            }
-        }
-
-        val rows = 0..<data.size / stride
-        val cols = 0..<stride
-        operator fun get(x: Int, y: Int) = data[x + y * stride]
-        operator fun set(x: Int, y: Int, v: Int) {
-            data[x + y * stride] = v
-        }
-
-        override fun iterator(): Iterator<Triple<Int, Int, Int>> = iterator {
-            for ((idx, v) in data.withIndex()) yield(Triple(idx % stride, idx / stride, v))
-        }
-    }
-
-    fun InputScope.readGrid() = IntGrid(
-        data = input.mapNotNull(Char::digitToIntOrNull).toIntArray(),
-        stride = input.indexOf('\n')
-    )
-
-    fun IntGrid.viewsFrom(x: Int, y: Int) = sequenceOf(
-        sequence { for (it in (x - 1) downTo 0) yield(get(it, y)) },
-        sequence { for (it in (x + 1)..cols.last) yield(get(it, y)) },
-        sequence { for (it in (y - 1) downTo 0) yield(get(x, it)) },
-        sequence { for (it in (y + 1)..rows.last) yield(get(x, it)) },
-    )
-
-    fun IntGrid.isEdge(x: Int, y: Int) =
-        x == 0 || y == 0 || x == cols.last || y == rows.last
-
-    part1 {
-        fun IntGrid.isVisible(x: Int, y: Int) =
-            isEdge(x, y) || get(x, y).let { height ->
-                viewsFrom(x, y).any { view -> view.all { it < height } }
-            }
-
-        with(readGrid()) {
-            count { (x, y) -> isVisible(x, y) }
-        }
-    }
-
-    part2 {
-        fun IntGrid.scenicScore(x: Int, y: Int) =
-            if (isEdge(x, y)) 0
-            else get(x, y).let { height ->
-                viewsFrom(x, y).fold(1) { acc, view ->
-                    var score = 0
-                    for (tree in view) {
-                        score += acc
-                        if (tree >= height) break
-                    }
-                    score
-                }
-            }
-
-        with(readGrid()) { maxOf { (x, y) -> scenicScore(x, y) } }
-    }
-})

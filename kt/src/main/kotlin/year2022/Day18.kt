@@ -7,11 +7,99 @@ import aok.PuzzleInput
 import aoksp.AoKSolution
 import queryPuzzles
 import solveAll
+import java.util.BitSet
+import kotlin.collections.ArrayDeque
+import kotlin.collections.Iterable
+import kotlin.collections.asSequence
+import kotlin.collections.buildList
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.component3
+import kotlin.collections.count
+import kotlin.collections.filter
+import kotlin.collections.flatMapIndexed
+import kotlin.collections.forEach
+import kotlin.collections.getOrNull
+import kotlin.collections.indices
+import kotlin.collections.isNotEmpty
+import kotlin.collections.listOf
+import kotlin.collections.map
+import kotlin.collections.maxOf
+import kotlin.collections.mutableSetOf
+import kotlin.collections.plusAssign
 
 fun main(): Unit = with(InputScopeProvider) {
     queryPuzzles { year == 2022 && day == 18 }.solveAll(
-        warmupIterations = 1000, runIterations = 5
+        warmupIterations = 2000, runIterations = 5
     )
+}
+
+@AoKSolution
+object Day18Points {
+
+    class BitSet3(val data: BitSet, val yStride: Int, val zStride: Int) {
+        inline fun sumOf(block: (Int) -> Int): Int {
+            var sum = 0
+            val bitmap = data.toLongArray()
+            for (i in bitmap.indices) {
+                var word: Long = bitmap[i]
+                while (word != 0L) {
+                    sum += block(Long.SIZE_BITS * i + word.countTrailingZeroBits())
+                    word = word xor word.takeLowestOneBit()
+                }
+            }
+            return sum
+        }
+    }
+
+    context(PuzzleInput)
+    private fun parse() = lines
+        .map { line ->
+            line.split(',').map {
+                it.toInt() + 1 // ensure space for air
+            }
+        }
+        .let { points ->
+            val yStride = points.maxOf { it[0] + 1 }
+            val zStride = points.maxOf { it[1] + 1 } * yStride
+            BitSet3(BitSet().apply {
+                points.forEach { set(it[2] * zStride + it[1] * yStride + it[0]) }
+            }, yStride, zStride)
+        }
+
+    context(PuzzleInput)
+    fun part1() = parse().surfaceArea()
+
+    context(PuzzleInput)
+    fun part2(): Int = with(parse()) {
+        val filled = BitSet().apply { set(1, data.length()) }
+        val queue = ArrayDeque(listOf(0))
+        fun checkAndClear(n: Int) {
+            if (filled[n] && !data[n]) {
+                queue += n
+                filled.clear(n)
+            }
+        }
+        while (queue.isNotEmpty()) {
+            val node = queue.removeFirst()
+            if (node >= 1) checkAndClear(node - 1)
+            if (node >= yStride) checkAndClear(node - yStride)
+            if (node >= zStride) checkAndClear(node - zStride)
+            checkAndClear(node + 1)
+            checkAndClear(node + yStride)
+            checkAndClear(node + zStride)
+        }
+        surfaceArea { !filled[it] }
+    }
+
+    private inline fun BitSet3.surfaceArea(external: (Int) -> Boolean = { !data[it] }) = sumOf {
+        (if (external(it + 1)) 1 else 0) +
+                (if (external(it - 1)) 1 else 0) +
+                (if (external(it + yStride)) 1 else 0) +
+                (if (external(it - yStride)) 1 else 0) +
+                (if (external(it + zStride)) 1 else 0) +
+                (if (external(it - zStride)) 1 else 0)
+    }
 }
 
 private typealias Grid = Array<Array<BooleanArray>>
@@ -71,7 +159,7 @@ object Day18 {
     private fun Grid.surfaceArea() = points.filter { (x, y, z) -> this[x, y, z] }
         .sumOf { (x, y, z) -> neighbours(x, y, z).count { (nx, ny, nz) -> !this[nx, ny, nz] } }
 
-    private fun Grid.filled(): Array<Array<BooleanArray>> {
+    private fun Grid.filled(): Grid {
         val (xs, ys, zs) = dimensions
         val exs = -1..xs.last + 1
         val eys = -1..ys.last + 1

@@ -1,5 +1,3 @@
-@file:Suppress("DuplicatedCode")
-
 package year2022
 
 import InputScopeProvider
@@ -7,6 +5,9 @@ import aok.PuzzleInput
 import aoksp.AoKSolution
 import arrow.fx.coroutines.parMapUnordered
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flattenMerge
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.reduce
 import queryPuzzles
 import solveAll

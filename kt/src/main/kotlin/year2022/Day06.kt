@@ -1,14 +1,14 @@
 package year2022
 
+import PuzDSL
 import PuzzleDefinition
+import aoksp.AoKSolution
 import solveAll
 
-fun main() = solveAll<Day06DSL>(runIterations = 10_000)
+fun main() = queryDay(6).solveAll(runIterations = 10_000)
 
-sealed class Day06DSL(body: PuzzleDefinition<Int, Int>, variant: String? = null) :
-    Puz22DSL<Int, Int>(6, variant, body)
-
-object Day06 : Day06DSL({
+@AoKSolution
+object Day06 : PuzDSL({
     fun String.detectUniqueIndex(length: Int) =
         windowedSequence(length)
             .indexOfFirst { it.all(mutableSetOf<Char>()::add) }
@@ -22,7 +22,8 @@ object Day06 : Day06DSL({
     }
 })
 
-object Day06IntArray : Day06DSL({
+@AoKSolution
+object Day06IntArray : PuzDSL({
     fun String.detectUniqueIndex(length: Int) : Int {
         val counts = ByteArray(26)
         for ((idx, c) in withIndex()) {

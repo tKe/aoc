@@ -1,11 +1,13 @@
 package year2022
 
 import InputScope
-import solveAll
-import year2022.Hand.*
-import year2022.Outcome.*
-
-sealed class Day02Puz(variant: String? = null) : Puz22Base<Int, Int>(2, variant)
+import aoksp.AoKSolution
+import year2022.Hand.Paper
+import year2022.Hand.Rock
+import year2022.Hand.Scissors
+import year2022.Outcome.Draw
+import year2022.Outcome.Lose
+import year2022.Outcome.Win
 
 private enum class Hand {
     Rock,
@@ -28,7 +30,8 @@ private fun Hand.loses() = when (this) {
     Paper -> Scissors
 }
 
-object Day02: Day02Puz() {
+@AoKSolution
+object Day02 {
 
     private fun Char.toPlay() = when (this) {
         'A' -> Rock
@@ -45,7 +48,7 @@ object Day02: Day02Puz() {
     }
 
     context(InputScope)
-    override fun part1() =
+    fun part1() =
         lineSeq.filter { it.isNotBlank() }
             .sumOf { playRound(it[0].toPlay(), (it[2] - ('X'-'A')).toPlay()) }
 
@@ -64,7 +67,7 @@ object Day02: Day02Puz() {
     }
 
     context(InputScope)
-    override fun part2() =
+    fun part2() =
         lineSeq.filter { it.isNotBlank() }
             .sumOf {
                 val theirs = it[0].toPlay()
@@ -77,4 +80,4 @@ object Day02: Day02Puz() {
             }
 }
 
-fun main() = solveAll<Day02Puz>()
+fun main() = solveAll(day = 2)

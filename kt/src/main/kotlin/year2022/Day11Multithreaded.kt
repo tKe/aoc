@@ -6,7 +6,7 @@ import arrow.fx.coroutines.parMapUnordered
 import kotlinx.coroutines.flow.asFlow
 import solveAll
 
-fun main() = solveAll(warmupIterations = 1000) { year == 2022 && day == 11 }
+fun main() = solveAll(warmupIterations = 200) { year == 2022 && day == 11 }
 
 @AoKSolution
 object Day11Multithreaded {

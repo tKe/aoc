@@ -5,13 +5,16 @@ package year2022
 import InputScopeProvider
 import aok.PuzzleInput
 import aoksp.AoKSolution
+import arrow.core.padZip
 import queryPuzzles
 import solveAll
+import warmupEach
 import year2022.Day22.Direction.*
+import kotlin.time.Duration.Companion.seconds
 
 fun main(): Unit = with(InputScopeProvider) {
     queryPuzzles { year == 2022 && day == 22 }
-//        .warmupEach(5.seconds)
+        .warmupEach(5.seconds)
         .solveAll(runIterations = 1)
 }
 
@@ -21,17 +24,37 @@ object Day22 {
     context(PuzzleInput)
     fun part1(): Int {
         val (board, moves) = parse(LayoutInterpreter.Linear)
-        return with(board) {
-            moves.fold(Pos()) { pos, move -> pos.move(move) }.password()
-        }
+        return board.solve(moves)
     }
 
     context(PuzzleInput)
     fun part2(): Int {
         val (board, moves) = parse(LayoutInterpreter.Cubic)
-        return with(board) {
-            moves.fold(Pos()) { pos, move -> pos.move(move) }.password()
-        }
+        return board.solve(moves)
+    }
+
+    private fun Board.solve(moves: Sequence<Move>): Int {
+        val path = moves.runningFold(Pos()) { pos, move -> pos.move(move) }.toList()
+
+//        debug(
+//            *path.map {
+//                it to when (it.facing) {
+//                    Up -> "👆🏻"
+//                    Down -> "👇🏻"
+//                    Left -> "👈🏻"
+//                    Right -> "👉🏻"
+//                }
+//            }.toTypedArray(),
+//            path.first() to "❇️",
+//            path.last() to when (path.last().facing) {
+//                Up -> "👆"
+//                Down -> "👇"
+//                Left -> "👈"
+//                Right -> "👉"
+//            }, blank = "⬛️", wall = "⬜️"
+//        )
+
+        return path.last().password()
     }
 
     context(PuzzleInput)
@@ -44,7 +67,7 @@ object Day22 {
             when (it.value) {
                 "L" -> yield(Move.TurnLeft)
                 "R" -> yield(Move.TurnRight)
-                else -> repeat(it.value.toInt()) { yield(Move.Forward) }
+                else -> yield(Move.Forward(it.value.toInt()))
             }
         }
     }
@@ -102,7 +125,11 @@ object Day22 {
         Left -> Up
     }
 
-    private enum class Move { Forward, TurnLeft, TurnRight }
+    private sealed class Move {
+        data class Forward(val n: Int) : Move()
+        object TurnLeft : Move()
+        object TurnRight : Move()
+    }
     private data class Pos(val field: Int = 0, val x: Int = 0, val y: Int = 0, val facing: Direction = Right)
 
     private class Board(
@@ -112,17 +139,19 @@ object Day22 {
         val links: List<FieldLink>,
     ) {
         fun Pos.move(move: Move) = when (move) {
-            Move.Forward -> move()
+            is Move.Forward -> move(move.n)
             Move.TurnLeft -> copy(facing = facing.turnLeft())
             Move.TurnRight -> copy(facing = facing.turnRight())
         }
 
-        private fun Pos.move(): Pos = when (facing) {
+        private fun Pos.move(n: Int) = generateSequence(this) { it.move() }.take(n).lastOrNull() ?: this
+
+        private fun Pos.move(): Pos? = when (facing) {
             Up -> if (y > 0) copy(y = y - 1) else teleport()
             Down -> if (y + 1 < fieldSize) copy(y = y + 1) else teleport()
             Left -> if (x > 0) copy(x = x - 1) else teleport()
             Right -> if (x + 1 < fieldSize) copy(x = x + 1) else teleport()
-        }.takeUnless { (f, x, y) -> walls[f][y * fieldSize + x] } ?: this
+        }.takeUnless { (f, x, y) -> walls[f][y * fieldSize + x] }
 
         private fun Pos.teleport(): Pos {
             val (destField, destEdge) = findLink(field, facing)
@@ -198,8 +227,11 @@ object Day22 {
         object Cubic : LayoutInterpreter {
             override fun interpretLinks(layout: List<String>) = buildList {
                 data class Edge(val field: Int, val side: Direction)
-                val pending = (0..5).flatMap { listOf(Up, Down, Left, Right)
-                    .map { d -> Edge(it, d) } }.toMutableSet()
+
+                val pending = (0..5).flatMap {
+                    listOf(Up, Down, Left, Right)
+                        .map { d -> Edge(it, d) }
+                }.toMutableSet()
 
                 infix fun Edge.linksTo(other: Edge) {
                     check(this in pending && other in pending) { "edges already linked!" }
@@ -234,6 +266,34 @@ object Day22 {
                         .let { (a, b) -> a linksTo b }
                 }
             }
+
+            @JvmStatic
+            fun main(args: Array<String>) {
+                listOf(
+                    listOf("---0", "1234", "---5"),
+                    listOf("---0", "1234", "-5--"),
+                    listOf("--0-", "123-", "--45"),
+                    listOf("--0-", "1234", "--5-"),
+                    listOf("--0-", "1234", "-5--"),
+                    listOf("-0--", "1234", "5---"),
+                    listOf("0---", "1234", "---5"),
+                    listOf("01--", "-23-", "--45"),
+                    listOf("01--", "-234", "---5"),
+                    listOf("01--", "-234", "--5-"),
+                    listOf("012--", "--345"),
+                ).forEach { net ->
+                    val diagram = net.map { it.map { c -> if (c == '-') "▪️" else "⬜️" }.joinToString("") }
+                    val links = interpretLinks(net).map { (fieldA, edgeA, edgeB, fieldB) ->
+                        if (fieldA < fieldB) "$fieldA${edgeA.name[0]}-$fieldB${edgeB.name[0]}"
+                        else "$fieldB${edgeB.name[0]}-$fieldA${edgeA.name[0]}"
+                    }.sorted()
+
+                    diagram.padZip(links.chunked(4)) { d, l ->
+                        println("${(l?.toString() ?: "").padEnd(28)}  ${d ?: ""}")
+                    }
+                    println()
+                }
+            }
         }
     }
 
@@ -258,9 +318,9 @@ object Day22 {
         wall: String = "⬜️",
         blank: String = "⬛️",
     ) {
-        fun markerAt(f: Int, x: Int, y: Int) = markers.firstNotNullOfOrNull { (pos, marker) ->
-            marker.takeIf { pos.field == f && pos.x == x && pos.y == y }
-        }
+        fun markerAt(f: Int, x: Int, y: Int) = markers.lastOrNull { (pos, marker) ->
+            pos.field == f && pos.x == x && pos.y == y
+        }?.second
         layout.forEach { fr ->
             repeat(fieldSize) { y ->
                 println(fr.map(Char::digitToIntOrNull).joinToString("") { field ->

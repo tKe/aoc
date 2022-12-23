@@ -3,14 +3,21 @@ package year2022
 import InputScopeProvider
 import aok.PuzzleInput
 import aoksp.AoKSolution
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.launch
 import queryPuzzles
 import solveAll
-import warmupEach
-import kotlin.time.Duration.Companion.seconds
 
 fun main(): Unit = with(InputScopeProvider) {
     queryPuzzles { year == 2022 && day == 21 }
-        .warmupEach(5.seconds)
+//        .warmupEach(5.seconds)
         .solveAll(runIterations = 1)
 }
 
@@ -85,3 +92,41 @@ object Day21 {
     }
 }
 
+@AoKSolution
+object Day21Shouting {
+    context (PuzzleInput)
+    suspend fun part1(): Long = coroutineScope {
+        val room = MutableSharedFlow<Pair<String, Long>>(replay = lines.size)
+
+        suspend infix fun String.shouts(value: Long) = room.emit(this to value)
+        suspend fun listenFor(vararg monkeys: String): List<Long> {
+            val heard = mutableMapOf<String, Long>()
+            room.takeWhile {
+                if (it.first in monkeys) heard[it.first] = it.second
+                heard.size < monkeys.size
+            }.collect()
+            return monkeys.map(heard::getValue)
+        }
+
+        lines.forEach {
+            val (monkey, job) = it.split(": ")
+            if (!job[0].isLowerCase()) monkey shouts job.toLong()
+            else {
+                val (leftMonkey, op, rightMonkey) = job.split(" ")
+                launch {
+                    val (l, r) = listenFor(leftMonkey, rightMonkey)
+                    val result = when (op) {
+                        "+" -> l + r
+                        "-" -> l - r
+                        "/" -> l / r
+                        "*" -> l * r
+                        else -> error("unsupported operation '$op'")
+                    }
+                    monkey shouts result
+                }
+            }
+        }
+
+        listenFor("root").first()
+    }
+}
