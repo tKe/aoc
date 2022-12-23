@@ -5,10 +5,13 @@ import aok.PuzzleInput
 import aoksp.AoKSolution
 import queryPuzzles
 import solveAll
+import warmup
+import kotlin.time.Duration.Companion.seconds
 
-fun main(): Unit = with(InputScopeProvider.Example) {
+fun main(): Unit = with(InputScopeProvider) {
     queryPuzzles { year == 2022 && day == 23 }
-        .solveAll(runIterations = 1)
+        .warmup(15.seconds)
+        .solveAll(runIterations = 5)
 }
 
 @AoKSolution
@@ -22,10 +25,10 @@ object Day23 {
     }.toSet()
 
     context(PuzzleInput)
-    fun part1() = parse().simulate().drop(10).first().countSpace()
+    fun part1() = parse().simulate().elementAt(10).countSpace()
 
     context(PuzzleInput)
-    fun part2() = parse().simulate().count()
+    fun part2() = parse().simulate().count() + 1
 
     private fun Set<Elf>.countSpace(): Int {
         val width = 1 + maxOf { it.x } - minOf { it.x }
@@ -36,28 +39,20 @@ object Day23 {
     private fun Set<Elf>.simulate() = sequence {
         var elves = this@simulate
         var round = 0
-        yield(elves)
         while (true) {
-            val moved = mutableSetOf<Elf>()
-            val new = mutableSetOf<Elf>()
-
-            elves.groupingBy { it.proposeMove(elves, round) }
-                .aggregate { _, _: Elf?, element, first -> if (first) element else null }
-                .onEach { (where, who) ->
-                    if (where != null && who != null) {
-                        moved.add(who)
-                        new.add(where)
+            elves = elves.toMutableSet().apply {
+                elves.groupingBy { it.proposeMove(elves, round) }
+                    .aggregate { _, _: Elf?, element, first -> if (first) element else null }
+                    .filter { (where, who) -> where != null && who != null }
+                    .ifEmpty { return@sequence }
+                    .forEach { (where, who) ->
+                        remove(who!!)
+                        add(where!!)
                     }
-                }.count()
-
-            if (moved.isEmpty()) {
-                break
             }
-            elves = (elves - moved) + new
             yield(elves)
             round++
         }
-
     }
 
     private fun Elf.proposeMove(others: Set<Elf>, round: Int): Elf? {
@@ -94,7 +89,7 @@ object Day23 {
     private fun Set<Elf>.debug(
         yr: IntRange = minOf { it.y }..maxOf { it.y },
         xr: IntRange = minOf { it.x }..maxOf { it.x },
-        elf: String = "#", space: String = ".",
+        elf: String = "🧝", space: String = "▪️",
     ) = yr.forEach { y ->
         println(xr.joinToString("") { x ->
             if (Elf(x, y) in this) elf else space
