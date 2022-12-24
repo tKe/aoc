@@ -16,7 +16,11 @@ sealed interface Warmup {
     context(PuzzleInput)
     fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>)
 
-    class Iterations(val warmupIterations: Int) : Warmup {
+    private object None: Warmup {
+        context(PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) = Unit
+    }
+
+    private class Iterations(val warmupIterations: Int) : Warmup {
         context(PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) {
             if (warmupIterations > 0) {
                 println("Warming up ${puzzles.size} puzzles $warmupIterations times for year $year day $day...")
@@ -32,7 +36,7 @@ sealed interface Warmup {
         }
     }
 
-    class DurationTotal(val d: Duration) : Warmup {
+    private class DurationTotal(val d: Duration) : Warmup {
         context(PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) {
             val start = TimeSource.Monotonic.markNow()
             println("Warming up ${puzzles.size} puzzles over $d for year $year day $day...")
@@ -48,7 +52,7 @@ sealed interface Warmup {
         }
     }
 
-    class DurationPerSolution(val d: Duration) : Warmup {
+    private class DurationPerSolution(val d: Duration) : Warmup {
         context(PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) {
             println("Warming up ${puzzles.size} puzzles for $d each for year $year day $day...")
             puzzles.forEach {
@@ -62,6 +66,13 @@ sealed interface Warmup {
                 println("\t${it.variant} warmed up with $count iterations")
             }
         }
+    }
+
+    companion object {
+        fun eachFor(duration: Duration): Warmup = DurationPerSolution(duration)
+        fun allFor(duration: Duration): Warmup = DurationTotal(duration)
+        fun iterations(n: Int): Warmup = Iterations(n)
+        val none: Warmup = None
     }
 }
 
@@ -92,13 +103,13 @@ fun Iterable<Puz<*, *>>.warmup(warmup: Warmup) = apply {
 }
 
 context(InputScopeProvider)
-fun Iterable<Puz<*, *>>.warmup(iterations: Int) = warmup(Warmup.Iterations(iterations))
+fun Iterable<Puz<*, *>>.warmup(iterations: Int) = warmup(Warmup.iterations(iterations))
 
 context(InputScopeProvider)
-fun Iterable<Puz<*, *>>.warmup(duration: Duration) = warmup(Warmup.DurationTotal(duration))
+fun Iterable<Puz<*, *>>.warmup(duration: Duration) = warmup(Warmup.allFor(duration))
 
 context(InputScopeProvider)
-fun Iterable<Puz<*, *>>.warmupEach(duration: Duration) = warmup(Warmup.DurationPerSolution(duration))
+fun Iterable<Puz<*, *>>.warmupEach(duration: Duration) = warmup(Warmup.eachFor(duration))
 
 context(InputScopeProvider)
 fun Iterable<Puz<*, *>>.solveAll(warmupIterations: Int, runIterations: Int = 1) =
