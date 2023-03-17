@@ -1,23 +1,23 @@
 package year2022
 
-import InputScope
-import PuzDSL
+import aok.InputProvider
+import aok.PuzDSL
+import aok.PuzzleInput
 import aoksp.AoKSolution
-import solveAll
+import aok.solveAll
+import aok.warmup
 import year2022.Day10NoSeq.cpu
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
-fun main() = queryDay(10).solveAll(
-//    "input.txt" to "example.txt",
-    warmupIterations = 15_000,
-    runIterations = 5
-)
+fun main() = with(InputProvider) {
+    queryDay(10).warmup(15_000).solveAll(runIterations = 5)
+}
 
 @AoKSolution
 object Day10InitialAttempt : PuzDSL({
-    fun InputScope.cpu() = sequence {
+    fun PuzzleInput.cpu() = sequence {
         var x = 1
         var cycle = 1
         for (line in lines) {
@@ -54,7 +54,7 @@ object Day10NoCycle : PuzDSL({
     fun String.toIntAt(offset: Int = 0, radix: Int = 10) =
         Integer.parseInt(this, offset, length, radix)
 
-    fun InputScope.cpu() = sequence {
+    fun PuzzleInput.cpu() = sequence {
         var x = 1
         for (line in lines) {
             when (line) {
@@ -111,7 +111,7 @@ object Day10NoSeq : PuzDSL({
         Integer.parseInt(this, offset, length, radix)
 
     @OptIn(ExperimentalContracts::class)
-    private inline fun InputScope.cpu(process: (Int, Int) -> Unit) {
+    private inline fun PuzzleInput.cpu(process: (Int, Int) -> Unit) {
         contract {
             callsInPlace(process, InvocationKind.AT_LEAST_ONCE)
         }
@@ -123,10 +123,9 @@ object Day10NoSeq : PuzDSL({
                 else -> {
                     process(++cycle, x)
                     process(++cycle, x)
-                    x += line.toIntAt( "addx ".length)
+                    x += line.toIntAt("addx ".length)
                 }
             }
         }
     }
 }
-

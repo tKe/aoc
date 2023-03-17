@@ -1,19 +1,21 @@
 package year2022
 
-import InputScopeProvider
+import aok.InputProvider
 import aok.PuzzleInput
 import aoksp.AoKSolution
-import queryPuzzles
-import solveAll
+import aok.solveAll
+import aok.warmup
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 
 //private const val WORLD_SIZE = 20
-//fun main(): Unit = with(InputScopeProvider.Example) {
+//fun main(): Unit = with(InputProvider.Example) {
 private const val WORLD_SIZE = 4_000_000
-fun main(): Unit = with(InputScopeProvider) {
-    queryPuzzles { year == 2022 && day == 15 }.solveAll(
-        warmupIterations = 3, runIterations = 1
+fun main(): Unit = with(InputProvider) {
+    queryDay(15).warmup(
+        iterations = 3
+    ).solveAll(
+        runIterations = 1
     )
 }
 

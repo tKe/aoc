@@ -1,6 +1,6 @@
 package year2022
 
-import InputScopeProvider
+import aok.InputProvider
 import aok.PuzzleInput
 import aoksp.AoKSolution
 import arrow.core.compareTo
@@ -17,12 +17,14 @@ import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.decodeToSequence
-import queryPuzzles
-import solveAll
+import aok.solveAll
+import aok.warmup
 
-fun main(): Unit = with(InputScopeProvider) {
-    queryPuzzles { year == 2022 && day == 13 }.solveAll(
-        warmupIterations = 300, runIterations = 3
+fun main(): Unit = with(InputProvider) {
+    queryDay(13).warmup(
+        iterations = 300
+    ).solveAll(
+        runIterations = 3
     )
 }
 
@@ -117,7 +119,7 @@ object Day13Json {
 
     context(PuzzleInput)
     @OptIn(ExperimentalSerializationApi::class)
-    private fun packets() = Json.decodeToSequence(inputStream, ELSerializer, WHITESPACE_SEPARATED)
+    private fun packets() = Json.decodeToSequence(input.byteInputStream(), ELSerializer, WHITESPACE_SEPARATED)
 
     sealed interface E : Comparable<E>
     data class EL(val values: List<E>) : E {

@@ -28,6 +28,7 @@ tasks.withType<KotlinCompile> {
 }
 
 kotlin {
+    jvmToolchain(17)
     sourceSets.main {
         kotlin.srcDir("$buildDir/generated/ksp/main/kotlin")
     }

@@ -1,11 +1,9 @@
 package year2022
 
-import PuzDSL
-import PuzzleDefinition
+import aok.PuzDSL
 import aoksp.AoKSolution
-import solveAll
 
-fun main() = queryDay(6).solveAll(runIterations = 10_000)
+fun main() = solveDay(6, runs = 10_000)
 
 @AoKSolution
 object Day06 : PuzDSL({

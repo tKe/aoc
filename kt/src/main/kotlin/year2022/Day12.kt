@@ -1,14 +1,14 @@
 package year2022
 
-import InputScopeProvider
+import aok.InputProvider
 import aok.PuzzleInput
 import aoksp.AoKSolution
-import queryPuzzles
-import solveAll
+import aok.solveAll
+import aok.warmup
 import java.util.BitSet
 
-fun main(): Unit = with(InputScopeProvider) {
-    queryPuzzles { year == 2022 && day == 12 }.solveAll(warmupIterations = 3000, runIterations = 3)
+fun main() = with(InputProvider) {
+    queryDay(12).warmup(iterations = 3000).solveAll(runIterations = 3)
 }
 
 @AoKSolution

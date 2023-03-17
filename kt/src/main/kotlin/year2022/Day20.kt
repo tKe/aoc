@@ -1,18 +1,15 @@
 package year2022
 
-import InputScopeProvider
 import aok.PuzzleInput
+import aok.Warmup
 import aoksp.AoKSolution
-import queryPuzzles
-import solveAll
-import warmup
-import warmupEach
 import kotlin.time.Duration.Companion.seconds
 
-fun main(): Unit = with(InputScopeProvider) {
-    queryPuzzles { year == 2022 && day == 20 }.warmupEach(10.seconds)
-        .solveAll(runIterations = 3)
-}
+fun main(): Unit = solveDay(
+    day = 20,
+    warmup = Warmup.eachFor(10.seconds),
+    runs = 3,
+)
 
 @AoKSolution
 object Day20 {

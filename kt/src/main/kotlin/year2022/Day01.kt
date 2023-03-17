@@ -1,6 +1,6 @@
 package year2022
 
-import PuzDSL
+import aok.PuzDSL
 import aok.PuzzleInput
 import aoksp.AoKSolution
 import arrow.core.NonEmptyList
@@ -70,4 +70,4 @@ object Day01TopN : PuzDSL({
     part2 { lines.topElves(3) }
 })
 
-fun main() = solveAll(day = 1)
+fun main() = solveDay(1)

@@ -2,12 +2,8 @@ package year2022
 
 import aok.PuzzleInput
 import aoksp.AoKSolution
-import queryPuzzles
-import solveAll
 
-fun main() {
-    queryPuzzles { year == 2022 && day == 16 }.solveAll()
-}
+fun main() = solveDay(16)
 
 @AoKSolution
 object Day16 {

@@ -1,11 +1,9 @@
 package year2022
 
-import PuzDSL
-import PuzzleDefinition
+import aok.PuzDSL
 import aoksp.AoKSolution
-import solveAll
 
-fun main() = solveAll(day = 3)
+fun main() = solveDay(3)
 
 fun Char.toPriority() = this - if (this >= 'a') 'a' - 1 else 'A' - 27
 

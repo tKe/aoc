@@ -1,9 +1,9 @@
 package year2022
 
-import PuzDSL
+import aok.PuzDSL
 import aoksp.AoKSolution
 
-fun main() = solveAll(day = 4)
+fun main() = solveDay(4)
 
 @AoKSolution
 object Day04 : PuzDSL({

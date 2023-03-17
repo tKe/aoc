@@ -1,23 +1,14 @@
 package year2022
 
-import InputScopeProvider
+import aok.InputProvider
 import aok.PuzzleInput
 import aoksp.AoKSolution
 import arrow.fx.coroutines.parMapUnordered
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flattenMerge
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.reduce
-import queryPuzzles
-import solveAll
 import java.util.PriorityQueue
 
-fun main(): Unit = with(InputScopeProvider) {
-    queryPuzzles { year == 2022 && day == 19 }.solveAll(
-        warmupIterations = 200, runIterations = 5
-    )
-}
+fun main(): Unit = solveDay(day = 19, input = InputProvider.Example)
 
 @AoKSolution
 object Day19 {
@@ -56,6 +47,7 @@ object Day19 {
             val elapsed: Int = 0,
             val robots: Resources = Resources(1, 0, 0, 0),
             val resources: Resources = Resources(0, 0, 0, 0),
+            val order: List<Resources> = emptyList()
         ) {
             val remaining = minutes - elapsed
             val potential = resources.geode + (robots.geode * remaining) + (remaining * (remaining + 1)) / 2
@@ -96,7 +88,13 @@ object Day19 {
                 obsidian = resources.obsidian + robots.obsidian * time
                         - buildGeode * geodeRobotObsidianCost,
                 geode = resources.geode + robots.geode * time
-            )
+            ),
+            order = order + Resources(
+                buildOre,
+                buildClay,
+                buildObsidian,
+                buildGeode
+            ),
         )
 
         infix fun Int.timeToProduce(amount: Int) = amount / this + (if (amount % this == 0) 0 else 1)
@@ -131,25 +129,26 @@ object Day19 {
         fun State.idle() = tick(remaining)
 
         fun State.branches() =
-            listOfNotNull(buildGeode(), buildObsidian(), buildClay(), buildOre()).ifEmpty { listOf(idle()) }
+            listOfNotNull(idle(), buildGeode(), buildObsidian(), buildClay(), buildOre())
 
         val robotMap = mutableMapOf<Resources, Int>()
         fun earliestRobotsSeen(robots: Resources, elapsed: Int) = elapsed <= robotMap
             .compute(robots) { _, p -> if (p == null) elapsed else minOf(p, elapsed) }!!
 
-        var max = 0
+        val stateComp = compareBy<State>({ it.resources.geode })//, {-(it.robots.geode + it.robots.clay + it.robots.ore + it.robots.obsidian)})
+        var maxState = State()
         val queue = PriorityQueue(compareByDescending(State::potential)).also { it += State() }
         while (queue.isNotEmpty()) {
             val next = queue.poll()
             when {
                 next.remaining == 0 ->
-                    if (max < next.resources.geode) max = next.resources.geode
+                    if (stateComp.compare(maxState, next) < 0) maxState = next
 
-                earliestRobotsSeen(next.robots, next.elapsed) && next.potential > max ->
+                earliestRobotsSeen(next.robots, next.elapsed) && next.potential >= maxState.resources.geode ->
                     queue += next.branches()
             }
         }
-        return max
+        println("${this.id}: ${maxState.order.map { if(it.ore > 0) "ore" else if (it.clay > 0) "clay" else if(it.obsidian > 0) "obsidian" else "geode" }} ${maxState.resources}")
+        return maxState.resources.geode
     }
-
 }

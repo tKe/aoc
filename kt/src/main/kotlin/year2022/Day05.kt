@@ -1,18 +1,16 @@
 package year2022
 
-import InputScope
-import PuzDSL
-import PuzzleDefinition
+import aok.PuzDSL
+import aok.PuzzleInput
 import aoksp.AoKSolution
-import solveAll
 
-fun main() = queryDay(day = 5).solveAll(runIterations = 1_000)
+fun main() = solveDay(5)
 
 @AoKSolution
 object Day05 : PuzDSL({
     data class Instruction(val move: Int, val from: Int, val to: Int)
 
-    fun InputScope.parse(): Pair<Map<Int, ArrayDeque<Char>>, List<Instruction>> {
+    fun PuzzleInput.parse(): Pair<Map<Int, ArrayDeque<Char>>, List<Instruction>> {
         val (rawStacks, rawInstructions) = input.split("\n\n").map(String::lines)
         val stacks = rawStacks.last().mapIndexedNotNull { index, c -> c.digitToIntOrNull()?.to(index) }
         val stackMap = buildMap<_, ArrayDeque<Char>> {
@@ -69,7 +67,7 @@ object Day05Strings : PuzDSL({
                 .joinToString("") { "${this[it][stack]}".trim() }
         }
 
-    fun InputScope.rearrange(
+    fun PuzzleInput.rearrange(
         transfer: (from: String, to: String, n: Int) -> Pair<String, String>
     ) =
         input.split("\n\n", limit = 2).map(String::lines)

@@ -3,12 +3,13 @@
 package year2022
 
 import aok.PuzzleInput
+import aok.Warmup
 import aoksp.AoKSolution
 import kotlin.time.Duration.Companion.seconds
 
-fun main(): Unit = solveAll(
+fun main(): Unit = solveDay(
     day = 24,
-    warmup = Warmup.eachFor(10.seconds)
+    warmup = Warmup.eachFor(10.seconds),
 )
 
 @AoKSolution

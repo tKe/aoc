@@ -1,13 +1,12 @@
 package year2022
 
-import InputScope
-import PuzDSL
-import PuzzleDefinition
+import aok.PuzDSL
+import aok.PuzzleInput
 import aoksp.AoKSolution
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.google.common.jimfs.PathType
-import solveAll
+import aok.solveAll
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
@@ -22,7 +21,7 @@ fun main() = queryDay(7).filter { it.variant != "JimFS" }.solveAll(runIterations
 
 @AoKSolution
 object Day07 : PuzDSL({
-    fun InputScope.dirSizes() = buildList {
+    fun PuzzleInput.dirSizes() = buildList {
         val acc = ArrayDeque<Int>()
         fun cdUp() = acc.removeFirst().also { acc[0] += it }.also(::add)
 
@@ -51,7 +50,7 @@ object Day07 : PuzDSL({
 
 @AoKSolution
 object Day07FastFor : PuzDSL({
-    fun InputScope.dirSizes() = buildList {
+    fun PuzzleInput.dirSizes() = buildList {
         val acc = ArrayDeque<Int>()
         fun cdUp() = acc.removeFirst().also { acc[0] += it }
 
@@ -80,7 +79,7 @@ object Day07FastFor : PuzDSL({
 
 @AoKSolution
 object Day07IntArray : PuzDSL({
-    fun InputScope.dirSizes() = buildList {
+    fun PuzzleInput.dirSizes() = buildList {
         val acc = IntArray(256)
         var idx = -1
         fun cdUp() = acc[idx--].also(::add).also { acc[idx] += it }
@@ -112,7 +111,7 @@ object Day07IntArray : PuzDSL({
 @AoKSolution
 @OptIn(ExperimentalPathApi::class)
 object Day07JimFS : PuzDSL({
-    fun InputScope.createFilesystem() = Jimfs.newFileSystem(
+    fun PuzzleInput.createFilesystem() = Jimfs.newFileSystem(
         Configuration.builder(PathType.unix())
             .setRoots("/")
             .setWorkingDirectory("/")

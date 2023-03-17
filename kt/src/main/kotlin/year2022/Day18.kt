@@ -2,11 +2,11 @@
 
 package year2022
 
-import InputScopeProvider
+import aok.InputProvider
 import aok.PuzzleInput
 import aoksp.AoKSolution
-import queryPuzzles
-import solveAll
+import aok.solveAll
+import aok.warmup
 import java.util.BitSet
 import kotlin.collections.ArrayDeque
 import kotlin.collections.Iterable
@@ -28,9 +28,11 @@ import kotlin.collections.maxOf
 import kotlin.collections.mutableSetOf
 import kotlin.collections.plusAssign
 
-fun main(): Unit = with(InputScopeProvider) {
-    queryPuzzles { year == 2022 && day == 18 }.solveAll(
-        warmupIterations = 2000, runIterations = 5
+fun main(): Unit = with(InputProvider) {
+    queryDay(18).warmup(
+        iterations = 2000
+    ).solveAll(
+        runIterations = 5
     )
 }
 

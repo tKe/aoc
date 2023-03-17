@@ -2,13 +2,11 @@
 
 package year2022
 
-import InputScope
-import PuzDSL
-import PuzzleDefinition
+import aok.PuzDSL
+import aok.PuzzleInput
 import aoksp.AoKSolution
-import solveAll
 
-fun main() = solveAll(day = 8)
+fun main() = solveDay(day = 8)
 
 @AoKSolution
 object Day08 : PuzDSL({
@@ -31,7 +29,7 @@ object Day08 : PuzDSL({
         }
     }
 
-    fun InputScope.readGrid() = IntGrid(
+    fun PuzzleInput.readGrid() = IntGrid(
         data = input.mapNotNull(Char::digitToIntOrNull).toIntArray(),
         stride = input.indexOf('\n')
     )

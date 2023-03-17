@@ -1,17 +1,19 @@
 package year2022
 
-import InputScopeProvider
+import aok.InputProvider
 import aok.PuzzleInput
 import aoksp.AoKSolution
-import queryPuzzles
-import solveAll
+import aok.solveAll
+import aok.warmup
 import java.nio.ByteBuffer
 import kotlin.experimental.and
 import kotlin.experimental.or
 
-fun main(): Unit = with(InputScopeProvider) {
-    queryPuzzles { year == 2022 && day == 17 }.solveAll(
-        warmupIterations = 3000, runIterations = 15
+fun main(): Unit = with(InputProvider) {
+    queryDay(17).warmup(
+        iterations = 3000
+    ).solveAll(
+        runIterations = 15
     )
 }
 
@@ -157,4 +159,3 @@ object Day17 {
     private val ByteArray.height get() = indexOfLast { it > 0 } + 1
 
 }
-

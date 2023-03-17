@@ -1,16 +1,18 @@
 package year2022
 
-import InputScopeProvider
+import aok.InputProvider
 import aok.PuzzleInput
 import aoksp.AoKSolution
-import queryPuzzles
-import solveAll
+import aok.solveAll
+import aok.warmup
 import java.util.BitSet
 import kotlin.collections.ArrayDeque
 
-fun main(): Unit = with(InputScopeProvider) {
-    queryPuzzles { year == 2022 && day == 14 }.solveAll(
-        warmupIterations = 300, runIterations = 3
+fun main(): Unit = with(InputProvider) {
+    queryDay(11).warmup(
+        iterations = 300
+    ).solveAll(
+        runIterations = 3
     )
 }
 

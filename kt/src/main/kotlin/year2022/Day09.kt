@@ -2,13 +2,15 @@
 
 package year2022
 
-import InputScope
-import PuzDSL
+import aok.PuzDSL
+import aok.PuzzleInput
+import aok.Warmup
 import aoksp.AoKSolution
 import java.util.BitSet
 import kotlin.math.sign
+import kotlin.time.Duration.Companion.seconds
 
-fun main() = solveAll(day = 9)
+fun main() = solveDay(day = 9, warmup = Warmup.eachFor(5.seconds), runs = 3)
 
 @AoKSolution
 object Day09ImmutableRope : PuzDSL({
@@ -48,7 +50,7 @@ object Day09ImmutableRope : PuzDSL({
         return Rope(tail = null).extend(size - 1)
     }
 
-    fun InputScope.solve(ropeSize: Int) = lineSeq
+    fun PuzzleInput.solve(ropeSize: Int) = lineSeq
         .flatMap { line -> sequence { repeat(line.substring(2).toInt()) { yield(line[0]) } } }
         .runningFold(ropeOfLength(ropeSize), Rope::moveHead)
         .map(Rope::last)
@@ -61,9 +63,9 @@ object Day09ImmutableRope : PuzDSL({
 @AoKSolution
 object Day09Arrays : PuzDSL({
     fun Int.zigZag() = shr(15) xor shl(1)
-    infix fun Int.pairing(other: Int) = other + (plus(other) * plus(other+1) shr 1)
+    infix fun Int.pairing(other: Int) = other + (plus(other) * plus(other + 1) shr 1)
 
-    fun InputScope.solve(ropeSize: Int): Int {
+    fun PuzzleInput.solve(ropeSize: Int): Int {
         val x = IntArray(ropeSize)
         val y = IntArray(ropeSize)
         val visited = BitSet()
@@ -104,7 +106,7 @@ object Day09Arrays : PuzDSL({
 
 @AoKSolution
 object Day09Sequences : PuzDSL({
-    fun InputScope.headSeq() = sequence {
+    fun PuzzleInput.headSeq() = sequence {
         var x = 0
         var y = 0
         for (line in lines) {
@@ -134,7 +136,7 @@ object Day09Sequences : PuzDSL({
         }
     }
 
-    fun InputScope.solve(ropeSize: Int) =
+    fun PuzzleInput.solve(ropeSize: Int) =
         (1..<ropeSize).fold(headSeq()) { it, _ -> it.follow() }
             .distinct().count() + 1 // remember the start
 

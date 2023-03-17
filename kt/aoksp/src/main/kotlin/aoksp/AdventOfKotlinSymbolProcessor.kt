@@ -18,20 +18,11 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Modifier
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.ExperimentalKotlinPoetApi
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeSpec.Companion.classBuilder
 import com.squareup.kotlinpoet.TypeSpec.Companion.objectBuilder
-import com.squareup.kotlinpoet.TypeVariableName
-import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
@@ -54,8 +45,23 @@ class AdventOfKotlinSymbolProcessor(
                 val yearClass = generateYearClass(year)
                 logger.info("generating $yearClass")
 
+                val warmup = ClassName("aok", "Warmup")
+                val inputScopeProvider = ClassName("aok", "InputProvider")
                 FileSpec.builder("year$year", yearClass.name!!)
                     .addType(yearClass)
+                    .addImport("aok", "sealedObjects", "warmup", "solveAll")
+                    .addFunction(FunSpec.builder("queryDay")
+                        .addParameter(ParameterSpec.builder("day", typeNameOf<Int?>()).defaultValue("null").build())
+                        .addStatement("return %T::class.sealedObjects.filter { day == null || it.day == day }", yearClassName(year))
+                        .build())
+                    .addFunction(FunSpec.builder("solveDay")
+                        .addParameter(ParameterSpec.builder("day", typeNameOf<Int?>()).defaultValue("null").build())
+                        .addParameter(ParameterSpec.builder("warmup", warmup).defaultValue("%M", warmup.nestedClass("Companion").member("none")).build())
+                        .addParameter(ParameterSpec.builder("runs", Int::class).defaultValue("%L", 1).build())
+                        .addParameter(ParameterSpec.builder("input", inputScopeProvider).defaultValue("%M", inputScopeProvider.member("Companion")).build())
+                        .addCode("return with(input) { queryDay(day).warmup(warmup).solveAll(runs) }")
+                        .build())
+
                     .build()
                     .writeTo(codeGenerator, Dependencies.ALL_FILES)
 
@@ -88,7 +94,6 @@ class AdventOfKotlinSymbolProcessor(
                 PropertySpec.builder("day", Int::class, KModifier.FINAL, KModifier.OVERRIDE)
                     .initializer("day").build()
             )
-
             addProperty(
                 PropertySpec.builder("year", Int::class, KModifier.FINAL, KModifier.OVERRIDE)
                     .initializer("$year").build()
@@ -122,12 +127,12 @@ class AdventOfKotlinSymbolProcessor(
         )
 
         addFunctions(
-            listOfNotNull(part1 to "part1", part2 to "part2").map { (target, func) ->
+            listOfNotNull(part1?.to("part1"), part2?.to("part2")).map { (target, func) ->
                 val partImpl = FunSpec.builder(func)
                     .contextReceivers(PuzzleInput::class.asTypeName())
                     .addModifiers(KModifier.OVERRIDE)
 
-                val targetMember = when (val parent = target?.parent) {
+                val targetMember = when (val parent = target.parent) {
                     is KSClassDeclaration ->
                         parent.toClassName().member(target.simpleName.asString())
 
@@ -137,15 +142,13 @@ class AdventOfKotlinSymbolProcessor(
                     else -> null
                 }
 
-                if (target == null) {
-                    partImpl.addStatement("return TODO(%S)", "No implementation for $func")
-                } else if (targetMember == null) {
+                if (targetMember == null) {
                     partImpl.addStatement("return TODO(%S)", "Unable to call $target (unsupported parent)")
                 } else if (Modifier.SUSPEND in target.modifiers) {
                     partImpl.addStatement(
                         "return %M(%M) { %M() }",
                         MemberName("kotlinx.coroutines", "runBlocking"),
-                        MemberName(ClassName("kotlinx.coroutines", "Dispatchers"), "Default"),
+                        ClassName("kotlinx.coroutines", "Dispatchers").member("Default"),
                         targetMember
                     )
                 } else {

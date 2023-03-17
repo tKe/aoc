@@ -1,6 +1,6 @@
 package year2022
 
-import InputScope
+import aok.PuzzleInput
 import aoksp.AoKSolution
 import year2022.Hand.Paper
 import year2022.Hand.Rock
@@ -47,7 +47,7 @@ object Day02 {
         else -> error("not a play")
     }
 
-    context(InputScope)
+    context(PuzzleInput)
     fun part1() =
         lineSeq.filter { it.isNotBlank() }
             .sumOf { playRound(it[0].toPlay(), (it[2] - ('X'-'A')).toPlay()) }
@@ -66,7 +66,7 @@ object Day02 {
         return roundScore + playScore
     }
 
-    context(InputScope)
+    context(PuzzleInput)
     fun part2() =
         lineSeq.filter { it.isNotBlank() }
             .sumOf {
@@ -80,4 +80,4 @@ object Day02 {
             }
 }
 
-fun main() = solveAll(day = 2)
+fun main() = solveDay(2)

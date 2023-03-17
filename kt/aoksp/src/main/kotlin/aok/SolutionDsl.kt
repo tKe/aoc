@@ -1,18 +1,21 @@
-import aok.PuzzleInput
-import aoksp.AoKSolution
-import kotlin.reflect.KProperty
+package aok
 
+import kotlin.reflect.KProperty
 
 @DslMarker
 annotation class SolutionDsl
 
+
+@SolutionDsl
 interface SolutionsScope<P1, P2> {
+    fun <R> parser(block: PuzzleInput.() -> R) = block
+    fun <R> lineParser(mapper: (String) -> R) = parser { lines.map(mapper) }
     @SolutionDsl
     fun part1(solution: Solution<P1>)
+
     @SolutionDsl
     fun part2(solution: Solution<P2>)
 }
-
 
 @SolutionDsl
 fun interface PuzzleDefinition<P1, P2> {
@@ -21,13 +24,15 @@ fun interface PuzzleDefinition<P1, P2> {
 
 @SolutionDsl
 fun interface Solution<T> {
-    fun PuzzleInput.solve(): T
+
+    @SolutionDsl
+    suspend fun PuzzleInput.solve(): T
 }
 
-fun <P1, P2> PuzzleDefinition<P1, P2>.toSolutions() =
+private operator fun <P1, P2> PuzzleDefinition<P1, P2>.provideDelegate(thisRef: Any, property: KProperty<*>) = lazy {
+    var part1 = Solution<P1> { TODO() }
+    var part2 = Solution<P2> { TODO() }
     with(object : SolutionsScope<P1, P2> {
-        var part1 = Solution<P1> { TODO() }
-        var part2 = Solution<P2> { TODO() }
         override fun part1(solution: Solution<P1>) {
             part1 = solution
         }
@@ -35,22 +40,16 @@ fun <P1, P2> PuzzleDefinition<P1, P2>.toSolutions() =
         override fun part2(solution: Solution<P2>) {
             part2 = solution
         }
-    }) {
-        build()
-        part1 to part2
-    }
-
-operator fun <P1, P2> PuzzleDefinition<P1, P2>.provideDelegate(thisRef: Any, property: KProperty<*>) = lazy { toSolutions() }
-
-context(PuzzleInput)
-operator fun <T> Solution<T>.invoke(): T = with(this) { solve() }
+    }) { this@provideDelegate.build() }
+    part1 to part2
+}
 
 abstract class PuzDSL(body: PuzzleDefinition<*, *>) {
-    private val solutions = body.toSolutions()
+    private val solutions by body
 
     context(PuzzleInput)
-    fun part1() = solutions.first()
+    suspend fun part1() = with(solutions.first) { solve() }
 
     context(PuzzleInput)
-    fun part2() = solutions.second()
+    suspend fun part2() = with(solutions.second) { solve() }
 }

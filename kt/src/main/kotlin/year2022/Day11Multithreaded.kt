@@ -1,12 +1,12 @@
 package year2022
 
 import aok.PuzzleInput
+import aok.Warmup
 import aoksp.AoKSolution
 import arrow.fx.coroutines.parMapUnordered
 import kotlinx.coroutines.flow.asFlow
-import solveAll
 
-fun main() = solveAll(warmupIterations = 200) { year == 2022 && day == 11 }
+fun main() = solveDay(11, warmup = Warmup.iterations(200))
 
 @AoKSolution
 object Day11Multithreaded {

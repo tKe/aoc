@@ -22,6 +22,10 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+kotlin {
+    jvmToolchain(17)
+}
+
 dependencies {
     implementation(kotlin("reflect"))
     implementation(libs.bundles.codegen)

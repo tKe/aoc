@@ -1,25 +1,14 @@
 package year2022
 
-import InputScopeProvider
 import aok.PuzzleInput
 import aoksp.AoKSolution
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
-import queryPuzzles
-import solveAll
 
-fun main(): Unit = with(InputScopeProvider) {
-    queryPuzzles { year == 2022 && day == 21 }
-//        .warmupEach(5.seconds)
-        .solveAll(runIterations = 1)
-}
+fun main(): Unit = solveDay(21)
 
 @AoKSolution
 object Day21 {
