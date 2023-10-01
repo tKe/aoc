@@ -23,6 +23,7 @@ tasks.withType<KotlinCompile> {
             "-Xcontext-receivers",
             "-opt-in=kotlinx.coroutines.FlowPreview",
             "-opt-in=kotlin.time.ExperimentalTime",
+            "-opt-in=kotlin.ExperimentalStdlibApi"
         )
     }
 }

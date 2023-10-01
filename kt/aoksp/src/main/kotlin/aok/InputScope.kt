@@ -11,8 +11,8 @@ sealed interface PuzzleInput {
     val lineSeq: Sequence<String>
 
     companion object {
-        fun of(input: String): PuzzleInput = Impl(input.trim())
-        fun of(file: Path) = of(file.readText().trim())
+        fun of(input: String): PuzzleInput = Impl(input.trimEnd())
+        fun of(file: Path) = of(file.readText().trimEnd())
     }
 
     private data class Impl(override val input: String) : PuzzleInput {

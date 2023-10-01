@@ -1,6 +1,5 @@
 package year2017
 
-import aok.InputProvider
 import aok.PuzDSL
 import aoksp.AoKSolution
 import java.util.HexFormat
@@ -21,17 +20,20 @@ object Day10 : PuzDSL({
         }
         .first
 
+    operator fun <T> List<T>.times(n: Int) = List(n) { this }.flatten()
+
+    fun String.knotHash() = List(256) { it }
+        .knot((toByteArray().map(Byte::toInt) + listOf(17, 31, 73, 47, 23)) * 64)
+        .chunked(16) { c -> c.reduce(Int::xor).toByte() }
+        .toByteArray()
+
     part1 {
         val lengths = input.trim().split(',').mapNotNull(String::toIntOrNull)
         List(256) { it }.knot(lengths).let { (a, b) -> a * b }
     }
 
     part2 {
-        val lengths = input.trim().toByteArray().map(Byte::toInt) + listOf(17, 31, 73, 47, 23)
-        val sparse = List(256) { it }.knot(buildList { repeat(64) { addAll(lengths) } })
-
-        sparse.chunked(16) { c -> c.reduce(Int::xor).toByte() }
-            .let { HexFormat.of().formatHex(it.toByteArray()) }
+        input.trim().knotHash().let(HexFormat.of()::formatHex)
     }
 })
 
