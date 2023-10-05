@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
 
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
     implementation("com.google.jimfs:jimfs:1.2") // year-22 day-07 virtual filesystem
 
     testImplementation(libs.bundles.kotest)
