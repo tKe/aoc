@@ -14,7 +14,7 @@ repositories {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        languageVersion = "1.8"
+        languageVersion = "1.9"
         freeCompilerArgs = freeCompilerArgs + listOf(
             "-Xcontext-receivers",
             "-opt-in=kotlin.time.ExperimentalTime",

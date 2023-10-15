@@ -1,6 +1,5 @@
 package aok
 
-import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlin.time.TimedValue
 import kotlin.time.measureTimedValue
@@ -26,10 +25,7 @@ fun Iterable<Puz<*, *>>.solveAll(runIterations: Int = 1) =
                     }.sortedBy { (_, it) -> it.duration }
                     val fastest = results.minOf { it.second.duration }
                     results.forEach { (variant, it) ->
-                        val result = it.value.toString().let {
-                            if ('\n' in it) "\n" + it.lines().joinToString("\n") { line -> "\t\t$line" }
-                            else it
-                        }
+                        val result = it.value.toResultString()
                         println("\t $variant took ${it.duration} (${"%.2f".format(it.duration / fastest)}x): $result")
                     }
                 }
@@ -41,6 +37,23 @@ fun Iterable<Puz<*, *>>.solveAll(runIterations: Int = 1) =
             }
             println()
         }
+
+private fun Any?.repr() = when(this) {
+    null -> "<null>"
+    is Array<*> -> contentDeepToString()
+    is BooleanArray -> contentToString()
+    is ByteArray -> contentToString() // TODO: hex/base64?
+    is ShortArray -> contentToString()
+    is IntArray -> contentToString()
+    is LongArray -> contentToString()
+    is FloatArray -> contentToString()
+    is DoubleArray -> contentToString()
+    else -> toString()
+}
+private fun Any?.toResultString() = repr().let {
+    if ('\n' in it) "\n" + it.lines().joinToString("\n") { line -> "\t\t$line" }
+    else it
+}
 
 // default inputs
 fun Iterable<Puz<*, *>>.solveAll(runIterations: Int = 1) = with(InputProvider) { solveAll(runIterations) }

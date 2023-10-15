@@ -10,11 +10,18 @@ annotation class SolutionDsl
 interface SolutionsScope<P1, P2> {
     fun <R> parser(block: PuzzleInput.() -> R) = block
     fun <R> lineParser(mapper: (String) -> R) = parser { lines.map(mapper) }
+
     @SolutionDsl
     fun part1(solution: Solution<P1>)
 
     @SolutionDsl
     fun part2(solution: Solution<P2>)
+
+    @SolutionDsl
+    fun <R> part1(parser: PuzzleInput.() -> R, solution: suspend (R) -> P1) = part1 { solution(parser()) }
+
+    @SolutionDsl
+    fun <R> part2(parser: PuzzleInput.() -> R, solution: suspend (R) -> P2) = part2 { solution(parser()) }
 }
 
 @SolutionDsl

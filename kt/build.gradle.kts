@@ -17,7 +17,7 @@ tasks.withType<Test> { useJUnitPlatform() }
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        languageVersion = "1.8"
+        languageVersion = "1.9"
         jvmTarget = "${JavaVersion.VERSION_17}"
         freeCompilerArgs = freeCompilerArgs + listOf(
             "-Xcontext-receivers",
@@ -31,10 +31,10 @@ tasks.withType<KotlinCompile> {
 kotlin {
     jvmToolchain(17)
     sourceSets.main {
-        kotlin.srcDir("$buildDir/generated/ksp/main/kotlin")
+        kotlin.srcDir("generated/ksp/main/kotlin")
     }
     sourceSets.test {
-        kotlin.srcDir("$buildDir/generated/ksp/test/kotlin")
+        kotlin.srcDir("generated/ksp/test/kotlin")
     }
 }
 
@@ -47,8 +47,8 @@ dependencies {
     implementation(libs.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
-    implementation("com.google.jimfs:jimfs:1.2") // year-22 day-07 virtual filesystem
+    implementation(libs.kotlinx.datetime)
+    implementation(libs.jimfs) // year-22 day-07 virtual filesystem
 
     testImplementation(libs.bundles.kotest)
 }

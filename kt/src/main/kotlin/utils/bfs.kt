@@ -1,5 +1,9 @@
 package utils
 
+import java.util.*
+import kotlin.collections.ArrayDeque
+import kotlin.collections.set
+
 inline fun <T> bfs(
     start: T,
     isEnd: T.() -> Boolean = { false },
@@ -17,12 +21,38 @@ inline fun <T> bfs(
     error("no route found")
 }
 
+inline fun <T> bfs(
+    start: T,
+    isEnd: T.() -> Boolean = { false },
+    comparator: Comparator<T>,
+    crossinline moves: (T) -> Sequence<T>,
+): T {
+    val queue = PriorityQueue(comparator).also { it += start }
+    val visited = mutableSetOf<T>()
+    while (queue.isNotEmpty()) {
+        val node = queue.poll()
+        for (neighbour in moves(node)) {
+            if (neighbour.isEnd()) return neighbour
+            if (visited.add(neighbour)) queue += neighbour
+        }
+    }
+    error("no route found")
+}
+
+inline fun <T> bfsCost(
+    start: T,
+    isEnd: (T) -> Boolean = { false },
+    crossinline moves: (T) -> Sequence<Pair<T, Int>>,
+) = bfs(start to 0, { isEnd(first) }, compareBy { (_, cost) -> cost }) { (state, cost) ->
+    moves(state).map { (next, delta) -> next to (cost + delta) }
+}
+
 inline fun <T> bfsRoute(
     start: T,
     isEnd: T.() -> Boolean = { false },
     crossinline moves: T.() -> Sequence<T>,
 ): List<T> {
-    if(start.isEnd()) return emptyList()
+    if (start.isEnd()) return emptyList()
     val queue = ArrayDeque(listOf(start))
     val visited = mutableSetOf(start)
     val cameFrom = mutableMapOf<T, T>()
