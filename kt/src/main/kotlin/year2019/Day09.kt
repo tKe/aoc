@@ -1,11 +1,17 @@
 package year2019
 
 import aok.PuzDSL
+import aok.PuzzleInput
 import aoksp.AoKSolution
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.launch
 
 fun main(): Unit = solveDay(
     9,
@@ -14,25 +20,51 @@ fun main(): Unit = solveDay(
 
 @AoKSolution
 object Day09 : PuzDSL({
-    val parse = parser { input.split(",").map(String::toLong) }
-    part1(parse) { prog ->
-        IntcodeCpu(prog).process(1).single()
+    part1(IntcodeProgram) { prog ->
+        prog.process(1).single()
     }
-    part2(parse) { prog ->
-        IntcodeCpu(prog).process(2).single()
+    part2(IntcodeProgram) { prog ->
+        prog.process(2).single()
     }
 }) {
 
-    class IntcodeCpu(program: List<Long>) {
-        private val input = Channel<Long>(Channel.BUFFERED)
-        private lateinit var output: SendChannel<Long>
+    @JvmInline
+    value class IntcodeProgram(val program: List<Long>) {
+
+        suspend fun execute(inputs: ReceiveChannel<Long>, outputs: SendChannel<Long>) {
+            IntcodeCpu(program, inputs, outputs).run()
+            outputs.close()
+        }
+
+        context(CoroutineScope)
+        fun launch(
+            inputs: Channel<Long> = Channel(Channel.BUFFERED),
+            outputs: Channel<Long> = Channel(Channel.RENDEZVOUS)
+        ) = Triple(inputs as SendChannel<Long>, outputs as ReceiveChannel<Long>, launch {
+            execute(inputs, outputs)
+        })
+
+        @OptIn(ExperimentalCoroutinesApi::class)
+        fun process(vararg inputs: Long) = channelFlow {
+            execute(produce { for (input in inputs) send(input) }, channel)
+        }
+
+        companion object : (PuzzleInput) -> IntcodeProgram {
+            override fun invoke(puzzleInput: PuzzleInput) =
+                IntcodeProgram(puzzleInput.input.split(",").map(String::toLong))
+        }
+    }
+
+    class IntcodeCpu internal constructor(
+        program: List<Long>,
+        private val input: ReceiveChannel<Long>,
+        private val output: SendChannel<Long>
+    ) {
         private var memory = program.toLongArray()
         private var instr = 0
         private var rel = 0
 
-        fun process(vararg inputs: Long) = channelFlow {
-            output = channel
-            inputs.forEach { input.send(it) }
+        suspend fun run() {
             while (instr in memory.indices) execute()
         }
 
@@ -45,8 +77,9 @@ object Day09 : PuzDSL({
                 else -> error("invalid parameter mode '$mode'")
             }
         }
+
         private fun addr(addr: Int, mode: ParameterMode) = get(addr).toInt().let {
-            when(mode.value) {
+            when (mode.value) {
                 0, 1 -> it
                 2 -> rel + it
                 else -> error("invalid address mode '$mode'")
@@ -61,22 +94,18 @@ object Day09 : PuzDSL({
         private suspend fun execute() {
             val operation = Operation(get(instr++).toInt())
             val (opcode, a, b, c) = operation
-            try {
-                when (opcode.value) {
-                    99 -> halt()
-                    1 -> add(param(instr++, a), param(instr++, b), addr(instr++, c))
-                    2 -> multiply(param(instr++, a), param(instr++, b), addr(instr++, c))
-                    3 -> input(addr(instr++, a))
-                    4 -> output(param(instr++, a))
-                    5 -> jumpIfTrue(param(instr++, a), param(instr++, b))
-                    6 -> jumpIfFalse(param(instr++, a), param(instr++, b))
-                    7 -> lessThan(param(instr++, a), param(instr++, b), addr(instr++, c))
-                    8 -> equal(param(instr++, a), param(instr++, b), addr(instr++, c))
-                    9 -> rel += param(instr++, a).toInt()
-                    else -> error("unsupported opcode '$opcode'")
-                }
-            } catch (e: Exception) {
-                error("failed processing ${operation.raw} ($opcode,$a,$b,$c) -> $e")
+            when (opcode.value) {
+                99 -> halt()
+                1 -> add(param(instr++, a), param(instr++, b), addr(instr++, c))
+                2 -> multiply(param(instr++, a), param(instr++, b), addr(instr++, c))
+                3 -> input(addr(instr++, a))
+                4 -> output(param(instr++, a))
+                5 -> jumpIfTrue(param(instr++, a), param(instr++, b))
+                6 -> jumpIfFalse(param(instr++, a), param(instr++, b))
+                7 -> lessThan(param(instr++, a), param(instr++, b), addr(instr++, c))
+                8 -> equal(param(instr++, a), param(instr++, b), addr(instr++, c))
+                9 -> rel += param(instr++, a).toInt()
+                else -> error("unsupported opcode '$opcode'")
             }
         }
 
@@ -108,9 +137,10 @@ object Day09 : PuzDSL({
         }
 
         @JvmInline
-        private value class OpCode(val value:Int)
+        private value class OpCode(val value: Int)
+
         @JvmInline
-        private value class ParameterMode(val value:Int)
+        private value class ParameterMode(val value: Int)
     }
 }
 
