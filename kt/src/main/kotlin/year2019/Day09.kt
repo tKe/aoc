@@ -31,6 +31,8 @@ object Day09 : PuzDSL({
     @JvmInline
     value class IntcodeProgram(val program: List<Long>) {
 
+        fun modify(block: (LongArray) -> Unit) = IntcodeProgram(program.toLongArray().also(block).toList())
+
         suspend fun execute(inputs: ReceiveChannel<Long>, outputs: SendChannel<Long>) {
             IntcodeCpu(program, inputs, outputs).run()
             outputs.close()

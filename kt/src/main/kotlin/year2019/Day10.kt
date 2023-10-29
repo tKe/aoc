@@ -2,6 +2,7 @@ package year2019
 
 import aok.PuzDSL
 import aoksp.AoKSolution
+import utils.gcd
 import kotlin.math.PI
 import kotlin.math.absoluteValue
 import kotlin.math.atan2
@@ -49,11 +50,6 @@ object Day10 : PuzDSL({
         }
     }
 
-    tailrec fun gcd(a: Int, b: Int): Int = when {
-        a == 0 -> b
-        b == 0 -> a
-        else -> gcd(minOf(a, b), maxOf(a, b) % minOf(a, b))
-    }
 
     fun Int2.intermediatesTo(other: Int2): Sequence<Int2> {
         val vector = other - this
