@@ -2,10 +2,11 @@ package year2019
 
 import aok.PuzDSL
 import aoksp.AoKSolution
-import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.onSuccess
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.selects.SelectBuilder
 import kotlinx.coroutines.selects.selectUnbiased
 import year2019.Day09.IntcodeProgram
@@ -35,6 +36,7 @@ object Day13 : PuzDSL({
     }.size
 
     part1(IntcodeProgram) { prog ->
+        generateSequence(Day09.IntcodeCpu(prog.program)::advance)
         prog.countBlocks()
     }
 

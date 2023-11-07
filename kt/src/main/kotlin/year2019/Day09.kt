@@ -12,6 +12,8 @@ import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
+import year2019.Day09.IntcodeCpu.Input
+import year2019.Day09.IntcodeCpu.Output
 
 fun main(): Unit = solveDay(
     9,
@@ -30,11 +32,12 @@ object Day09 : PuzDSL({
 
     @JvmInline
     value class IntcodeProgram(val program: List<Long>) {
+        fun load() = IntcodeCpu(program)
 
         fun modify(block: (LongArray) -> Unit) = IntcodeProgram(program.toLongArray().also(block).toList())
 
-        suspend fun execute(inputs: ReceiveChannel<Long>, outputs: SendChannel<Long>) {
-            IntcodeCpu(program, inputs, outputs).run()
+        private suspend fun execute(inputs: ReceiveChannel<Long>, outputs: SendChannel<Long>) {
+            load().run(inputs, outputs)
             outputs.close()
         }
 
@@ -45,6 +48,17 @@ object Day09 : PuzDSL({
         ) = Triple(inputs as SendChannel<Long>, outputs as ReceiveChannel<Long>, launch {
             execute(inputs, outputs)
         })
+
+
+        private suspend fun IntcodeCpu.run(input: ReceiveChannel<Long>, output: SendChannel<Long>) {
+            while (true) {
+                when (val interrupt = advance()) {
+                    IntcodeCpu.Halt -> break
+                    is Input -> interrupt(input.receive())
+                    is Output -> output.send(interrupt())
+                }
+            }
+        }
 
         @OptIn(ExperimentalCoroutinesApi::class)
         fun process(vararg inputs: Long) = channelFlow {
@@ -57,20 +71,63 @@ object Day09 : PuzDSL({
         }
     }
 
-    class IntcodeCpu internal constructor(
-        program: List<Long>,
-        private val input: ReceiveChannel<Long>,
-        private val output: SendChannel<Long>
+    class IntcodeCpu private constructor(
+        private var memory: LongArray,
+        private var instr: Int = 0,
+        private var rel: Int = 0,
     ) {
-        private var memory = program.toLongArray()
-        private var instr = 0
-        private var rel = 0
+        internal constructor(program: List<Long>) : this(program.toLongArray())
 
-        suspend fun run() {
-            while (instr in memory.indices) execute()
+        fun trySend(value: Long) = (advance() as? Input)?.invoke(value) != null
+        fun send(value: Long) = with(advance()) {
+            require(this is Input)
+            invoke(value)
+        }
+
+        fun tryReceive() = (advance() as? Output)?.invoke()
+        fun receive() = with(advance()) {
+            require(this is Output)
+            invoke()
+        }
+
+        tailrec fun advance(): Interrupt {
+            val (opcode, a, b, c) = Operation(get(instr).toInt())
+            return when (opcode.value) {
+                99 -> Halt
+                3 -> Input {
+                    instr++
+                    set(addr(instr++, a), it)
+                }
+
+                4 -> Output {
+                    instr++
+                    param(instr++, a)
+                }
+
+                else -> {
+                    instr++
+                    when (opcode.value) {
+                        1 -> add(param(instr++, a), param(instr++, b), addr(instr++, c))
+                        2 -> multiply(param(instr++, a), param(instr++, b), addr(instr++, c))
+                        5 -> jumpIfTrue(param(instr++, a), param(instr++, b))
+                        6 -> jumpIfFalse(param(instr++, a), param(instr++, b))
+                        7 -> lessThan(param(instr++, a), param(instr++, b), addr(instr++, c))
+                        8 -> equal(param(instr++, a), param(instr++, b), addr(instr++, c))
+                        9 -> rel += param(instr++, a).toInt()
+                        else -> error("unsupported opcode '$opcode'")
+                    }
+                    advance()
+                }
+            }
         }
 
         operator fun get(addr: Int) = if (addr > memory.lastIndex) 0L else memory[addr]
+
+        operator fun set(addr: Int, value: Long) {
+            if (addr > memory.lastIndex) memory = memory.copyOf(addr + 32)
+            memory[addr] = value
+        }
+
         private fun param(addr: Int, mode: ParameterMode) = get(addr).let {
             when (mode.value) {
                 0 -> get(it.toInt())
@@ -88,37 +145,8 @@ object Day09 : PuzDSL({
             }
         }.toInt()
 
-        operator fun set(addr: Int, value: Long) {
-            if (addr > memory.lastIndex) memory = memory.copyOf(addr + 32)
-            memory[addr] = value
-        }
-
-        private suspend fun execute() {
-            val operation = Operation(get(instr++).toInt())
-            val (opcode, a, b, c) = operation
-            when (opcode.value) {
-                99 -> halt()
-                1 -> add(param(instr++, a), param(instr++, b), addr(instr++, c))
-                2 -> multiply(param(instr++, a), param(instr++, b), addr(instr++, c))
-                3 -> input(addr(instr++, a))
-                4 -> output(param(instr++, a))
-                5 -> jumpIfTrue(param(instr++, a), param(instr++, b))
-                6 -> jumpIfFalse(param(instr++, a), param(instr++, b))
-                7 -> lessThan(param(instr++, a), param(instr++, b), addr(instr++, c))
-                8 -> equal(param(instr++, a), param(instr++, b), addr(instr++, c))
-                9 -> rel += param(instr++, a).toInt()
-                else -> error("unsupported opcode '$opcode'")
-            }
-        }
-
-        private fun halt() {
-            instr = -1
-        }
-
         private fun add(a: Long, b: Long, c: Int) = set(c, a + b)
         private fun multiply(a: Long, b: Long, c: Int) = set(c, a * b)
-        private suspend fun input(a: Int) = set(a, input.receive())
-        private suspend fun output(a: Long) = output.send(a)
         private fun jumpIfTrue(a: Long, b: Long) {
             if (a != 0L) instr = b.toInt()
         }
@@ -143,6 +171,33 @@ object Day09 : PuzDSL({
 
         @JvmInline
         private value class ParameterMode(val value: Int)
+
+        sealed interface Interrupt
+        fun interface Input : Interrupt {
+            operator fun invoke(value: Long)
+        }
+
+        fun interface Output : Interrupt {
+            operator fun invoke(): Long
+        }
+
+        data object Halt : Interrupt
+
+        fun snapshot(): Snapshot = State(memory.copyOf(), instr, rel)
+        fun restore(snapshot: Snapshot) = when (snapshot) {
+            is State -> {
+                memory = snapshot.memory.copyOf()
+                instr = snapshot.instr
+                rel = snapshot.rel
+            }
+        }
+
+        private class State(val memory: LongArray, val instr: Int, val rel: Int) : Snapshot {
+            override fun fork() = IntcodeCpu(memory.copyOf(), instr, rel)
+        }
+        sealed interface Snapshot {
+            fun fork(): IntcodeCpu
+        }
     }
 }
 
