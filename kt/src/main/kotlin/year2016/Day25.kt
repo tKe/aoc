@@ -1,11 +1,7 @@
 package year2016
 
 import aok.PuzDSL
-import aok.PuzzleInput
-import aok.Warmup
 import aoksp.AoKSolution
-import utils.bfs
-import kotlin.time.Duration.Companion.seconds
 
 @AoKSolution
 object Day25 : PuzDSL({

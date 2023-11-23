@@ -15,7 +15,7 @@ object Day17 : PuzDSL({
 
     fun IntcodeCpu.readMap() = buildString {
         while (true) when (val interrupt = advance()) {
-            is IntcodeCpu.Output -> append(interrupt().toInt().toChar())
+            is IntcodeCpu.Output -> append(interrupt.read().toInt().toChar())
             else -> break
         }
     }

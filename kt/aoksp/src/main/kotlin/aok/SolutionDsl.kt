@@ -6,10 +6,22 @@ import kotlin.reflect.KProperty
 annotation class SolutionDsl
 
 
+fun interface Parser<T> {
+    context(PuzzleInput)
+    fun parse(): T
+    fun <R> map(f: (T) -> R) = Parser { f(parse()) }
+    fun <R> andThen(f: (T) -> R) = map(f)
+    context(PuzzleInput)
+    operator fun invoke() = parse()
+    operator fun invoke(input: String) = with(PuzzleInput.of(input)) { parse() }
+}
+
+fun <R> LineParser(mapper: (line: String) -> R) = Parser { lines.map(mapper) }
+
 @SolutionDsl
 interface SolutionsScope<P1, P2> {
-    fun <R> parser(block: PuzzleInput.() -> R) = block
-    fun <R> lineParser(mapper: (String) -> R) = parser { lines.map(mapper) }
+    fun <R> parser(block: Parser<R>) = block
+    fun <R> lineParser(mapper: (line: String) -> R) = LineParser(mapper)
 
     @SolutionDsl
     fun part1(solution: Solution<P1>)
@@ -18,10 +30,10 @@ interface SolutionsScope<P1, P2> {
     fun part2(solution: Solution<P2>)
 
     @SolutionDsl
-    fun <R> part1(parser: PuzzleInput.() -> R, solution: suspend (R) -> P1) = part1 { solution(parser()) }
+    fun <R> part1(parser: Parser<R>, solution: suspend (R) -> P1) = part1 { solution(parser.parse()) }
 
     @SolutionDsl
-    fun <R> part2(parser: PuzzleInput.() -> R, solution: suspend (R) -> P2) = part2 { solution(parser()) }
+    fun <R> part2(parser: Parser<R>, solution: suspend (R) -> P2) = part2 { solution(parser.parse()) }
 }
 
 @SolutionDsl

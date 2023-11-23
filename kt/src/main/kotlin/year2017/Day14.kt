@@ -2,9 +2,6 @@ package year2017
 
 import aok.PuzDSL
 import aoksp.AoKSolution
-import arrow.core.identity
-import utils.bfs
-import kotlin.experimental.and
 
 @AoKSolution
 object Day14 : PuzDSL({

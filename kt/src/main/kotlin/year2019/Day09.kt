@@ -1,7 +1,7 @@
 package year2019
 
+import aok.Parser
 import aok.PuzDSL
-import aok.PuzzleInput
 import aoksp.AoKSolution
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,7 +29,7 @@ object Day09 : PuzDSL({
         prog.process(2).single()
     }
 }) {
-
+    private val instrParser = Parser { input.split(",").map(String::toLong) }
     @JvmInline
     value class IntcodeProgram(val program: List<Long>) {
         fun load() = IntcodeCpu(program)
@@ -54,8 +54,8 @@ object Day09 : PuzDSL({
             while (true) {
                 when (val interrupt = advance()) {
                     IntcodeCpu.Halt -> break
-                    is Input -> interrupt(input.receive())
-                    is Output -> output.send(interrupt())
+                    is Input -> interrupt.set(input.receive())
+                    is Output -> output.send(interrupt.read())
                 }
             }
         }
@@ -65,10 +65,7 @@ object Day09 : PuzDSL({
             execute(produce { for (input in inputs) send(input) }, channel)
         }
 
-        companion object : (PuzzleInput) -> IntcodeProgram {
-            override fun invoke(puzzleInput: PuzzleInput) =
-                IntcodeProgram(puzzleInput.input.split(",").map(String::toLong))
-        }
+        companion object : Parser<IntcodeProgram> by instrParser.map(::IntcodeProgram)
     }
 
     class IntcodeCpu private constructor(
@@ -76,34 +73,32 @@ object Day09 : PuzDSL({
         private var instr: Int = 0,
         private var rel: Int = 0,
     ) {
+        companion object : Parser<IntcodeCpu> by instrParser.map(::IntcodeCpu)
         internal constructor(program: List<Long>) : this(program.toLongArray())
 
-        fun trySend(value: Long) = (advance() as? Input)?.invoke(value) != null
+        fun trySend(value: Long) = (advance() as? Input)?.set(value) != null
         fun send(value: Long) = with(advance()) {
-            require(this is Input)
-            invoke(value)
+            require(this is Input) { "expected Input but was $this" }
+            set(value)
         }
 
-        fun tryReceive() = (advance() as? Output)?.invoke()
+        fun send(vararg inputs: Int) = inputs.forEach { send(it.toLong()) }
+        fun send(vararg inputs: Long) = inputs.forEach { send(it) }
+
+        fun tryReceive() = (advance() as? Output)?.read()
         fun receive() = with(advance()) {
             require(this is Output)
-            invoke()
+            read()
         }
+
+        fun receiveSequence() = generateSequence { (advance() as? Output)?.read() }
 
         tailrec fun advance(): Interrupt {
             val (opcode, a, b, c) = Operation(get(instr).toInt())
             return when (opcode.value) {
                 99 -> Halt
-                3 -> Input {
-                    instr++
-                    set(addr(instr++, a), it)
-                }
-
-                4 -> Output {
-                    instr++
-                    param(instr++, a)
-                }
-
+                3 -> In(a)
+                4 -> Out(a)
                 else -> {
                     instr++
                     when (opcode.value) {
@@ -172,13 +167,33 @@ object Day09 : PuzDSL({
         @JvmInline
         private value class ParameterMode(val value: Int)
 
+        private abstract inner class IO {
+            protected val a = instr
+                get() {
+                    require(instr == field)
+                    instr++
+                    return instr++
+                }
+
+            override fun toString() = this::class.simpleName ?: "IO"
+        }
+
+        private inner class In(private val mode: ParameterMode) : IO(), Input {
+            override fun set(value: Long) = set(addr(a, mode), value)
+        }
+
+        private inner class Out(private val mode: ParameterMode) : IO(), Output {
+            override fun read() = param(a, mode)
+        }
+
         sealed interface Interrupt
         fun interface Input : Interrupt {
-            operator fun invoke(value: Long)
+            fun set(value: Long)
+            fun set(value: Int) = set(value.toLong())
         }
 
         fun interface Output : Interrupt {
-            operator fun invoke(): Long
+            fun read(): Long
         }
 
         data object Halt : Interrupt
@@ -195,6 +210,7 @@ object Day09 : PuzDSL({
         private class State(val memory: LongArray, val instr: Int, val rel: Int) : Snapshot {
             override fun fork() = IntcodeCpu(memory.copyOf(), instr, rel)
         }
+
         sealed interface Snapshot {
             fun fork(): IntcodeCpu
         }
