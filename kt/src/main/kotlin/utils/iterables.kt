@@ -48,4 +48,14 @@ private fun <T> Iterable<T>.combinationsWithReplacement(r: Int) = sequence {
     }
 }
 
+fun <T> Iterable<T>.splitWhen(predicate: (T) -> Boolean) = sequence {
+    val buf = mutableListOf<T>()
+    for (value in this@splitWhen) {
+        if (predicate(value)) {
+            if (buf.isNotEmpty()) yield(buf.toList())
+            buf.clear()
+        } else buf.add(value)
+    }
+}
+
 private operator fun IntArray.set(indices: IntRange, value: Int) = indices.forEach { set(it, value) }

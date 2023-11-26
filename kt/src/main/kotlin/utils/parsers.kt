@@ -13,4 +13,5 @@ fun String.replace(vararg replacements: Pair<String, String>) =
 
 object Parsers {
     object Ints : Parser<List<Int>> by (LineParser(String::toIntOrNull).map{ it.filterNotNull() })
+    object Longs : Parser<List<Long>> by (LineParser(String::toLongOrNull).map{ it.filterNotNull() })
 }

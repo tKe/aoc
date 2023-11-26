@@ -18,6 +18,8 @@ fun interface Parser<T> {
 
 fun <R> LineParser(mapper: (line: String) -> R) = Parser { lines.map(mapper) }
 
+fun <T, R> Parser<List<T>>.map(mapper: (T) -> R) = map { it.map(mapper) }
+
 @SolutionDsl
 interface SolutionsScope<P1, P2> {
     fun <R> parser(block: Parser<R>) = block
