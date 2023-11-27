@@ -28,6 +28,7 @@ sealed interface PuzzleInput {
     private data class Impl(override val input: String) : PuzzleInput {
         override val lines = input.lines()
         override val lineSeq = lines.asSequence()
+        override fun toString() = "\"${input.replace("\"", "\\\"")}\""
     }
 }
 
@@ -55,6 +56,7 @@ private val searchPaths by lazy {
 @JvmInline
 value class FixedInput(private val input: PuzzleInput) : InputProvider {
     override fun forPuzzle(year: Int, day: Int) = input
+    override fun toString() = "Fixed($input)"
 }
 
 
