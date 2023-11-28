@@ -3,21 +3,8 @@ package aoksp
 import aok.Puz
 import aok.PuzKey
 import aok.PuzzleInput
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.Dependencies
-import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.processing.Resolver
-import com.google.devtools.ksp.processing.SymbolProcessor
-import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
-import com.google.devtools.ksp.processing.SymbolProcessorProvider
-import com.google.devtools.ksp.symbol.KSAnnotated
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFile
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSType
-import com.google.devtools.ksp.symbol.KSTypeAlias
-import com.google.devtools.ksp.symbol.KSTypeReference
-import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.processing.*
+import com.google.devtools.ksp.symbol.*
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -53,6 +40,7 @@ class AdventOfKotlinSymbolProcessor(
                     .addFunction(FunSpec.builder("queryDay")
                         .addParameter(ParameterSpec.builder("day", typeNameOf<Int?>()).defaultValue("null").build())
                         .addStatement("return %T::class.sealedObjects.filter { day == null || it.day == day }", yearClassName(year))
+                        .returns(typeNameOf<List<Puz<*, *>>>())
                         .build())
                     .addFunction(FunSpec.builder("solveDay")
                         .addParameter(ParameterSpec.builder("day", typeNameOf<Int?>()).defaultValue("null").build())
@@ -114,12 +102,12 @@ class AdventOfKotlinSymbolProcessor(
         part1: KSFunctionDeclaration?,
         part2: KSFunctionDeclaration?,
     ) = objectBuilder("PuzYear${year}Day$day${variant.upperCamel}").apply {
-        superclass(
-            yearClassName(year).parameterizedBy(
-                part1?.returnType?.unaliased()?.toTypeName() ?: Any::class.asTypeName(),
-                part2?.returnType?.unaliased()?.toTypeName() ?: Any::class.asTypeName()
-            )
-        )
+
+        val tvPart1 = part1?.returnType?.unaliased()?.toTypeName() ?: ANY
+        val tvPart2 = part2?.returnType?.unaliased()?.toTypeName() ?: ANY
+
+        addModifiers(KModifier.DATA)
+        superclass(yearClassName(year).parameterizedBy(tvPart1, tvPart2))
         addSuperclassConstructorParameter("%L", day)
         addProperty(
             PropertySpec.builder(PuzKey::variant.name, String::class, KModifier.FINAL, KModifier.OVERRIDE)
@@ -130,6 +118,7 @@ class AdventOfKotlinSymbolProcessor(
             listOfNotNull(part1?.to("part1"), part2?.to("part2")).map { (target, func) ->
                 val partImpl = FunSpec.builder(func)
                     .contextReceivers(PuzzleInput::class.asTypeName())
+                    .returns(target.returnType?.unaliased()?.toTypeName() ?: ANY)
                     .addModifiers(KModifier.OVERRIDE)
 
                 val targetMember = when (val parent = target.parent) {
