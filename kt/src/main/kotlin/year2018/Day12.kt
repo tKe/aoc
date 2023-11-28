@@ -2,7 +2,6 @@ package year2018
 
 import aok.PuzDSL
 import aoksp.AoKSolution
-import kotlin.time.Duration.Companion.seconds
 
 fun main(): Unit = solveDay(
     12,
@@ -51,9 +50,9 @@ object Day12 : PuzDSL({
     fun Set<Int>.evolveBy(evolutions: Set<Int>) = generateSequence(this) { plants ->
         buildSet {
             var key = 0
-            for(pot in plants.min()-2..plants.max() + 2) {
+            for (pot in plants.min() - 2..plants.max() + 2) {
                 // shift our key and add the i+2'th pot
-                key = key.shl(1).or(if (pot+2 in plants) 1 else 0).and(0b11111)
+                key = key.shl(1).or(if (pot + 2 in plants) 1 else 0).and(0b11111)
                 if (key in evolutions) add(pot)
             }
         }
@@ -75,11 +74,9 @@ object Day12 : PuzDSL({
         var run = 0
         for ((idx, sum) in sums.withIndex()) {
             val delta = sum - lastSum
-            println(delta)
             if (lastDelta == delta) {
                 run++
-                if(run == 100)
-                return@part2 sum + (generations - idx) * delta
+                if (run == 100) return@part2 sum + (generations - idx) * delta
             }
             lastSum = sum
             lastDelta = delta

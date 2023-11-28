@@ -3,7 +3,6 @@ package year2018
 import aok.PuzDSL
 import aoksp.AoKSolution
 import utils.splitIntsNotNull
-import kotlin.math.absoluteValue
 
 fun main(): Unit = solveDay(
     10,

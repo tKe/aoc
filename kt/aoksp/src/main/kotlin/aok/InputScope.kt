@@ -10,6 +10,7 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.io.path.createParentDirectories
 import kotlin.io.path.readText
 
 sealed interface PuzzleInput {
@@ -109,7 +110,7 @@ private fun downloadInput(year: Int, day: Int): Path {
         })
         .build()
         .send(req) {
-            if (it.statusCode() == 200) BodySubscribers.ofFile(dest)
+            if (it.statusCode() == 200) BodySubscribers.ofFile(dest.createParentDirectories())
             else BodySubscribers.ofString(Charset.defaultCharset())
         }
 
