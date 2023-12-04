@@ -16,13 +16,15 @@ object Day04 : PuzDSL({
             .map { it.splitIntsNotNull(" ").toSet() }
             .let { (winners, numbers) -> numbers.count(winners::contains) }
     }
+
     part1(parseWins) { wins ->
-        wins.sumOf { 1.shl(it - 1) }
+        wins.filter { it > 0 }
+            .sumOf { 1.shl(it - 1) }
     }
 
     part2(parseWins) { wins ->
         val copies = IntArray(wins.size) { 1 }
-        for (idx in wins.indices) repeat(wins[idx]) { copies[it + idx + 1]+=copies[idx] }
+        for (idx in wins.indices) repeat(wins[idx]) { copies[it + idx + 1] += copies[idx] }
         copies.sum()
     }
 })
