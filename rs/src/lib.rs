@@ -70,6 +70,18 @@ macro_rules! gen_test {
 }
 
 #[macro_export]
+macro_rules! gen_test_main {
+    ($solver:ident => $expected:expr) => {
+        #[test]
+        fn $solver() {
+            use super::*;
+            use ::rust_aoc::assert_all_eq;
+            assert_all_eq!($solver with input(YEAR, DAY, "input"), $expected);
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! gen_tests {
     ($($solver:ident),+ => $expected:expr) => ($(gen_test!($solver => $expected);)+)
 }
