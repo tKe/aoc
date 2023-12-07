@@ -9,15 +9,16 @@ private object Missing
 
 context(DslDrivenSpec, List<Puz<*, *>>)
 infix fun InputProvider.shouldGenerate(expected: ExpectedResults) =
-    include("$this - ", shouldAll(this, expected.part1, expected.part2))
+    include("$this - ", testAllSolutions(this, expected.part1, expected.part2))
 
 context(DslDrivenSpec, List<Puz<*, *>>)
 infix fun String.shouldGenerate(expected: ExpectedResults) = InputProvider.raw(this) shouldGenerate expected
 
 data class ExpectedResults(val part1: Any = Missing, val part2: Any = Missing)
+
 fun results(part1: Any = Missing, part2: Any = Missing) = ExpectedResults(part1, part2)
 
-fun List<Puz<*, *>>.shouldAll(
+fun List<Puz<*, *>>.testAllSolutions(
     inputProvider: InputProvider = InputProvider,
     part1: Any = Missing,
     part2: Any = Missing,
@@ -25,8 +26,8 @@ fun List<Puz<*, *>>.shouldAll(
     val year = map { it.year }.distinct().singleOrNull() ?: error("expect single year")
     val day = map { it.day }.distinct().singleOrNull() ?: error("expect single day")
     val input = inputProvider.forPuzzle(year, day)
-    for (puz in this@shouldAll) {
-        "$year-$day-${puz.variant}" - {
+    for (puz in this@testAllSolutions) {
+        "$year-$day-${puz.variant} [$inputProvider]" - {
             if (part1 !== Missing) {
                 "part1" {
                     with(input) {

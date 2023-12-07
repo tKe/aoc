@@ -1,6 +1,6 @@
 package year2019
 
-import aok.shouldAll
+import aok.testAllSolutions
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -80,5 +80,5 @@ class Day22Test : FreeSpec({
         }
     }
 
-    include(queryDay(22).shouldAll(part1 = 6850L, part2 = 13224103523662))
+    include(queryDay(22).testAllSolutions(part1 = 6850L, part2 = 13224103523662))
 })
