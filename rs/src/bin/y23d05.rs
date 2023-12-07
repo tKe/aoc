@@ -1,6 +1,6 @@
-use std::ops::Range;
 use itertools::Itertools;
 use rust_aoc::solve_and_log;
+use std::ops::Range;
 
 const YEAR: u16 = 2023;
 const DAY: u8 = 5;
@@ -18,7 +18,8 @@ type RangeMapper = Vec<(Range<u64>, Range<u64>)>;
 
 impl Mapper for RangeMapper {
     fn map(&self, v: u64) -> u64 {
-        self.iter().find(|(src, _)| src.contains(&v))
+        self.iter()
+            .find(|(src, _)| src.contains(&v))
             .map(|(src, dst)| v - src.start + dst.start)
             .unwrap_or(v)
     }
@@ -56,7 +57,6 @@ impl Mapper for RangeMapper {
             }
         }
 
-
         return res;
     }
 }
@@ -64,22 +64,31 @@ impl Mapper for RangeMapper {
 fn parse(input: &str) -> Option<(Vec<u64>, Vec<RangeMapper>)> {
     let mut sections = input.split("\n\n");
 
-    let seeds = sections.next()?
+    let seeds = sections
+        .next()?
         .split_once(": ")?
-        .1.split(" ").map(|s| s.parse::<u64>().unwrap())
+        .1
+        .split(" ")
+        .map(|s| s.parse::<u64>().unwrap())
         .collect();
 
-    let mappers: Vec<Vec<(Range<u64>, Range<u64>)>> = sections.map(|section| {
-        section.lines().skip(1)
-            .map(|s| {
-                let (dst, src, len) = s.split(" ")
-                    .filter_map(|s| s.parse::<u64>().ok())
-                    .collect_tuple().unwrap();
-                (src..(src + len), dst..(dst + len))
-            })
-            .sorted_by_key(|(src, _)| src.start)
-            .collect()
-    }).collect();
+    let mappers: Vec<Vec<(Range<u64>, Range<u64>)>> = sections
+        .map(|section| {
+            section
+                .lines()
+                .skip(1)
+                .map(|s| {
+                    let (dst, src, len) = s
+                        .split(" ")
+                        .filter_map(|s| s.parse::<u64>().ok())
+                        .collect_tuple()
+                        .unwrap();
+                    (src..(src + len), dst..(dst + len))
+                })
+                .sorted_by_key(|(src, _)| src.start)
+                .collect()
+        })
+        .collect();
 
     Some((seeds, mappers))
 }
@@ -87,12 +96,9 @@ fn parse(input: &str) -> Option<(Vec<u64>, Vec<RangeMapper>)> {
 fn part1(input: &str) -> Option<u64> {
     let (seeds, mappers) = parse(input)?;
 
-    let mapped = mappers.iter()
-        .fold(seeds, |acc, mapper| {
-            acc.iter()
-                .map(|&v| mapper.map(v))
-                .collect()
-        });
+    let mapped = mappers.iter().fold(seeds, |acc, mapper| {
+        acc.iter().map(|&v| mapper.map(v)).collect()
+    });
 
     let min = *mapped.iter().min()?;
 
@@ -104,12 +110,11 @@ fn part2(input: &str) -> Option<u64> {
 
     let seed_ranges: Vec<Range<u64>> = seeds.chunks_exact(2).map(|c| c[0]..(c[0] + c[1])).collect();
 
-    let mapped = mappers.iter()
-        .fold(seed_ranges, |acc, mapper| {
-            acc.iter()
-                .flat_map(|r| mapper.map_range(r.start..r.end))
-                .collect()
-        });
+    let mapped = mappers.iter().fold(seed_ranges, |acc, mapper| {
+        acc.iter()
+            .flat_map(|r| mapper.map_range(r.start..r.end))
+            .collect()
+    });
 
     let min = mapped.iter().map(|r| r.start).min()?;
 
@@ -121,4 +126,3 @@ mod tests {
     gen_test_main!(part1 => 84470622);
     gen_test_main!(part2 => 26714516);
 }
-
