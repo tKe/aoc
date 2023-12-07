@@ -12,19 +12,7 @@ fn main() {
 const CARD_VALUES: &str = "_23456789TJQKA";
 
 fn parse_hand(hand: &str) -> u32 {
-    let mut char_counts = hand.chars().counts();
-
-    // merge wildcards into best count
-    match char_counts.remove(&'_') {
-        Some(5) => { char_counts.insert('A', 5); }
-        Some(wildcards) => {
-            let (&best, &count) = char_counts.iter().max_by_key(|(&c, &cnt)| (cnt, hand.find(c))).unwrap();
-            char_counts.insert(best, count + wildcards);
-        }
-        _ => {}
-    }
-
-    let counts = char_counts.values().sorted().collect_vec();
+    let counts = hand_counts(hand);
     let hand_type = match (counts.iter().max().unwrap(), counts.len()) {
         (5, _) => 6,
         (4, _) => 5,
@@ -37,6 +25,24 @@ fn parse_hand(hand: &str) -> u32 {
 
     hand.chars()
         .fold(hand_type, |acc, c| acc << 4 | CARD_VALUES.find(c).map_or(0, |i| i as u32))
+}
+
+fn hand_counts(hand: &str) -> Vec<usize> {
+    let mut char_counts = hand.chars().counts();
+
+    // merge wildcards into best count
+    match char_counts.remove(&'_') {
+        Some(5) => { char_counts.insert('A', 5); }
+        Some(wildcards) => {
+            if let Some((_, count)) = char_counts.iter_mut()
+                .max_by_key(|(&c, cnt)| (**cnt, hand.find(c))) {
+                *count += wildcards;
+            }
+        }
+        _ => {}
+    }
+
+    char_counts.into_values().collect_vec()
 }
 
 fn winnings(input: &str) -> u64 {
