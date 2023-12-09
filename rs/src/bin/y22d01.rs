@@ -33,4 +33,3 @@ mod tests {
     gen_test!(part1 => 24000);
     gen_test!(part2 => 45000);
 }
-
