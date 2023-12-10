@@ -6,6 +6,7 @@ kotlin = "1.9.21"
 ksp = "1.9.21-1.0.15"
 kotlinpoet = "1.15.1"
 kotlinx-serialization = "1.4.1"
+jmh = "0.7.2"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
@@ -43,4 +44,5 @@ codegen = [
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp"}
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+jmh = { id = "me.champeau.jmh", version.ref = "jmh" }

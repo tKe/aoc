@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.jmh)
 }
 
 group = "com.github.tke"
@@ -38,6 +39,14 @@ kotlin {
     }
 }
 
+jmh {
+    includeTests = false
+    fork = 1
+    iterations = 3
+    warmup = "5s"
+    timeOnIteration = "5s"
+}
+
 dependencies {
     ksp("com.github.tke:aoksp")
     implementation("com.github.tke:aoksp")
@@ -49,6 +58,7 @@ dependencies {
 
     implementation(libs.kotlinx.datetime)
     implementation(libs.jimfs) // year-22 day-07 virtual filesystem
+    implementation("org.openjdk.jmh:jmh-core:1.37")
 
     testImplementation(libs.bundles.kotest)
 }
