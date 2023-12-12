@@ -2,7 +2,6 @@ package aok
 
 import io.kotest.core.spec.DslDrivenSpec
 import io.kotest.core.spec.style.freeSpec
-import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 
 private object Missing
@@ -28,18 +27,12 @@ fun List<Puz<*, *>>.testAllSolutions(
     val input = inputProvider.forPuzzle(year, day)
     for (puz in this@testAllSolutions) {
         "$year-$day-${puz.variant} [$inputProvider]" - {
-            if (part1 !== Missing) {
-                "part1" {
-                    with(input) {
-                        runCatching { puz.part1() } shouldBeSuccess part1
-                    }
+            with(input) {
+                "part1".config(enabled = part1 !== Missing) {
+                    puz.part1().toString() shouldBe part1.toString()
                 }
-            }
-            if (part2 !== Missing) {
-                "part2" {
-                    with(input) {
-                        puz.part2() shouldBe part2
-                    }
+                "part2".config(enabled = part2 !== Missing) {
+                    puz.part2().toString() shouldBe part2.toString()
                 }
             }
         }

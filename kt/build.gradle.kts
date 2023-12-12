@@ -43,8 +43,11 @@ jmh {
     includeTests = false
     fork = 1
     iterations = 3
-    warmup = "5s"
+    warmup = "3s"
     timeOnIteration = "5s"
+    benchmarkMode.addAll("avgt", "ss")
+    timeUnit = "ms"
+    includes.add("Day12")
 }
 
 dependencies {
