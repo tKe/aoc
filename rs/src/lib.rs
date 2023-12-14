@@ -5,6 +5,7 @@ use std::fs;
 #[macro_export]
 macro_rules! solve_and_log {
     ($($solvers:ident),+) => (solve_and_log!($($solvers),+ with input(YEAR, DAY)));
+    ($($solvers:ident),+ with example) => (solve_and_log!($($solvers),+ with input(YEAR, DAY, "example")));
     ($($solvers:ident),+ with input ($year:expr, $day:expr)) => (solve_and_log!($($solvers),+ with input($year, $day, "input")));
     ($($solvers:ident),+ with input ($year:expr, $day:expr, $input_name:expr)) => {{
         match rust_aoc::read_input($year, $day, $input_name) {
