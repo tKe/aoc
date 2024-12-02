@@ -17,6 +17,7 @@ fun interface Parser<T> {
 }
 
 fun <R> LineParser(mapper: (line: String) -> R) = Parser { lines.map(mapper) }
+fun <K, V> MapParser(mapper: MutableMap<K, V>.(line: String) -> Unit) = Parser { buildMap(lines.size) { lines.forEach { mapper(it) } } }
 
 fun <T, R> Parser<List<T>>.map(mapper: (T) -> R) = map { it.map(mapper) }
 

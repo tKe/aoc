@@ -67,6 +67,7 @@ object Day20 : PuzDSL({
                 '&' -> put(module.drop(1), Conjunction(destinations))
                 else -> put(module, Broadcaster(destinations))
             }
+            Unit
         }.map(::ModMap))
     }
 
