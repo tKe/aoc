@@ -39,7 +39,7 @@ object Day07 : PuzDSL({
         buildSet {
             addAll(canContain["shiny gold"].orEmpty())
             do {
-                val next = flatMap { canContain[it].orEmpty() }
+                val next = mapNotNull { canContain[it] }.flatten()
             } while (addAll(next))
         }.size
     }

@@ -18,10 +18,10 @@ tasks.withType<Test> { useJUnitPlatform() }
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        languageVersion = "1.9"
         jvmTarget = "${JavaVersion.VERSION_17}"
         freeCompilerArgs = freeCompilerArgs + listOf(
             "-Xcontext-receivers",
+//            "-Xwhen-guards", // performance?
             "-opt-in=kotlinx.coroutines.FlowPreview",
             "-opt-in=kotlin.time.ExperimentalTime",
             "-opt-in=kotlin.ExperimentalStdlibApi"
@@ -43,11 +43,11 @@ jmh {
     includeTests = false
     fork = 1
     iterations = 3
-    warmup = "3s"
-    timeOnIteration = "5s"
-    benchmarkMode.addAll("avgt", "ss")
-    timeUnit = "ms"
-    includes.add("Day12")
+    warmup = "1s"
+    timeOnIteration = "2s"
+    benchmarkMode.addAll("avgt", "ss", "thrpt")
+    timeUnit = "us"
+    includes.add("LongSplit")
 }
 
 dependencies {

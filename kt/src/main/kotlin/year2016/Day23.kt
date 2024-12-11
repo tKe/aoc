@@ -60,8 +60,9 @@ object Day23 : PuzDSL({
         context(State)
         val value: Int
 
-        data class Constant(override val value: Int) : Argument {
-            override fun toString() = "$value"
+        data class Constant(val const: Int) : Argument {
+            override fun toString() = "$const"
+            context(State) override val value: Int get() = const
         }
 
         data class Register(private val id: Int) : Argument {
@@ -120,7 +121,7 @@ object Day23 : PuzDSL({
                         && r2 is Argument.Register
                         && r3 is Argument.Register && r3 == r3a
                         && setOf(n, r1, r2, r3).size == 4
-                        && (m2 as? Argument.Constant)?.value == -2 && (m5 as? Argument.Constant)?.value == -5
+                        && (m2 as? Argument.Constant)?.const == -2 && (m5 as? Argument.Constant)?.const == -5
                     ) set(range.first, Optimization(Copy, operation(6) {
                         r2.value += r3.value * n.value
                         r3.value = 0

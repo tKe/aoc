@@ -42,7 +42,10 @@ object Day23 : PuzDSL({
         val value: Long
 
         @JvmInline
-        value class Const(override val value: Long) : Value
+        value class Const(private val const: Long) : Value {
+            context(Executor) override val value: Long
+                get() = const
+        }
         data class Register(val reg: Int) : Value {
             context(Executor)
             override val value

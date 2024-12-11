@@ -114,4 +114,4 @@ object Day12Recurse : PuzDSL({
 
 @Suppress("FunctionName")
 fun <T, R> CachedDeepRecursiveFunction(block: suspend DeepRecursiveScope<T, R>.(T) -> R) =
-    mutableMapOf<T, R>().let { cache -> DeepRecursiveFunction { cache.getOrPut(it) { block(it) } } }
+    mutableMapOf<T, R>().run { DeepRecursiveFunction { getOrPut(it) { block(it) } } }

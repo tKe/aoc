@@ -58,4 +58,23 @@ fun <T> Iterable<T>.splitWhen(predicate: (T) -> Boolean) = sequence {
     }
 }
 
+inline fun Iterable<String>.forEachCharIndexed(block: (x: Int, y: Int, c: Char) -> Unit) =
+    forEachIndexed { y, n -> n.forEachIndexed { x, c -> block(x, y, c) } }
+
+@OverloadResolutionByLambdaReturnType
+@OptIn(kotlin.experimental.ExperimentalTypeInference::class)
+inline fun List<String>.sumOfEachCharIndexed(block: (x: Int, y: Int, c: Char) -> Int): Int {
+    var sum = 0
+    forEachCharIndexed { x, y, c -> sum += block(x, y, c) }
+    return sum
+}
+
+@OverloadResolutionByLambdaReturnType
+@OptIn(kotlin.experimental.ExperimentalTypeInference::class)
+inline fun List<String>.sumOfEachCharIndexed(block: (x: Int, y: Int, c: Char) -> Long): Long {
+    var sum = 0L
+    forEachCharIndexed { x, y, c -> sum += block(x, y, c) }
+    return sum
+}
+
 private operator fun IntArray.set(indices: IntRange, value: Int) = indices.forEach { set(it, value) }

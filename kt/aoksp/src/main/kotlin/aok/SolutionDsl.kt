@@ -9,15 +9,21 @@ annotation class SolutionDsl
 fun interface Parser<T> {
     context(PuzzleInput)
     fun parse(): T
+
     fun <R> map(f: (T) -> R) = Parser { f(parse()) }
     fun <R> andThen(f: (T) -> R) = map(f)
     context(PuzzleInput)
     operator fun invoke() = parse()
+
+    context(PuzzleInput)
+    operator fun <R> invoke(block: (T) -> R) = block(parse())
+
     operator fun invoke(input: String) = with(PuzzleInput.of(input)) { parse() }
 }
 
 fun <R> LineParser(mapper: (line: String) -> R) = Parser { lines.map(mapper) }
-fun <K, V> MapParser(mapper: MutableMap<K, V>.(line: String) -> Unit) = Parser { buildMap(lines.size) { lines.forEach { mapper(it) } } }
+fun <K, V> MapParser(mapper: MutableMap<K, V>.(line: String) -> Unit) =
+    Parser { buildMap(lines.size) { lines.forEach { mapper(it) } } }
 
 fun <T, R> Parser<List<T>>.map(mapper: (T) -> R) = map { it.map(mapper) }
 
@@ -45,33 +51,41 @@ fun interface PuzzleDefinition<P1, P2> {
 }
 
 @SolutionDsl
+fun interface ScopedPuzzleDefinition<This, P1, P2> {
+    context(SolutionsScope<P1, P2>) fun This.build()
+}
+
+@SolutionDsl
 fun interface Solution<T> {
 
     @SolutionDsl
     suspend fun PuzzleInput.solve(): T
 }
 
-private operator fun <P1, P2> PuzzleDefinition<P1, P2>.provideDelegate(thisRef: Any, property: KProperty<*>) = lazy {
-    var part1 = Solution<P1> { TODO() }
-    var part2 = Solution<P2> { TODO() }
-    with(object : SolutionsScope<P1, P2> {
-        override fun part1(solution: Solution<P1>) {
-            part1 = solution
-        }
+abstract class Solutions<P1, P2> private constructor() {
+    protected var part1 = Solution<P1> { TODO() }
+    protected var part2 = Solution<P2> { TODO() }
 
-        override fun part2(solution: Solution<P2>) {
-            part2 = solution
-        }
-    }) { this@provideDelegate.build() }
-    part1 to part2
-}
-
-abstract class PuzDSL(body: PuzzleDefinition<*, *>) {
-    private val solutions by body
+    constructor(body: SolutionsScope<P1, P2>.(self: Any) -> Unit) : this() {
+        @Suppress("LeakingThis")
+        body(object : SolutionsScope<P1, P2> {
+            override fun part1(solution: Solution<P1>) { part1 = solution }
+            override fun part2(solution: Solution<P2>) { part2 = solution }
+        }, this)
+    }
 
     context(PuzzleInput)
-    suspend fun part1() = with(solutions.first) { solve() }
+    suspend fun part1() = with(part1) { solve() }
 
     context(PuzzleInput)
-    suspend fun part2() = with(solutions.second) { solve() }
+    suspend fun part2() = with(part2) { solve() }
 }
+
+abstract class PuzDSL(body: PuzzleDefinition<Any?, Any?>) : Solutions<Any?, Any?>({ body.build() }) {
+    abstract class Scoped<D>(body: ScopedPuzzleDefinition<D, Any?, Any?>) : Solutions<Any?, Any?>({ self ->
+        @Suppress("UNCHECKED_CAST")
+        self as? D ?: error("mismatched Scope")
+        with(body) { self.build() }
+    })
+}
+
