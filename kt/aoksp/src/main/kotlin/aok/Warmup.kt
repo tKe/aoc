@@ -154,6 +154,6 @@ fun Iterable<Puz<*, *>>.warmupEach(eachFor: Duration) = warmup(aok.Warmup.eachFo
 
 fun Iterable<Puz<*, *>>.warmup(iterations: Int) = with(InputProvider) { warmup(iterations) }
 fun Iterable<Puz<*, *>>.warmup(duration: Duration) = with(InputProvider) { warmup(duration) }
-fun Iterable<Puz<*, *>>.warmup(sigma: Double = 1.5, window: Int = 20) =with(InputProvider) { warmup(sigma, window) }
+fun Iterable<Puz<*, *>>.warmup(sigma: Double = 1.4, window: Int = 20) =with(InputProvider) { warmup(sigma, window) }
 
 fun Iterable<Puz<*, *>>.warmupEach(duration: Duration) = with(InputProvider) { warmupEach(duration) }

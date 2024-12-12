@@ -27,7 +27,10 @@ object Day11 {
         when {
             steps == 0 -> 1
             else -> stone.evolve { l, r ->
-                count(l, steps - 1) + if (r != -1L) count(r, steps - 1) else 0
+                count(l, steps - 1) + when (r) {
+                    -1L -> count(r, steps - 1)
+                    else -> 0
+                }
             }
         }
     }
@@ -60,7 +63,7 @@ object Day11CountUnique {
             fun add(next: Long) = put(next, getOrDefault(next, 0L) + count)
             stone.evolve { a, b ->
                 add(a)
-                if(b != -1L) add(b)
+                if (b != -1L) add(b)
             }
         }
     }
