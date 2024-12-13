@@ -12,6 +12,8 @@ fun String.splitInts(vararg delimiters: Char = charArrayOf(' ')) =
 
 fun String.splitLongs(vararg delimiters: Char = charArrayOf(' ')) =
     split(*delimiters).map(String::toLong)
+fun String.splitLongsNotNull(vararg delimiters: Char = charArrayOf(' ')) =
+    split(*delimiters).mapNotNull(String::toLongOrNull)
 
 fun String.replace(vararg replacements: Pair<String, String>) =
     replacements.fold(this) { s, (a, b) -> s.replace(a, b) }
