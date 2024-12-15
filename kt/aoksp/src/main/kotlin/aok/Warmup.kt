@@ -19,6 +19,7 @@ sealed interface Warmup {
 
     private class Auto(val history: Int = 5, val sigma: Double = 2.00) : Warmup {
         context(PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) {
+            println("Warming up ${puzzles.size} puzzles until latest $history times are within ±${sigma}σ for year $year day $day...")
             val alive = puzzles.withIndex().toMutableList()
             val timings = puzzles.map { Array(history) { Duration.INFINITE } }
             val totals = Array(puzzles.size) { Duration.ZERO }
