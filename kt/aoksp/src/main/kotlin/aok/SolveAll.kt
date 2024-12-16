@@ -6,6 +6,9 @@ import kotlin.time.Duration
 import kotlin.time.TimedValue
 import kotlin.time.measureTimedValue
 
+fun Iterable<Puz<*, *>>.solveAll(runIterations: Int = 1, inputProvider: InputProvider) =
+    with(inputProvider) { solveAll(runIterations) }
+
 context(InputProvider)
 fun Iterable<Puz<*, *>>.solveAll(runIterations: Int = 1) =
     sortedWith(compareBy<Puz<*, *>> { it.year }.thenBy { it.day })
@@ -38,6 +41,7 @@ fun Iterable<Puz<*, *>>.solveAll(runIterations: Int = 1) =
                         }
                 }
 
+                if (this@InputProvider != InputProvider.Default) println("using input '${this@InputProvider}")
                 println("year $year day $day part 1")
                 runPart { part1() }
                 println("year $year day $day part 2")
