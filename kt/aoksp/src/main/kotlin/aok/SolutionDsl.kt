@@ -62,23 +62,22 @@ fun interface Solution<T> {
     suspend fun PuzzleInput.solve(): T
 }
 
-abstract class Solutions<P1, P2> private constructor() {
-    protected var part1 = Solution<P1> { TODO() }
-    protected var part2 = Solution<P2> { TODO() }
-
-    constructor(body: SolutionsScope<P1, P2>.(self: Any) -> Unit) : this() {
-        @Suppress("LeakingThis")
+abstract class Solutions<P1, P2> internal constructor(body: SolutionsScope<P1, P2>.(self: Any) -> Unit) {
+    private val built by lazy {
+        var part1 = Solution<P1> { TODO() }
+        var part2 = Solution<P2> { TODO() }
         body(object : SolutionsScope<P1, P2> {
             override fun part1(solution: Solution<P1>) { part1 = solution }
             override fun part2(solution: Solution<P2>) { part2 = solution }
         }, this)
+        part1 to part2
     }
 
     context(PuzzleInput)
-    suspend fun part1() = with(part1) { solve() }
+    suspend fun part1() = with(built.first) { solve() }
 
     context(PuzzleInput)
-    suspend fun part2() = with(part2) { solve() }
+    suspend fun part2() = with(built.second) { solve() }
 }
 
 abstract class PuzDSL(body: PuzzleDefinition<Any?, Any?>) : Solutions<Any?, Any?>({ body.build() }) {

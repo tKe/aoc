@@ -6,6 +6,13 @@ inline fun <T> bfs(
     start: T,
     isEnd: T.() -> Boolean = { false },
     crossinline moves: T.() -> Sequence<T>,
+): Int = bfs(start, isEnd, noRoute = { error("no route found") }, moves)
+
+inline fun <T> bfs(
+    start: T,
+    isEnd: T.() -> Boolean = { false },
+    noRoute: () -> Int = { error("no route found") },
+    crossinline moves: T.() -> Sequence<T>,
 ): Int {
     val queue = ArrayDeque(listOf(start to 0))
     val visited = mutableSetOf<T>()
@@ -16,12 +23,19 @@ inline fun <T> bfs(
             if (visited.add(neighbour)) queue += neighbour to dist + 1
         }
     }
-    error("no route found")
+    return noRoute()
 }
 
 inline fun <T> bfsRoute(
     start: T,
     isEnd: T.() -> Boolean = { false },
+    crossinline moves: T.() -> Sequence<T>,
+): List<T> = bfsRoute(start, isEnd, noRoute = { error("no route found") }, moves)
+
+inline fun <T> bfsRoute(
+    start: T,
+    isEnd: T.() -> Boolean = { false },
+    noRoute: () -> List<T> = { error("no route found") },
     crossinline moves: T.() -> Sequence<T>,
 ): List<T> {
     if (start.isEnd()) return emptyList()
@@ -38,5 +52,5 @@ inline fun <T> bfsRoute(
             }
         }
     }
-    error("no route found")
+    return noRoute()
 }

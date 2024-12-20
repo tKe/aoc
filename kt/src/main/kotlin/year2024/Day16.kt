@@ -160,7 +160,7 @@ fun main() {
                 #################
             """.trimIndent(), part1 = 11048, part2 = 64
         )
-        .checkAll()
+        .checkAll(part1 = 73432, part2 = 496)
         .warmup(10.seconds)
         .solveAll(3)
 }
