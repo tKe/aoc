@@ -79,7 +79,7 @@ fun Iterable<Puz<*, *>>.checkAll(part1: Any? = NotChecked, part2: Any? = NotChec
     fun PuzzleInput.check(puz: Puz<*, *>, expected: Any? = NotChecked, part: KFunction1<PuzzleInput, Any?>) {
         if (expected != NotChecked) {
             val actual = runCatching { part(this) }.getOrElse { it }
-            if (actual != expected) {
+            if(actual.toResultString() != expected.toResultString()) {
                 failures = true
                 System.err.println("⚠️ ${puz.year}-${puz.day}-${puz.variant} ${part.name} invalid - was $actual but expected $expected")
             }
