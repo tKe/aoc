@@ -5,36 +5,35 @@ import aok.checkAll
 import aok.solveAll
 import aok.warmup
 import aoksp.AoKSolution
-import utils.bfsRoute
 import utils.forEachCharIndexed
+import year2024.Day20.track
 import kotlin.math.absoluteValue
 import kotlin.time.Duration.Companion.seconds
 
 @AoKSolution
 object Day20 {
-    context(PuzzleInput) fun part1() = solve(2)
-    context(PuzzleInput) fun part2() = solve(20)
+    context(PuzzleInput) fun part1() = track().solve(2)
+    context(PuzzleInput) fun part2() = track().solve(20)
 
-    private fun PuzzleInput.solve(cheatLength: Int): Int {
+    private fun PuzzleInput.track() = buildList {
         val (start, end) = lines.ends()
-
-        val path = buildList {
-            var at = start
-            var dir = Dir.entries.first { lines[at + it] != '#' }.right
-            add(at)
-            while(at != end) {
-                dir = dir.left.takeIf { lines[at + it] != '#' } ?: dir.right
-                while (lines[at + dir] != '#') {
-                    at += dir
-                    add(at)
-                }
+        var at = start
+        var dir = Dir.entries.first { lines[at + it] != '#' }.right
+        add(at)
+        while (at != end) {
+            dir = dir.left.takeIf { lines[at + it] != '#' } ?: dir.right
+            while (lines[at + dir] != '#') {
+                at += dir
+                add(at)
             }
         }
+    }
 
+    fun List<Pt>.solve(cheatLength: Int): Int {
         var count = 0
-        for (i in 0..(path.lastIndex - cheatLength)) {
-            for (j in (i + cheatLength)..path.lastIndex) {
-                val cost = path[i] distTo path[j]
+        for (i in 0..(lastIndex - cheatLength)) {
+            for (j in (i + cheatLength)..lastIndex) {
+                val cost = this[i] distTo this[j]
                 if (cost <= cheatLength) {
                     val saving = j - i - cost
                     if (saving >= 100) count++
@@ -43,7 +42,6 @@ object Day20 {
         }
         return count
     }
-
 
     data class Pt(val x: Int, val y: Int) {
         infix fun distTo(pt: Pt) = (x - pt.x).absoluteValue + (y - pt.y).absoluteValue
@@ -102,5 +100,5 @@ fun main() {
 //        )
         .checkAll(1426, 1000697)
         .warmup(10.seconds)
-        .solveAll(3)
+        .solveAll(10)
 }
