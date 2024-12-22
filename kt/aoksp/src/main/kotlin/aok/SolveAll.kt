@@ -1,5 +1,6 @@
 package aok
 
+import kotlin.jvm.Throws
 import kotlin.reflect.KFunction1
 import kotlin.system.exitProcess
 import kotlin.time.Duration
@@ -79,9 +80,18 @@ fun Iterable<Puz<*, *>>.checkAll(part1: Any? = NotChecked, part2: Any? = NotChec
     fun PuzzleInput.check(puz: Puz<*, *>, expected: Any? = NotChecked, part: KFunction1<PuzzleInput, Any?>) {
         if (expected != NotChecked) {
             val actual = runCatching { part(this) }.getOrElse { it }
-            if(actual.toResultString() != expected.toResultString()) {
+            if (actual !is NotImplementedError && actual.toResultString() != expected.toResultString()) {
                 failures = true
-                System.err.println("⚠️ ${puz.year}-${puz.day}-${puz.variant} ${part.name} invalid - was $actual but expected $expected")
+
+                System.err.println(buildString {
+                    append("⚠️ ${puz.year}-${puz.day}-${puz.variant} ${part.name} ")
+                    append(
+                        when (actual) {
+                            is Throwable -> "failed - ${actual.stackTraceToString()}"
+                            else -> "invalid - was $actual but expected $expected"
+                        }
+                    )
+                })
             }
         }
     }

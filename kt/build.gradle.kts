@@ -18,7 +18,7 @@ tasks.withType<Test> { useJUnitPlatform() }
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        jvmTarget = "${JavaVersion.VERSION_17}"
+        jvmTarget = "${JavaVersion.VERSION_21}"
         freeCompilerArgs = freeCompilerArgs + listOf(
             "-Xcontext-receivers",
 //            "-Xwhen-guards", // performance?
@@ -30,7 +30,7 @@ tasks.withType<KotlinCompile> {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
     sourceSets.main {
         kotlin.srcDir("generated/ksp/main/kotlin")
     }
