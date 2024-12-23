@@ -4,6 +4,7 @@ import aok.Parser
 import aok.PuzzleInput
 import aok.checkAll
 import aok.solveAll
+import aok.warmup
 import aok.warmupEach
 import aoksp.AoKSolution
 import java.util.*
@@ -79,7 +80,7 @@ object Day23 {
 
 @AoKSolution
 object Day23BitSet {
-    private val santa = "ta".toInt(36).."tz".toInt(36)
+    private val santa = "ta".encode().."tz".encode()
 
     context(PuzzleInput) fun part1() = parse { network ->
         var count = 0
@@ -88,7 +89,7 @@ object Day23BitSet {
             val santaA = nodeA in santa
             for (other in 0..<nodes.lastIndex) {
                 val nodeB = nodes[other]
-                val srcB = nodeB shl 12
+                val srcB = nodeB shl WIDTH
                 val santaB = santaA || nodeB in santa
                 for (j in other + 1..nodes.lastIndex) {
                     val nodeC = nodes[j]
@@ -118,13 +119,13 @@ object Day23BitSet {
                 // walk back from split, adding in connected nodes
                 for (idx in split downTo 0) {
                     val next = nodes[idx]
-                    if (lan.all { network.get(next shl 12 or it) }) lan.addFirst(next)
+                    if (lan.all { network.get(next shl WIDTH or it) }) lan.addFirst(next)
                 }
 
                 // walk forward from split, adding in connected nodes
                 for (idx in split + 1..nodes.lastIndex) {
                     val next = nodes[idx]
-                    if (lan.all { network.get(it shl 12 or next) }) {
+                    if (lan.all { network.get(it shl WIDTH or next) }) {
                         lan.addLast(next)
                     } else {
                         splits.add(idx)
@@ -137,33 +138,50 @@ object Day23BitSet {
             }
         }
 
-        best.joinToString(",") { it.toString(36) }
+        best.joinToString(",") { it.decode() }
     }
 
-    private inline fun BitSet.visitNodes(f: (Int, List<Int>) -> Unit) {
+    private inline fun BitSet.visitNodes(f: (Int, IntArray) -> Unit) {
         var idx = nextSetBit(0)
+        var nodes = IntArray(20)
         while (idx != -1) {
-            val end = (idx or 0xFFF)
-            val first = idx shr 12
+            val end = (idx or MASK)
+            val first = idx shr WIDTH
 
-            val nodes = ArrayDeque<Int>()
+            var n = 0
             while (idx in 0..end) {
-                nodes += idx and 0xFFF
+                nodes[n++] = idx and MASK
+                if (n == nodes.size) nodes = nodes.copyOf(nodes.size * 2)
                 idx = nextSetBit(idx + 1)
             }
 
-            f(first, nodes)
+            f(first, nodes.copyOf(n))
         }
     }
 
+    private const val MASK = 0x3FF
+    private const val WIDTH = 10
+    private fun String.encode() = (this[0] - 'a') * 26 + (this[1] - 'a')
+    private fun Int.decode() = "${'a' + (this / 26)}${'a' + (this % 26)}"
+
     private val parse = Parser {
-        BitSet("zz".toInt(36).let { it shl 12 or it }).apply {
-            for (line in lines) {
-                val a = line.substringBefore("-").toInt(36)
-                val b = line.substringAfter("-").toInt(36)
-                if (b < a) set(b shl 12 or a)
-                else set(a shl 12 or b)
+        BitSet(MASK shl WIDTH or MASK).apply {
+            var a = 0
+            var b = 0
+            var second = false
+            for (c in input) when (c) {
+                in 'a'..'z' ->
+                    if (second) b = b * 26 + (c - 'a')
+                    else a = a * 26 + (c - 'a')
+
+                '-' -> second = true
+
+                '\n' ->
+                    set(if (b < a) b shl WIDTH or a else a shl WIDTH or b)
+                        .also { second = false; a = 0; b = 0 }
+
             }
+            if (second) set(if (b < a) b shl WIDTH or a else a shl WIDTH or b)
         }
     }
 }
