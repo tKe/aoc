@@ -25,6 +25,7 @@ kotlinpoet-core = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoe
 kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet" }
 kotlinpoet-metadata = { module = "com.squareup:kotlinpoet-metadata", version.ref = "kotlinpoet" }
 
+fastutils = "it.unimi.dsi:fastutil:8.5.15"
 # year-22 day-07 virtual filesystem
 jimfs = { module = "com.google.jimfs:jimfs", version = "1.2" }
 

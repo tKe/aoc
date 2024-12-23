@@ -1,6 +1,5 @@
 package aok
 
-import kotlin.jvm.Throws
 import kotlin.reflect.KFunction1
 import kotlin.system.exitProcess
 import kotlin.time.Duration
@@ -77,10 +76,12 @@ private object NotChecked
 context(InputProvider)
 fun Iterable<Puz<*, *>>.checkAll(part1: Any? = NotChecked, part2: Any? = NotChecked, exit: Boolean = true) = also {
     var failures = false
-    fun PuzzleInput.check(puz: Puz<*, *>, expected: Any? = NotChecked, part: KFunction1<PuzzleInput, Any?>) {
+    fun PuzzleInput.check(puz: Puz<*, *>, expected: Any? = NotChecked, part: KFunction1<PuzzleInput, Any?>): String {
         if (expected != NotChecked) {
             val actual = runCatching { part(this) }.getOrElse { it }
-            if (actual !is NotImplementedError && actual.toResultString() != expected.toResultString()) {
+            if(actual is NotImplementedError) {
+                return "❔"
+            } else if (actual.toResultString() != expected.toResultString()) {
                 failures = true
 
                 System.err.println(buildString {
@@ -92,15 +93,27 @@ fun Iterable<Puz<*, *>>.checkAll(part1: Any? = NotChecked, part2: Any? = NotChec
                         }
                     )
                 })
+                return if(actual is Throwable) "💥" else "❌"
+            }
+            else {
+                return "✅"
             }
         }
+        return "〰️"
     }
     forEach { puz ->
         with(forPuzzle(puz.year, puz.day)) {
-            check(puz, part1, puz::part1)
-            check(puz, part2, puz::part2)
+            print("Checking ${puz.year}-${puz.day}-${puz.variant}")
+            if(part1 != NotChecked) {
+                print("\tpart1: ")
+                print(check(puz, part1, puz::part1))
+            }
+            if(part2 != NotChecked) {
+                print("\tpart2: ")
+                print(check(puz, part2, puz::part2))
+            }
+            println()
         }
-        println("Checked ${puz.year}-${puz.day}-${puz.variant}")
     }
     if (failures && exit) {
         System.err.println("‼️ exiting due to failures detected")
@@ -111,11 +124,12 @@ fun Iterable<Puz<*, *>>.checkAll(part1: Any? = NotChecked, part2: Any? = NotChec
 fun Iterable<Puz<*, *>>.checkAll(
     part1: Any? = NotChecked,
     part2: Any? = NotChecked,
-    inputProvider: InputProvider = InputProvider
+    inputProvider: InputProvider = InputProvider,
 ) = also { with(inputProvider) { checkAll(part1, part2) } }
 
 fun Iterable<Puz<*, *>>.checkAll(
     part1: Any? = NotChecked,
     part2: Any? = NotChecked,
-    input: String
-) = checkAll(part1, part2) { _, _ -> PuzzleInput.of(input) }
+    input: String,
+    exit: Boolean = true,
+) = also { with(InputProvider.raw(input)) { checkAll(part1, part2, exit) } }

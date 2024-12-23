@@ -1,5 +1,7 @@
 package utils
 
+import java.util.*
+
 fun <T> Iterable<T>.permute() = sequence {
     val list = toMutableList()
     fun swap(i: Int, j: Int) = list[i].let {
@@ -18,33 +20,42 @@ fun <T> Iterable<T>.permute() = sequence {
     } else c[i++] = 0
 }
 
-fun <T> Iterable<T>.combinations(r: Int, replacement: Boolean = false) =
-    if (replacement) combinationsWithReplacement(r) else combinations(r)
-
-private fun <T> Iterable<T>.combinations(r: Int) = sequence {
+fun <T> Iterable<T>.combinations(r: Int, replacement: Boolean = false) = sequence {
     val pool = this@combinations as? List<T> ?: toList()
-    if (r > pool.size) return@sequence
-    val indices = IntArray(r) { it }
-
-    yield(indices.map(pool::get))
-    while (true) {
-        val i = indices.indices.lastOrNull { indices[it] != it + pool.size - r } ?: break
-        indices[i]++
-        for (j in (i + 1)..<r) indices[j] = indices[j - 1] + 1
+    indexCombinations(pool.size, r, replacement) { indices ->
         yield(indices.map(pool::get))
     }
 }
 
-private fun <T> Iterable<T>.combinationsWithReplacement(r: Int) = sequence {
-    val pool = this@combinationsWithReplacement as? List<T> ?: toList()
-    if (pool.isEmpty() || r == 0) return@sequence
-    val indices = IntArray(r)
+inline fun indexCombinations(size: Int, take: Int, replacement: Boolean = false, visit: (IntArray) -> Unit) = when {
+    take > size -> Unit
+    replacement -> combinationsWithReplacement(size, take, visit)
+    else -> combinations(size, take, visit)
+}
 
-    yield(indices.map(pool::get))
+@PublishedApi
+internal inline fun combinations(size: Int, take: Int, visit: (IntArray) -> Unit) {
+    val indices = IntArray(take) { it }
+
+    visit(indices)
     while (true) {
-        val i = indices.indices.lastOrNull { indices[it] != pool.lastIndex } ?: break
+        val i = indices.indices.lastOrNull { indices[it] != it + size - take } ?: break
+        indices[i]++
+        for (j in (i + 1)..<take) indices[j] = indices[j - 1] + 1
+        visit(indices)
+    }
+}
+
+@PublishedApi
+internal inline fun combinationsWithReplacement(size: Int, take: Int, visit: (IntArray) -> Unit) {
+    val indices = IntArray(take) { it }
+    val lastIndex = size - 1
+
+    visit(indices)
+    while (true) {
+        val i = indices.indices.lastOrNull { indices[it] != lastIndex } ?: break
         indices[i..indices.lastIndex] = indices[i] + 1
-        yield(indices.map(pool::get))
+        visit(indices)
     }
 }
 
@@ -77,4 +88,6 @@ inline fun List<String>.sumOfEachCharIndexed(block: (x: Int, y: Int, c: Char) ->
     return sum
 }
 
-private operator fun IntArray.set(indices: IntRange, value: Int) = indices.forEach { set(it, value) }
+@PublishedApi
+internal operator fun IntArray.set(indices: IntRange, value: Int) =
+    Arrays.fill(this, indices.first, indices.last + 1, value)

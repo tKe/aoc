@@ -27,6 +27,14 @@ fun <K, V> MapParser(mapper: MutableMap<K, V>.(line: String) -> Unit) =
 
 fun <T, R> Parser<List<T>>.map(mapper: (T) -> R) = map { it.map(mapper) }
 
+context(PuzzleInput)
+private inline val puzzleInput
+    get() = this@PuzzleInput
+
+fun <T> Parser<T>.cached() = mutableMapOf<PuzzleInput, T>().run {
+    Parser { getOrPut(puzzleInput) { this@cached() } }
+}
+
 @SolutionDsl
 interface SolutionsScope<P1, P2> {
     fun <R> parser(block: Parser<R>) = block
@@ -67,8 +75,13 @@ abstract class Solutions<P1, P2> internal constructor(body: SolutionsScope<P1, P
         var part1 = Solution<P1> { TODO() }
         var part2 = Solution<P2> { TODO() }
         body(object : SolutionsScope<P1, P2> {
-            override fun part1(solution: Solution<P1>) { part1 = solution }
-            override fun part2(solution: Solution<P2>) { part2 = solution }
+            override fun part1(solution: Solution<P1>) {
+                part1 = solution
+            }
+
+            override fun part2(solution: Solution<P2>) {
+                part2 = solution
+            }
         }, this)
         part1 to part2
     }

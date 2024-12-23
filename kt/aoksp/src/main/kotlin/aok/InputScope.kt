@@ -26,7 +26,7 @@ sealed interface PuzzleInput {
                 ?: error("No input '$fileName' for $year-$day in any of $searchPaths")
     }
 
-    private data class Impl(override val input: String) : PuzzleInput {
+    private class Impl(override val input: String) : PuzzleInput {
         override val lines = input.lines()
         override val lineSeq = lines.asSequence()
         override fun toString() = "\"${input.replace("\"", "\\\"")}\""

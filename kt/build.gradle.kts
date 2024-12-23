@@ -1,6 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.google.devtools.ksp.KspExperimental
 
-@Suppress("DSL_SCOPE_VIOLATION") // https://youtrack.jetbrains.com/issue/KTIJ-19369
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ksp)
@@ -16,10 +15,9 @@ repositories {
 
 tasks.withType<Test> { useJUnitPlatform() }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "${JavaVersion.VERSION_21}"
-        freeCompilerArgs = freeCompilerArgs + listOf(
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll(
             "-Xcontext-receivers",
 //            "-Xwhen-guards", // performance?
             "-opt-in=kotlinx.coroutines.FlowPreview",
@@ -27,16 +25,13 @@ tasks.withType<KotlinCompile> {
             "-opt-in=kotlin.ExperimentalStdlibApi"
         )
     }
-}
-
-kotlin {
-    jvmToolchain(21)
     sourceSets.main {
         kotlin.srcDir("generated/ksp/main/kotlin")
     }
     sourceSets.test {
         kotlin.srcDir("generated/ksp/test/kotlin")
     }
+    jvmToolchain(21)
 }
 
 jmh {
@@ -62,6 +57,7 @@ dependencies {
     implementation(libs.kotlinx.datetime)
     implementation(libs.jimfs) // year-22 day-07 virtual filesystem
     implementation("org.openjdk.jmh:jmh-core:1.37")
+    implementation(libs.fastutils)
 
     testImplementation(libs.bundles.kotest)
 }
