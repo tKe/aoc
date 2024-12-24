@@ -39,7 +39,9 @@ object Day19 {
 fun main() {
     queryDay(19)
         .checkAll(
-            input = """
+            part1 = 6,
+            input = {
+                """
                 r, wr, b, g, bwu, rb, gb, br
 
                 brwrr
@@ -50,9 +52,8 @@ fun main() {
                 bwurrg
                 brgr
                 bbrgwb
-            """.trimIndent(),
-            part1 = 6,
-        )
+            """.trimIndent()
+            })
         .checkAll(part1 = 347, part2 = 919219286602165L)
         .warmup(10.seconds)
         .solveAll()

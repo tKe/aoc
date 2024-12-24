@@ -107,8 +107,8 @@ object Day15 {
 
 fun main() {
     queryDay(15)
-        .checkAll(
-            part1 = 2028, input = """
+        .checkAll(part1 = 2028, input = {
+            """
             ########
             #..O.O.#
             ##@.O..#
@@ -120,9 +120,9 @@ fun main() {
 
             <^^>>>vv<v>>v<<
         """.trimIndent()
-        )
-        .checkAll(
-            part2 = 618, input = """
+        })
+        .checkAll(part2 = 618, input = {
+            """
             #######
             #...#.#
             #.....#
@@ -133,10 +133,11 @@ fun main() {
 
             <vv<<^^<<^^
         """.trimIndent()
-        )
+        })
         .checkAll(
             10092, 9021,
-            input = """
+            true, {
+                """
                 ##########
                 #..O..O.O#
                 #......O.#
@@ -159,7 +160,7 @@ fun main() {
                 ^^>vv<^v^v<vv>^<><v<^v>^^^>>>^^vvv^>vvv<>>>^<^>>>>>^<<^v>^vvv<>^<><<v>
                 v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^
             """.trimIndent()
-        )
+            })
         .warmup(30)
         .solveAll(5)
 }

@@ -80,7 +80,7 @@ object Day11CountUnique {
 
 fun main() {
     queryDay(11)
-        .checkAll(55312L, input = "125 17")
+        .checkAll(55312L) { "125 17" }
         .checkAll(207683L, 244782991106220L)
 //        .warmup(1.4, window = 20)
         .warmup()

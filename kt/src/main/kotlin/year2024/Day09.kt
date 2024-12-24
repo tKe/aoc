@@ -131,7 +131,7 @@ object Day09Range : PuzDSL({
 })
 
 fun main() = queryDay(9)
-    .checkAll(input = "2333133121414131402", part1 = 1928L, part2 = 2858L)
+    .checkAll(part1 = 1928L, part2 = 2858L, input = { "2333133121414131402" })
     .checkAll(part1 = 6386640365805L, part2 = 6423258376982L)
     .warmup(10.seconds)
     .solveAll()

@@ -81,23 +81,25 @@ object Day22Array {
 
 fun main(): Unit = queryDay(22)
     .checkAll(
-        input = """
-            1
-            10
-            100
-            2024
-        """.trimIndent(),
         part1 = 37327623,
-    )
+        input = {
+            """
+    1
+    10
+    100
+    2024
+""".trimIndent()
+        })
     .checkAll(
-        input = """
-            1
-            2
-            3
-            2024
-        """.trimIndent(),
         part2 = 23,
-    )
+        input = {
+            """
+        1
+        2
+        3
+        2024
+    """.trimIndent()
+        })
     .checkAll(16039090236, 1808)
     .warmupEach(10.seconds)
     .solveAll(30)

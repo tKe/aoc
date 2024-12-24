@@ -4,7 +4,6 @@ import aok.Parser
 import aok.PuzzleInput
 import aok.checkAll
 import aok.solveAll
-import aok.warmup
 import aok.warmupEach
 import aoksp.AoKSolution
 import java.util.*
@@ -188,7 +187,9 @@ object Day23BitSet {
 
 fun main(): Unit = queryDay(23).run {
     checkAll(
-        input = """
+        part1 = 0, part2 = "aa,ba,ca,cb",
+        input = {
+            """
             aa-ab
             aa-ac
             aa-ba
@@ -198,11 +199,12 @@ fun main(): Unit = queryDay(23).run {
             cb-ca
             cb-ba
             ca-aa
-        """.trimIndent(),
-        part1 = 0, part2 = "aa,ba,ca,cb"
-    )
+        """.trimIndent()
+        })
     checkAll(
-        input = """
+        part1 = 7, part2 = "co,de,ka,ta",
+        input = {
+            """
             kh-tc
             qp-kh
             de-cg
@@ -235,9 +237,8 @@ fun main(): Unit = queryDay(23).run {
             wh-qp
             tb-vc
             td-yn
-        """.trimIndent(),
-        part1 = 7, part2 = "co,de,ka,ta"
-    )
+        """.trimIndent()
+        })
     checkAll(1062, "bz,cs,fx,ms,oz,po,sy,uh,uv,vw,xu,zj,zm")
     warmupEach(5.seconds)
     solveAll(30)

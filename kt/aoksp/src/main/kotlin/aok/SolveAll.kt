@@ -121,15 +121,21 @@ fun Iterable<Puz<*, *>>.checkAll(part1: Any? = NotChecked, part2: Any? = NotChec
     }
 }
 
-fun Iterable<Puz<*, *>>.checkAll(
+fun Iterable<Puz<*, *>>.checkExample(
     part1: Any? = NotChecked,
     part2: Any? = NotChecked,
-    inputProvider: InputProvider = InputProvider,
-) = also { with(inputProvider) { checkAll(part1, part2) } }
+    exit: Boolean = true,
+) = also { with(InputProvider.Example) { checkAll(part1, part2, exit) } }
 
 fun Iterable<Puz<*, *>>.checkAll(
     part1: Any? = NotChecked,
     part2: Any? = NotChecked,
-    input: String,
     exit: Boolean = true,
-) = also { with(InputProvider.raw(input)) { checkAll(part1, part2, exit) } }
+) = also { with(InputProvider.Default) { checkAll(part1, part2, exit) } }
+
+fun Iterable<Puz<*, *>>.checkAll(
+    part1: Any? = NotChecked,
+    part2: Any? = NotChecked,
+    exit: Boolean = true,
+    input: () -> String,
+) = also { with(InputProvider { _, _ -> PuzzleInput.of(input()) }) { checkAll(part1, part2, exit) } }

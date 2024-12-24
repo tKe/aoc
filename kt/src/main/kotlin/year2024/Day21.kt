@@ -76,15 +76,16 @@ object Day21 {
 fun main() {
     queryDay(21)
         .checkAll(
-            input = """
+            part1 = 126384,
+            input = {
+                """
                 029A
                 980A
                 179A
                 456A
                 379A
-            """.trimIndent(),
-            part1 = 126384,
-        )
+            """.trimIndent()
+            })
         .checkAll(part1 = 238078, part2 = 293919502998014)
         .warmup(10.seconds)
         .solveAll(30)

@@ -6,7 +6,6 @@ import aok.solveAll
 import aok.warmup
 import aoksp.AoKSolution
 import utils.forEachCharIndexed
-import year2024.Day20.track
 import kotlin.math.absoluteValue
 import kotlin.time.Duration.Companion.seconds
 

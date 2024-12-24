@@ -122,7 +122,8 @@ fun main() {
     queryDay(12)
         .checkAll(
             1930, 1206,
-            input = """
+            true, {
+                """
                 RRRRIICCFF
                 RRRRIICCCF
                 VVRRRCCFFF
@@ -134,7 +135,7 @@ fun main() {
                 MIIISIJEEE
                 MMMISSJEEE
             """.trimIndent()
-        )
+            })
         .checkAll(1381056, 834828)
         .warmupEach(10.seconds)
         .solveAll(30)

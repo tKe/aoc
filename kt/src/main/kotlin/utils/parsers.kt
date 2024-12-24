@@ -2,6 +2,9 @@ package utils
 
 import aok.LineParser
 import aok.Parser
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 fun Sequence<String>.mapIntsNotNull() = mapNotNull(String::toIntOrNull)
 fun Iterable<String>.mapIntsNotNull() = mapNotNull(String::toIntOrNull)
@@ -17,8 +20,18 @@ fun String.splitLongs(vararg delimiters: Char = charArrayOf(' ')) =
 fun String.splitLongsNotNull(vararg delimiters: Char = charArrayOf(' ')) =
     split(*delimiters).mapNotNull(String::toLongOrNull)
 
-fun String.splitOnce(delimiter: String) = splitOnce(delimiter, ::Pair)
-inline fun String.splitOnce(delimiter: String, f: (String, String) -> Unit) = f(substringBefore(delimiter),substringAfter(delimiter))
+fun String.splitOnce(delimiter: String): Pair<String, String> {
+    splitOnce(delimiter) { a, b -> return a to b }
+}
+
+@OptIn(ExperimentalContracts::class)
+inline fun String.splitOnce(delimiter: String, f: (String, String) -> Unit) {
+    contract {
+        callsInPlace(f, InvocationKind.EXACTLY_ONCE)
+    }
+    f(substringBefore(delimiter), substringAfter(delimiter))
+}
+
 fun <R> String.splitOnce(delimiter: String, transform: (String) -> R) =
     transform(substringBefore(delimiter)) to transform(substringAfter(delimiter))
 

@@ -93,7 +93,9 @@ object Day18BinarySearch {
 fun main() {
     queryDay(18)
         .checkAll(
-            input = """
+            part1 = 22, part2 = "6,1",
+            input = {
+                """
                 5,4
                 4,2
                 4,5
@@ -119,8 +121,8 @@ fun main() {
                 0,5
                 1,6
                 2,0
-            """.trimIndent(), part1 = 22, part2 = "6,1"
-        )
+            """.trimIndent()
+            })
         .checkAll(part1 = 318, part2 = "56,29")
         .warmup(10.seconds)
         .solveAll()

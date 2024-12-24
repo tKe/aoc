@@ -58,23 +58,27 @@ object Day17 {
 fun main() {
     queryDay(17)
         .checkAll(
-            input = """
+            part1 = "4,6,3,5,6,3,5,2,1,0",
+            input = {
+                """
                 Register A: 729
                 Register B: 0
                 Register C: 0
 
                 Program: 0,1,5,4,3,0
-            """.trimIndent(), part1 = "4,6,3,5,6,3,5,2,1,0"
-        )
+            """.trimIndent()
+            })
         .checkAll(
-            input = """
+            part2 = 117440L,
+            input = {
+                """
             Register A: 2024
             Register B: 0
             Register C: 0
 
             Program: 0,3,5,4,3,0
-        """.trimIndent(), part2 = 117440L
-        )
+        """.trimIndent()
+            })
         .warmup(5.seconds)
         .checkAll(part1 = "6,5,7,4,5,7,3,1,0", part2 = 105875099912602L)
         .solveAll()

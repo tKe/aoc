@@ -7,7 +7,6 @@ import aok.solveAll
 import aok.warmup
 import aoksp.AoKSolution
 import arrow.fx.coroutines.parMap
-import kotlin.time.Duration.Companion.seconds
 
 @AoKSolution
 object Day06Fast {

@@ -121,7 +121,9 @@ object Day16 {
 fun main() {
     queryDay(16)
         .checkAll(
-            input = """
+            part1 = 7036, part2 = 45,
+            input = {
+                """
                 ###############
                 #.......#....E#
                 #.#.###.#.###.#
@@ -137,10 +139,12 @@ fun main() {
                 #.###.#.#.#.#.#
                 #S..#.....#...#
                 ###############
-            """.trimIndent(), part1 = 7036, part2 = 45
-        )
+            """.trimIndent()
+            })
         .checkAll(
-            input = """
+            part1 = 11048, part2 = 64,
+            input = {
+                """
                 #################
                 #...#...#...#..E#
                 #.#.#.#.#.#.#.#.#
@@ -158,8 +162,8 @@ fun main() {
                 #.#.#.#########.#
                 #S#.............#
                 #################
-            """.trimIndent(), part1 = 11048, part2 = 64
-        )
+            """.trimIndent()
+            })
         .checkAll(part1 = 73432, part2 = 496)
         .warmup(10.seconds)
         .solveAll(3)

@@ -132,17 +132,18 @@ object Day10Bitty {
 fun main() = queryDay(10)
     .checkAll(
         36, 81,
-        input = """
-            89010123
-            78121874
-            87430965
-            96549874
-            45678903
-            32019012
-            01329801
-            10456732
-        """.trimIndent()
-    )
+        true, {
+            """
+        89010123
+        78121874
+        87430965
+        96549874
+        45678903
+        32019012
+        01329801
+        10456732
+    """.trimIndent()
+        })
     .checkAll(538, 1110)
 //    .warmup(sigma = 1.3, window = 30)
     .warmupEach(5.seconds)

@@ -5,10 +5,8 @@ import aok.PuzzleInput
 import aok.checkAll
 import aok.solveAll
 import aok.warmup
-import aok.warmupEach
 import aoksp.AoKSolution
 import utils.splitIntsNotNull
-import kotlin.time.Duration.Companion.seconds
 
 @AoKSolution
 object Day07 : PuzDSL({
