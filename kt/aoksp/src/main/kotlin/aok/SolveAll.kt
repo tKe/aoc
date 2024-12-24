@@ -70,6 +70,7 @@ private fun Any?.toResultString() = repr().let {
 
 // default inputs
 fun Iterable<Puz<*, *>>.solveAll(runIterations: Int = 1) = with(InputProvider) { solveAll(runIterations) }
+fun Iterable<Puz<*, *>>.solveAll(file: String, runIterations: Int = 1) = with(InputProvider.forFile(file)) { solveAll(runIterations) }
 
 private object NotChecked
 
