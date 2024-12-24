@@ -9,7 +9,7 @@ import utils.splitOnce
 
 @AoKSolution
 object Day24 {
-    context(PuzzleInput) fun part1() = parse { circuit -> circuit.z }
+    context(PuzzleInput) fun part1() = parse { (_, _, z) -> z }
 
     context(PuzzleInput) fun part2() = parse { circuit ->
         // check some rules of
@@ -34,15 +34,14 @@ object Day24 {
                     ?: error("wire from an `$x (XOR|AND) $y` gate not found")
                 if (rOut != z) add(rOut, z)
             }
+
+            check(size == 4) { "expected exactly 4 swaps but found $size" }
         }
 
-        check(swaps.size == 4) // maybe good enough?
-        circuit.swap(swaps).run { check(x + y == z) }
-        swaps.flatMap { it.asIterable() }.sorted().joinToString(",")
+        val (x, y, z) = circuit.swap(swaps)
+        check(x + y == z) { "incorrect addition, expected $x + $y == ${x + y} but was $z" }
+        swaps.flatMap { (a, b) -> listOf(a, b) }.sorted().joinToString(",")
     }
-
-    private fun <T, A : T, B : T> Pair<A, B>.asIterable() =
-        Iterable { iterator { yield(first); yield(second) } }
 
     private sealed interface Gate {
         data class Constant(val value: Boolean) : Gate
@@ -60,9 +59,9 @@ object Day24 {
 
     @JvmInline
     private value class Circuit(val nodes: Map<String, Gate>) : Map<String, Gate> by nodes {
-        val x get() = get('x')
-        val y get() = get('y')
-        val z get() = get('z')
+        operator fun component1() = get('x')
+        operator fun component2() = get('y')
+        operator fun component3() = get('z')
 
         private fun <K, V> MutableMap<K, V>.swap(pair: Pair<K, K>) =
             put(pair.second, put(pair.first, getValue(pair.second))!!)
