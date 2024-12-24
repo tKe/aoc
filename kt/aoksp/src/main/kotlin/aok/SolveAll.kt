@@ -41,7 +41,7 @@ fun Iterable<Puz<*, *>>.solveAll(runIterations: Int = 1) =
                         }
                 }
 
-                if (this@InputProvider != InputProvider.Default) println("using input '${this@InputProvider}")
+                if (this@InputProvider != InputProvider.Default) println("using input '${this@InputProvider}'")
                 println("year $year day $day part 1")
                 runPart { part1() }
                 println("year $year day $day part 2")
