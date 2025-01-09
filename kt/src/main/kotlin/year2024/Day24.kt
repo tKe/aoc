@@ -1,5 +1,6 @@
 package year2024
 
+import aok.MapParser
 import aok.Parser
 import aok.PuzzleInput
 import aok.checkAll
@@ -95,7 +96,7 @@ object Day24 {
         Circuit(buildMap {
             for (input in inputs.lines()) {
                 input.splitOnce(": ") { wire, value ->
-                    put(wire, Gate.Constant(value[0] == '1'))
+                    put(wire, Gate.Constant(value == "1"))
                 }
             }
             for (connection in connections.lines()) {
