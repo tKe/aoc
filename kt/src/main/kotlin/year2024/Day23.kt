@@ -3,6 +3,7 @@ package year2024
 import aok.Parser
 import aok.PuzzleInput
 import aok.checkAll
+import aok.lines
 import aok.solveAll
 import aok.warmupEach
 import aoksp.AoKSolution
@@ -12,7 +13,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @AoKSolution
 object Day23 {
-    context(PuzzleInput) fun part1() = parse { network ->
+    context(_: PuzzleInput) fun part1() = parse { network ->
         var count = 0
         for ((first, nodes) in network) {
             for (i in 0..<nodes.lastIndex) for (j in i + 1..nodes.lastIndex) {
@@ -25,7 +26,7 @@ object Day23 {
         count
     }
 
-    context(PuzzleInput) fun part2() = parse { network ->
+    context(_: PuzzleInput) fun part2() = parse { network ->
         var best = emptyList<String>()
 
         for ((first, nodes) in network) {
@@ -81,7 +82,7 @@ object Day23 {
 object Day23BitSet {
     private val santa = "ta".encode().."tz".encode()
 
-    context(PuzzleInput) fun part1() = parse { network ->
+    context(input: PuzzleInput) fun part1() = parse { network ->
         var count = 0
 
         network.visitNodes { nodeA, nodes ->
@@ -100,7 +101,7 @@ object Day23BitSet {
         count
     }
 
-    context(PuzzleInput) fun part2() = parse { network ->
+    context(input: PuzzleInput) fun part2() = parse { network ->
         var best = emptyList<Int>()
 
         network.visitNodes { first, nodes ->

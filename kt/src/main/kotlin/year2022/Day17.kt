@@ -2,6 +2,7 @@ package year2022
 
 import aok.InputProvider
 import aok.PuzzleInput
+import aok.lines
 import aoksp.AoKSolution
 import aok.solveAll
 import aok.warmup
@@ -47,7 +48,7 @@ private fun IntIterator.onEach(block: (Int) -> Unit): IntIterator = object : Int
 
 @AoKSolution
 object Day17 {
-    context (PuzzleInput)
+    context(_: PuzzleInput)
     private fun parseGas() = lines.single().let {
         IntArray(it.length) { i ->
             when (it[i]) {
@@ -58,10 +59,10 @@ object Day17 {
         }
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1() = simulateRockFalls(parseGas().cycle(), 2022).height
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2(rockCount: Long = 1_000_000_000_000): Long {
         val gas = parseGas()
         val (chamber, cycle) = gas.detectCycle()

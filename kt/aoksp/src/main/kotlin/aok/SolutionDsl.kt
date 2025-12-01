@@ -7,16 +7,15 @@ annotation class SolutionDsl
 
 
 fun interface Parser<T> {
-    context(PuzzleInput)
-    fun parse(): T
+    fun PuzzleInput.parse(): T
 
     fun <R> map(f: (T) -> R) = Parser { f(parse()) }
     fun <R> andThen(f: (T) -> R) = map(f)
-    context(PuzzleInput)
-    operator fun invoke() = parse()
+    context(input: PuzzleInput)
+    operator fun invoke() = input.parse()
 
-    context(PuzzleInput)
-    operator fun <R> invoke(block: (T) -> R) = block(parse())
+    context(input: PuzzleInput)
+    operator fun <R> invoke(block: (T) -> R) = block(input.parse())
 
     operator fun invoke(input: String) = with(PuzzleInput.of(input)) { parse() }
 }
@@ -27,9 +26,9 @@ fun <K, V> MapParser(mapper: MutableMap<K, V>.(line: String) -> Unit) =
 
 fun <T, R> Parser<List<T>>.map(mapper: (T) -> R) = map { it.map(mapper) }
 
-context(PuzzleInput)
+context(input: PuzzleInput)
 private inline val puzzleInput
-    get() = this@PuzzleInput
+    get() = input
 
 fun <T> Parser<T>.cached() = mutableMapOf<PuzzleInput, T>().run {
     Parser { getOrPut(puzzleInput) { this@cached() } }
@@ -47,20 +46,15 @@ interface SolutionsScope<P1, P2> {
     fun part2(solution: Solution<P2>)
 
     @SolutionDsl
-    fun <R> part1(parser: Parser<R>, solution: suspend (R) -> P1) = part1 { solution(parser.parse()) }
+    fun <R> part1(parser: Parser<R>, solution: suspend (R) -> P1) = part1 { solution(parser()) }
 
     @SolutionDsl
-    fun <R> part2(parser: Parser<R>, solution: suspend (R) -> P2) = part2 { solution(parser.parse()) }
+    fun <R> part2(parser: Parser<R>, solution: suspend (R) -> P2) = part2 { solution(parser()) }
 }
 
 @SolutionDsl
 fun interface PuzzleDefinition<P1, P2> {
-    context(SolutionsScope<P1, P2>) fun build()
-}
-
-@SolutionDsl
-fun interface ScopedPuzzleDefinition<This, P1, P2> {
-    context(SolutionsScope<P1, P2>) fun This.build()
+    fun SolutionsScope<P1, P2>.build()
 }
 
 @SolutionDsl
@@ -86,18 +80,11 @@ abstract class Solutions<P1, P2> internal constructor(body: SolutionsScope<P1, P
         part1 to part2
     }
 
-    context(PuzzleInput)
-    suspend fun part1() = with(built.first) { solve() }
+    context(input: PuzzleInput)
+    suspend fun part1() = with(built.first) { input.solve() }
 
-    context(PuzzleInput)
-    suspend fun part2() = with(built.second) { solve() }
+    context(input: PuzzleInput)
+    suspend fun part2() = with(built.second) { input.solve() }
 }
 
-abstract class PuzDSL(body: PuzzleDefinition<Any?, Any?>) : Solutions<Any?, Any?>({ body.build() }) {
-    abstract class Scoped<D>(body: ScopedPuzzleDefinition<D, Any?, Any?>) : Solutions<Any?, Any?>({ self ->
-        @Suppress("UNCHECKED_CAST")
-        self as? D ?: error("mismatched Scope")
-        with(body) { self.build() }
-    })
-}
-
+abstract class PuzDSL(body: PuzzleDefinition<Any?, Any?>) : Solutions<Any?, Any?>(scope@{ with(body) { this@scope.build() } })

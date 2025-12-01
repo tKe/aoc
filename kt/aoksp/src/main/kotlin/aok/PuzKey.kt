@@ -13,6 +13,6 @@ sealed interface PuzKey {
 }
 
 interface Puz<out P1, out P2> : PuzKey{
-    context(PuzzleInput) fun part1(): P1 = TODO()
-    context(PuzzleInput) fun part2(): P2 = TODO()
+    context(_: PuzzleInput) fun part1(): P1 = TODO()
+    context(_: PuzzleInput) fun part2(): P2 = TODO()
 }

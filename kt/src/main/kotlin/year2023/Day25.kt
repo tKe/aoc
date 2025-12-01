@@ -2,9 +2,6 @@ package year2023
 
 import aok.PuzDSL
 import aoksp.AoKSolution
-import arrow.core.valid
-import utils.combinations
-import kotlin.io.path.fileVisitor
 
 fun main() = solveDay(
     25,

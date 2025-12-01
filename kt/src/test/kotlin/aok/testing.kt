@@ -6,11 +6,11 @@ import io.kotest.matchers.shouldBe
 
 private object Missing
 
-context(DslDrivenSpec, List<Puz<*, *>>)
+context(spec: DslDrivenSpec, puzzles: List<Puz<*, *>>)
 infix fun InputProvider.shouldGenerate(expected: ExpectedResults) =
-    include("$this - ", testAllSolutions(this, expected.part1, expected.part2))
+    spec.include("$this - ", puzzles.testAllSolutions(this, expected.part1, expected.part2))
 
-context(DslDrivenSpec, List<Puz<*, *>>)
+context(spec: DslDrivenSpec, puzzles: List<Puz<*, *>>)
 infix fun String.shouldGenerate(expected: ExpectedResults) = InputProvider.raw(this) shouldGenerate expected
 
 data class ExpectedResults(val part1: Any = Missing, val part2: Any = Missing)

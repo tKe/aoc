@@ -2,6 +2,7 @@ package year2022
 
 import aok.PuzzleInput
 import aok.Warmup
+import aok.lines
 import aoksp.AoKSolution
 import kotlin.time.Duration.Companion.seconds
 
@@ -13,21 +14,21 @@ fun main(): Unit = solveDay(
 @AoKSolution
 object Day24 {
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1() = solve { entrance travelTo exit }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2() = solve { entrance travelTo exit travelTo entrance travelTo exit }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun solve(journey: Valley.() -> Pos) = parseValley().run(journey).time
 
-    context(Valley)
+    context(valley: Valley)
     private infix fun Pos.travelTo(end: Pos) = breadthFirstSearch(this, { it at end }) { pos ->
-        pos.moves { it at this || it at end || (it !in blizzards) }
+        pos.moves { it at this || it at end || (it !in valley.blizzards) }
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun parseValley() = Valley(
         Blizzards.parse(lines),
         Pos(lines.first().indexOf('.') - 1, -1, 0),

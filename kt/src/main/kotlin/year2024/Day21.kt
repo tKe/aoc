@@ -2,6 +2,7 @@ package year2024
 
 import aok.PuzzleInput
 import aok.checkAll
+import aok.lines
 import aok.solveAll
 import aok.warmup
 import aoksp.AoKSolution
@@ -9,10 +10,11 @@ import kotlin.time.Duration.Companion.seconds
 
 @AoKSolution
 object Day21 {
-    context(PuzzleInput) fun part1() = solve(2)
-    context(PuzzleInput) fun part2() = solve(25)
+    context(_: PuzzleInput) fun part1() = solve(2)
+    context(_: PuzzleInput) fun part2() = solve(25)
 
-    fun PuzzleInput.solve(robots: Int) = run {
+    context(_: PuzzleInput)
+    fun solve(robots: Int) = run {
         val cache = mutableMapOf<Key, Long>()
         lines.sumOf {
             val num = it.dropLast(1).toInt()

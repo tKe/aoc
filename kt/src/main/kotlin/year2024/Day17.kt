@@ -2,6 +2,7 @@ package year2024
 
 import aok.PuzzleInput
 import aok.checkAll
+import aok.lines
 import aok.solveAll
 import aok.warmup
 import aoksp.AoKSolution
@@ -30,11 +31,11 @@ object Day17 {
         }
     }
 
-    context(PuzzleInput) fun part1() = solve { state, program ->
+    context(_: PuzzleInput) fun part1() = solve { state, program ->
         Iterable { state eval program }.joinToString(",")
     }
 
-    context(PuzzleInput) fun part2() = solve { _, program ->
+    context(_: PuzzleInput) fun part2() = solve { _, program ->
         infix fun <T> Iterator<T>.notMatch(list: ListIterator<T>): Boolean {
             while (hasNext()) if (!list.hasNext() || next() != list.next()) return true
             return list.hasNext()
@@ -48,7 +49,8 @@ object Day17 {
         a
     }
 
-    inline fun <R> PuzzleInput.solve(eval: (Input, program: List<Int>) -> R): R {
+    context(_: PuzzleInput)
+    inline fun <R> solve(eval: (Input, program: List<Int>) -> R): R {
         val registers = lines.take(3).map { it.substringAfter(": ").toLong() }.let { (a, b, c) -> Input(a, b, c) }
         val program = lines.last().substringAfter(": ").splitInts(',')
         return eval(registers, program)

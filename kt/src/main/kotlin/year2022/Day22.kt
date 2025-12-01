@@ -4,6 +4,7 @@ package year2022
 
 import aok.PuzzleInput
 import aok.Warmup
+import aok.input
 import aoksp.AoKSolution
 import arrow.core.padZip
 import year2022.Day22.Direction.*
@@ -14,13 +15,13 @@ fun main(): Unit = solveDay(22, warmup = Warmup.eachFor(5.seconds))
 @AoKSolution
 object Day22 {
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1(): Int {
         val (board, moves) = parse(LayoutInterpreter.Linear)
         return board.solve(moves)
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2(): Int {
         val (board, moves) = parse(LayoutInterpreter.Cubic)
         return board.solve(moves)
@@ -50,7 +51,7 @@ object Day22 {
         return path.last().password()
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun parse(layoutInterpreter: LayoutInterpreter) = input.split("\n\n").let { (grid, path) ->
         parseBoard(grid, layoutInterpreter) to parseMoves(path)
     }

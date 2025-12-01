@@ -11,7 +11,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @AoKSolution
 object Day25 {
-    context(PuzzleInput) fun part1() = parse { (locks, keys) ->
+    context(_: PuzzleInput) fun part1() = parse { (locks, keys) ->
         keys.sumOf { key ->
             locks.count { lock -> key fits lock }
         }

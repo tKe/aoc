@@ -1,6 +1,7 @@
 package year2022
 
 import aok.PuzzleInput
+import aok.lines
 import aoksp.AoKSolution
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -13,7 +14,7 @@ fun main(): Unit = solveDay(21)
 @AoKSolution
 object Day21 {
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun evaluate(includeHuman: Boolean = true): Expr {
         val tasks = lines.associate {
             val (monkey, task) = it.split(": ")
@@ -37,10 +38,10 @@ object Day21 {
         return eval("root")
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1() = (evaluate() as Expr.Const).value
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2() = with(evaluate(includeHuman = false)) {
         check(this is Expr.Operation)
         (left - right).solve(0)
@@ -83,7 +84,7 @@ object Day21 {
 
 @AoKSolution
 object Day21Shouting {
-    context (PuzzleInput)
+    context(_: PuzzleInput)
     suspend fun part1(): Long = coroutineScope {
         val room = MutableSharedFlow<Pair<String, Long>>(replay = lines.size)
 

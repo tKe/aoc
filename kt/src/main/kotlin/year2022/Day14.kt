@@ -2,6 +2,7 @@ package year2022
 
 import aok.InputProvider
 import aok.PuzzleInput
+import aok.lines
 import aoksp.AoKSolution
 import aok.solveAll
 import aok.warmup
@@ -18,10 +19,10 @@ fun main(): Unit = with(InputProvider) {
 
 @AoKSolution
 object Day14 {
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1() = simulateSand(parseRocks())
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2() = simulateSand(parseRocks().let {
         object : BitSet2D {
             override val depth: Int = it.depth + 2
@@ -48,7 +49,7 @@ object Day14 {
         return false
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun parseRocks() = ArrayBitSet2D().apply {
         fun range(a: Int, b: Int) = if (a < b) a..b else b..a
         lines.forEach { line ->
@@ -91,10 +92,10 @@ object Day14 {
 
 @AoKSolution
 object Day14Stack {
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1() = BitSetCave().apply { populateRocks() }.simulateSand()
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2() = BitSetCave().apply { populateRocks() }.let {
         val floor = it.depth + 2
         object : Cave by it {
@@ -120,14 +121,14 @@ object Day14Stack {
         return count
     }
 
-    context(PuzzleInput, Cave)
+    context(_: PuzzleInput, cave: Cave)
     private fun populateRocks() {
         fun range(a: Int, b: Int) = if (a < b) a..b else b..a
         lines.forEach { line ->
             line.splitToSequence(" -> ", ",").map(String::toInt)
                 .windowed(4, 2).forEach { (x1, y1, x2, y2) ->
-                    if (x1 == x2) range(y1, y2).forEach { y -> mark(x1, y) }
-                    else if (y1 == y2) range(x1, x2).forEach { x -> mark(x, y1) }
+                    if (x1 == x2) range(y1, y2).forEach { y -> cave.mark(x1, y) }
+                    else if (y1 == y2) range(x1, x2).forEach { x -> cave.mark(x, y1) }
                 }
         }
     }

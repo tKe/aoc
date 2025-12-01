@@ -1,6 +1,7 @@
 package year2022
 
 import aok.PuzzleInput
+import aok.lines
 import aoksp.AoKSolution
 
 fun main(): Unit = solveDay(
@@ -13,15 +14,15 @@ object Day23 {
 
     private data class Elf(val x: Int, val y: Int)
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun parse() = lines.flatMapIndexed { y, line ->
         line.mapIndexedNotNull { x, c -> if (c == '#') Elf(x, y) else null }
     }.toSet()
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1() = parse().simulate().elementAt(10).countSpace()
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2() = parse().simulate().count() + 1
 
     private fun Set<Elf>.countSpace(): Int {

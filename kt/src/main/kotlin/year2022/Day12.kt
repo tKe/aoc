@@ -2,6 +2,8 @@ package year2022
 
 import aok.InputProvider
 import aok.PuzzleInput
+import aok.input
+import aok.lines
 import aoksp.AoKSolution
 import aok.solveAll
 import aok.warmup
@@ -13,7 +15,7 @@ fun main() = with(InputProvider) {
 
 @AoKSolution
 object Day12 {
-    context (PuzzleInput)
+    context(_: PuzzleInput)
     fun part1() = with(CharGrid.of(lines)) {
         val start = findPoints('S').single()
         val goal = findPoints('E').single()
@@ -22,7 +24,7 @@ object Day12 {
         }
     }
 
-    context (PuzzleInput)
+    context(_: PuzzleInput)
     fun part2() = with(CharGrid.of(lines)) {
         val start = findPoints('E').single()
         val goals = findPoints('a').toSet()
@@ -88,7 +90,7 @@ object Day12 {
 
 @AoKSolution
 object Day12String {
-    context (PuzzleInput)
+    context(_: PuzzleInput)
     fun part1() = with(input) {
         val stride = input.indexOf('\n') + 1
         val start = indexOf('S')
@@ -98,7 +100,7 @@ object Day12String {
         }
     }
 
-    context (PuzzleInput)
+    context(_: PuzzleInput)
     fun part2() = with(input) {
         val stride = input.indexOf('\n') + 1
         val start = indexOf('E')

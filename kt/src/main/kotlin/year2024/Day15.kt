@@ -2,6 +2,7 @@ package year2024
 
 import aok.PuzzleInput
 import aok.checkAll
+import aok.input
 import aok.solveAll
 import aok.warmup
 import aoksp.AoKSolution
@@ -10,7 +11,7 @@ import utils.forEachCharIndexed
 @AoKSolution
 object Day15 {
 
-    context(PuzzleInput) fun part1() = solve { walls, boxes, robot, moves ->
+    context(_: PuzzleInput) fun part1() = solve { walls, boxes, robot, moves ->
         moves.fold(robot to boxes) { (robot, boxes), m ->
             val nextRobot = robot + m
             if (nextRobot in walls) robot to boxes
@@ -23,7 +24,7 @@ object Day15 {
         }.second.sumOf { it.y * 100 + it.x }
     }
 
-    context(PuzzleInput) fun part2() = solve { w, b, r, moves ->
+    context(_: PuzzleInput) fun part2() = solve { w, b, r, moves ->
         val walls = buildSet {
             for ((x, y) in w) {
                 add(Point(x * 2, y))
@@ -66,7 +67,8 @@ object Day15 {
         }.second.sumOf { it.y * 100 + it.x }
     }
 
-    fun <R> PuzzleInput.solve(action: (walls: Set<Point>, boxes: Set<Point>, robot: Point, moves: List<Direction>) -> R): R {
+    context(_: PuzzleInput)
+    fun <R> solve(action: (walls: Set<Point>, boxes: Set<Point>, robot: Point, moves: List<Direction>) -> R): R {
         val (grid, instructions) = input.split("\n\n")
 
         val walls = mutableSetOf<Point>()

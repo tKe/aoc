@@ -33,6 +33,9 @@ sealed interface PuzzleInput {
     }
 }
 
+context(input: PuzzleInput) inline val input get() = input.input
+context(input: PuzzleInput) inline val lines get() = input.lines
+context(input: PuzzleInput) inline val lineSeq get() = input.lineSeq
 
 private fun findDirectoryInAncestors(name: String) = generateSequence(Paths.get(name).toAbsolutePath()) {
     it.parent?.parent?.resolve(name)
@@ -85,7 +88,6 @@ fun interface InputProvider {
 }
 
 fun <R> withInput(content: String, block: context(PuzzleInput) () -> R) = PuzzleInput.of(content).run(block)
-
 
 private fun downloadInput(year: Int, day: Int): Path {
     val sessionFile = findInputFile(".session") ?: error("unable to download input, no session file found")

@@ -83,7 +83,7 @@ object Day19 : PuzDSL({
             return "[$op $a $b $c]"
         }
 
-        context(IntArray)
+        context(registers: IntArray)
         fun execute() = op(a, b, c)
     }
 

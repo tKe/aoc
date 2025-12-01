@@ -2,6 +2,7 @@ package year2022
 
 import aok.InputProvider
 import aok.PuzzleInput
+import aok.lines
 import aoksp.AoKSolution
 import arrow.fx.coroutines.parMapUnordered
 import kotlinx.coroutines.flow.asFlow
@@ -24,19 +25,19 @@ object Day19 {
         val maxOreCost = maxOf(oreRobotOreCost, clayRobotOreCost, obsidianRobotOreCost, geodeRobotOreCost)
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun parseBlueprints() = lines.map {
         it.split(' ', ':').mapNotNull(String::toIntOrNull).let { v ->
             Blueprint(v[0], v[1], v[2], v[3], v[4], v[5], v[6])
         }
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     suspend fun part1() = parseBlueprints().asFlow()
         .parMapUnordered { it.id * it.maxGeodes() }
         .reduce(Int::plus)
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     suspend fun part2() = parseBlueprints().take(3).asFlow()
         .parMapUnordered { it.maxGeodes(32) }
         .reduce(Int::times)

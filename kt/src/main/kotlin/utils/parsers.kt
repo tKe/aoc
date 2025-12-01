@@ -2,6 +2,7 @@ package utils
 
 import aok.LineParser
 import aok.Parser
+import aok.input
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract

@@ -3,6 +3,7 @@ package year2024
 import aok.Parser
 import aok.PuzzleInput
 import aok.checkAll
+import aok.input
 import aok.solveAll
 import aok.warmup
 import aoksp.AoKSolution
@@ -27,18 +28,19 @@ object Day13 {
         if (a * ax + b * bx == x && a * ay + b * by == y) 3 * a + b else 0
     }
 
-    context(PuzzleInput) fun part1() = slotMachines().sumOf { (ax, ay, bx, by, px, py) ->
+    context(_: PuzzleInput) fun part1() = slotMachines().sumOf { (ax, ay, bx, by, px, py) ->
         solve(ax, ay, bx, by, px + 0, py + 0)
     }
 
-    context(PuzzleInput) fun part2() = slotMachines().sumOf { (ax, ay, bx, by, px, py) ->
+    context(_: PuzzleInput) fun part2() = slotMachines().sumOf { (ax, ay, bx, by, px, py) ->
         solve(ax, ay, bx, by, px + 10_000_000_000_000, py + 10_000_000_000_000)
     }
 }
 
 @AoKSolution
 object Day13Scan {
-    private fun PuzzleInput.solve(ofs: Long = 0L): Long {
+    context(_: PuzzleInput)
+    private fun solve(ofs: Long = 0L): Long {
         var s = 0L
         var v = 0
         var r = false
@@ -76,8 +78,8 @@ object Day13Scan {
         return if (a * ax + b * bx == x && a * ay + b * by == y) 3 * a + b else 0
     }
 
-    context(PuzzleInput) fun part1() = solve()
-    context(PuzzleInput) fun part2() = solve(10_000_000_000_000)
+    context(_: PuzzleInput) fun part1() = solve()
+    context(_: PuzzleInput) fun part2() = solve(10_000_000_000_000)
 }
 
 

@@ -1,5 +1,6 @@
 package year2023
 
+import aok.Parser
 import aok.PuzDSL
 import aok.PuzzleInput
 import aoksp.AoKSolution
@@ -13,8 +14,8 @@ fun main() = solveDay(
 
 @AoKSolution
 object Day23 : PuzDSL({
-    part1(Forest::parse) { forest -> forest.hike(slippery = true) }
-    part2(Forest::parse) { forest -> forest.hike(slippery = false) }
+    part1(Forest) { forest -> forest.hike(slippery = true) }
+    part2(Forest) { forest -> forest.hike(slippery = false) }
 }) {
     data class Int2(val x: Int, val y: Int)
     class Forest(private val rows: List<String>) {
@@ -80,17 +81,16 @@ object Day23 : PuzDSL({
             return max
         }
 
-        companion object {
-            context(PuzzleInput)
-            fun parse() = Forest(lines)
+        companion object : Parser<Forest> {
+            override fun PuzzleInput.parse() = Forest(lines)
         }
     }
 }
 
 @AoKSolution
 object Day23Optimized : PuzDSL({
-    part1(Forest::parse) { forest -> forest.hike(slippery = true) }
-    part2(Forest::parse) { forest -> forest.hike(slippery = false) }
+    part1(Forest) { forest -> forest.hike(slippery = true) }
+    part2(Forest) { forest -> forest.hike(slippery = false) }
 }) {
     data class Int2(val x: Int, val y: Int)
     class Forest(private val rows: List<String>) {
@@ -168,9 +168,8 @@ object Day23Optimized : PuzDSL({
             return max
         }
 
-        companion object {
-            context(PuzzleInput)
-            fun parse() = Forest(lines)
+        companion object : Parser<Forest> {
+            override fun PuzzleInput.parse() = Forest(lines)
         }
     }
 }

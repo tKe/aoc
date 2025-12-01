@@ -3,8 +3,6 @@ package year2018
 import aok.PuzDSL
 import aok.sealedObjects
 import aoksp.AoKSolution
-import year2018.Day16.Calc
-import year2018.Day16.Check
 import year2018.Day16.reg
 import kotlin.time.Duration.Companion.seconds
 
@@ -66,20 +64,20 @@ object Day16 : PuzDSL({
 
 }) {
 
-    context(IntArray)
+    context(registers: IntArray)
     var Int.reg
-        get() = get(this)
-        set(value) = set(this@reg, value)
+        get() = registers[this]
+        set(value) = registers.set(this@reg, value)
 
     sealed interface Op {
-        context(IntArray)
+        context(_: IntArray)
         operator fun invoke(a: Int, b: Int, c: Int)
 
         companion object {
             val all = Op::class.sealedObjects.toSet() - noop
             fun custom(name: String, impl: IntArray.(a: Int, b: Int, c: Int) -> Unit): Op = object : CustomOp(name) {
-                context(IntArray) override fun invoke(a: Int, b: Int, c: Int) {
-                    this@IntArray.impl(a, b, c)
+                context(ints: IntArray) override fun invoke(a: Int, b: Int, c: Int) {
+                    ints.impl(a, b, c)
                 }
 
                 override fun toString() = name
@@ -90,19 +88,19 @@ object Day16 : PuzDSL({
     }
 
     private fun interface Calc : Op {
-        context(IntArray) fun calculate(a: Int, b: Int): Int
-        context(IntArray) override fun invoke(a: Int, b: Int, c: Int) {
+        context(_: IntArray) fun calculate(a: Int, b: Int): Int
+        context(_: IntArray) override fun invoke(a: Int, b: Int, c: Int) {
             c.reg = calculate(a, b)
         }
     }
 
     private fun interface Check : Calc {
-        context(IntArray)  fun check(a: Int, b: Int): Boolean
-        context(IntArray) override fun calculate(a: Int, b: Int) = if (check(a, b)) 1 else 0
+        context(_: IntArray)  fun check(a: Int, b: Int): Boolean
+        context(_: IntArray) override fun calculate(a: Int, b: Int) = if (check(a, b)) 1 else 0
     }
 
     data object noop : Op {
-        context(IntArray) override fun invoke(a: Int, b: Int, c: Int) {}
+        context(_: IntArray) override fun invoke(a: Int, b: Int, c: Int) {}
     }
 
     data object addr : Op by (Calc { a, b -> a.reg + b.reg })
@@ -123,4 +121,3 @@ object Day16 : PuzDSL({
     data object eqrr : Op by (Check { a, b -> a.reg == b.reg })
 
 }
-

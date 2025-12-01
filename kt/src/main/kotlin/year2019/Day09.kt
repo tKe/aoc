@@ -41,11 +41,11 @@ object Day09 : PuzDSL({
             outputs.close()
         }
 
-        context(CoroutineScope)
+        context(scope: CoroutineScope)
         fun launch(
             inputs: Channel<Long> = Channel(Channel.BUFFERED),
             outputs: Channel<Long> = Channel(Channel.RENDEZVOUS)
-        ) = Triple(inputs as SendChannel<Long>, outputs as ReceiveChannel<Long>, launch {
+        ) = Triple(inputs as SendChannel<Long>, outputs as ReceiveChannel<Long>, scope.launch {
             execute(inputs, outputs)
         })
 
@@ -216,4 +216,3 @@ object Day09 : PuzDSL({
         }
     }
 }
-

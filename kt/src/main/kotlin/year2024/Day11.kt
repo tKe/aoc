@@ -2,6 +2,7 @@ package year2024
 
 import aok.PuzzleInput
 import aok.checkAll
+import aok.input
 import aok.solveAll
 import aok.warmup
 import aoksp.AoKSolution
@@ -38,8 +39,8 @@ object Day11 {
     private fun List<Long>.countStones(steps: Int, cache: MutableMap<Pair<Long, Int>, Long> = mutableMapOf()) =
         sumOf { cache.count(it, steps) }
 
-    context(PuzzleInput) fun part1() = input.splitLongs().countStones(25)
-    context(PuzzleInput) fun part2() = input.splitLongs().countStones(75)
+    context(_: PuzzleInput) fun part1() = input.splitLongs().countStones(25)
+    context(_: PuzzleInput) fun part2() = input.splitLongs().countStones(75)
 }
 
 @AoKSolution
@@ -74,8 +75,8 @@ object Day11CountUnique {
         return stones.values.sum()
     }
 
-    context(PuzzleInput) fun part1() = input.splitLongs().countStones(25)
-    context(PuzzleInput) fun part2() = input.splitLongs().countStones(75)
+    context(_: PuzzleInput) fun part1() = input.splitLongs().countStones(25)
+    context(_: PuzzleInput) fun part2() = input.splitLongs().countStones(75)
 }
 
 fun main() {

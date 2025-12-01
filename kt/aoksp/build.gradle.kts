@@ -3,17 +3,17 @@ plugins {
 }
 
 group = "com.github.tke"
-version = "0.0.2022"
+version = "0.0.2025"
 
 repositories {
     mavenCentral()
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
     compilerOptions {
         freeCompilerArgs.addAll(
-            "-Xcontext-receivers",
+            "-Xcontext-parameters",
         )
     }
 }

@@ -2,6 +2,7 @@ package year2022
 
 import aok.InputProvider
 import aok.PuzzleInput
+import aok.lines
 import aoksp.AoKSolution
 import aok.solveAll
 import aok.warmup
@@ -34,13 +35,13 @@ object Day15 {
     private fun Report.coverage(row: Int) = (range - (row - sensor.y).absoluteValue)
         .let { if (it > 0) sensor.x - it..sensor.x + it else null }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun parse() = lines.map {
         val (sx, sy, bx, by) = it.split('=', ',', ':').mapNotNull(String::toIntOrNull)
         Report(Point(sx, sy), Point(bx, by))
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1() = parse().let { reports ->
         val row = WORLD_SIZE / 2
         val objectsInRow = reports.objectsInRow(row)
@@ -48,7 +49,7 @@ object Day15 {
             .sumOf { range -> range.count() - objectsInRow.count { it in range } }
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2(): Long = parse().let { reports ->
         repeat(WORLD_SIZE) { row ->
             val all = reports.sensorRanges(row).merge()
@@ -90,20 +91,20 @@ object Day15Scanning {
         fun inRange(x: Int, y: Int) = sensor.manhattanDistance(x, y) <= range
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun parse() = lines.map {
         val (sx, sy, bx, by) = it.split('=', ',', ':').mapNotNull(String::toIntOrNull)
         Report(Point(sx, sy), Point(bx, by))
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1(row: Int = WORLD_SIZE / 2) = parse().let { reports ->
         reports.map { it.sensor.x to it.strengthAt(row) }
             .run { minOf { (x, s) -> x - s }..maxOf { (x, s) -> x + s } }
             .count { x -> reports.any { r -> r.inRange(x, row) && !(r.beacon.y == row && r.beacon.x == x) } }
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2(size: Int = WORLD_SIZE): Long = with(parse()) {
         repeat(size) { y ->
             var x = 0
@@ -123,7 +124,7 @@ object Day15BorderIntersection {
         fun shift(x: Int = 0, y: Int = 0) = Point(this.x + x, this.y + y)
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun parse() = mutableSetOf<Point>().let { beacons ->
         lines.map {
             val (sx, sy, bx, by) = it.split('=', ',', ':').mapNotNull(String::toIntOrNull)
@@ -132,7 +133,7 @@ object Day15BorderIntersection {
         } to beacons.toSet()
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2(): Long {
         val (sensors) = parse()
         val lines = borderLines(sensors) + listOf(

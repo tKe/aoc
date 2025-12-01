@@ -4,21 +4,20 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.microseconds
-import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.TimeSource
 import kotlin.time.measureTime
 import kotlin.time.measureTimedValue
 
 sealed interface Warmup {
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>)
 
     private data object None : Warmup {
-        context(PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) = Unit
+        context(_: PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) = Unit
     }
 
     private class Auto(val history: Int = 5, val sigma: Double = 2.00) : Warmup {
-        context(PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) {
+        context(_: PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) {
             println("Warming up ${puzzles.size} puzzles until latest $history times are within ±${sigma}σ for year $year day $day...")
             val alive = puzzles.withIndex().toMutableList()
             val timings = puzzles.map { Array(history) { Duration.INFINITE } }
@@ -57,7 +56,7 @@ sealed interface Warmup {
     }
 
     private class Iterations(val warmupIterations: Int) : Warmup {
-        context(PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) {
+        context(_: PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) {
             if (warmupIterations > 0) {
                 println("Warming up ${puzzles.size} puzzles $warmupIterations times for year $year day $day...")
                 val alive = puzzles.toMutableList()
@@ -76,7 +75,7 @@ sealed interface Warmup {
     }
 
     private class DurationTotal(val d: Duration) : Warmup {
-        context(PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) {
+        context(_: PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) {
             val start = TimeSource.Monotonic.markNow()
             println("Warming up ${puzzles.size} puzzles over $d for year $year day $day...")
             var count = 0
@@ -94,7 +93,7 @@ sealed interface Warmup {
     }
 
     private class DurationPerSolution(val d: Duration) : Warmup {
-        context(PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) {
+        context(_: PuzzleInput) override fun run(year: Int, day: Int, puzzles: List<Puz<*, *>>) {
             println("Warming up ${puzzles.size} puzzles for $d each for year $year day $day...")
             puzzles.forEach {
                 val start = TimeSource.Monotonic.markNow()
@@ -124,7 +123,7 @@ sealed interface Warmup {
                 }
             }
 
-        context(PuzzleInput)
+        context(_: PuzzleInput)
         private fun Puz<*, *>.run(): Boolean {
             runPart(year, day, 1) { part1() } ?: return false
             runPart(year, day, 2) { part2() } ?: return false
@@ -133,28 +132,28 @@ sealed interface Warmup {
     }
 }
 
-context(InputProvider)
+context(provider: InputProvider)
 fun Iterable<Puz<*, *>>.warmup(warmup: Warmup) = apply {
     groupBy { it.year to it.day }.forEach { (year, day), puzzles ->
-        with(forPuzzle(year, day)) {
+        with(provider.forPuzzle(year, day)) {
             warmup.run(year, day, puzzles)
         }
     }
 }
-context(InputProvider)
+context(provider: InputProvider)
 fun Iterable<Puz<*, *>>.warmup(sigma: Double = 1.5, window: Int = 10) = warmup(aok.Warmup.auto(window, sigma))
 
-context(InputProvider)
+context(provider: InputProvider)
 fun Iterable<Puz<*, *>>.warmup(iterations: Int) = warmup(aok.Warmup.iterations(iterations))
 
-context(InputProvider)
+context(provider: InputProvider)
 fun Iterable<Puz<*, *>>.warmup(duration: Duration) = warmup(aok.Warmup.allFor(duration))
 
-context(InputProvider)
+context(provider: InputProvider)
 fun Iterable<Puz<*, *>>.warmupEach(eachFor: Duration) = warmup(aok.Warmup.eachFor(eachFor))
 
-fun Iterable<Puz<*, *>>.warmup(iterations: Int) = with(InputProvider) { warmup(iterations) }
-fun Iterable<Puz<*, *>>.warmup(duration: Duration) = with(InputProvider) { warmup(duration) }
-fun Iterable<Puz<*, *>>.warmup(sigma: Double = 1.4, window: Int = 20) =with(InputProvider) { warmup(sigma, window) }
+fun Iterable<Puz<*, *>>.warmup(iterations: Int) = context(InputProvider) { warmup(iterations) }
+fun Iterable<Puz<*, *>>.warmup(duration: Duration) = context(InputProvider) { warmup(duration) }
+fun Iterable<Puz<*, *>>.warmup(sigma: Double = 1.4, window: Int = 20) = context(InputProvider) { warmup(sigma, window) }
 
-fun Iterable<Puz<*, *>>.warmupEach(duration: Duration) = with(InputProvider) { warmupEach(duration) }
+fun Iterable<Puz<*, *>>.warmupEach(duration: Duration) = context(InputProvider) { warmupEach(duration) }

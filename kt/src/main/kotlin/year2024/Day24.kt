@@ -10,9 +10,9 @@ import utils.splitOnce
 
 @AoKSolution
 object Day24 {
-    context(PuzzleInput) fun part1() = parse { (_, _, z) -> z }
+    context(_: PuzzleInput) fun part1() = parse { (_, _, z) -> z }
 
-    context(PuzzleInput) fun part2() = parse { circuit ->
+    context(_: PuzzleInput) fun part2() = parse { circuit ->
         // check some rules of
         // half adder of (x, y, ci) -> (z, co)
         // (1) x XOR y -> r

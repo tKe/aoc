@@ -1,7 +1,9 @@
 package year2025
 
 import aok.PuzDSL
+import aok.Warmup
 import aoksp.AoKSolution
+import kotlin.time.Duration.Companion.seconds
 
 @AoKSolution
 object Day01 : PuzDSL({
@@ -32,4 +34,4 @@ object Day01 : PuzDSL({
     }
 })
 
-fun main() = solveDay(1)
+fun main() = solveDay(1, warmup = Warmup.allFor(10.seconds), runs=500)

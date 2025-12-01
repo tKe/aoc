@@ -54,9 +54,9 @@ object Day17 : PuzDSL({
         }
     }
 
-    context(ClayLocator) fun debug(f: (Int2) -> String? = { null }) {
-        for (y in yRange) {
-            for (x in xRange) print(f(Int2(x, y)) ?: if (isClay(x, y)) "🪨" else "🥪")
+    context(locator: ClayLocator) fun debug(f: (Int2) -> String? = { null }) {
+        for (y in locator.yRange) {
+            for (x in locator.xRange) print(f(Int2(x, y)) ?: if (locator.isClay(x, y)) "🪨" else "🥪")
             println()
         }
         println()
@@ -74,12 +74,12 @@ object Day17 : PuzDSL({
         val right get() = copy(x = x + 1)
     }
 
-    context(ClayLocator)
+    context(locator: ClayLocator)
     val Int2.isClay
-        get() = isClay(x, y)
+        get() = locator.isClay(x, y)
 
 
-    context(ClayLocator)
+    context(_: ClayLocator)
     private fun Set<Int2>.debug(vararg sources: Int2) {
         debug {
             when (it) {
@@ -90,7 +90,7 @@ object Day17 : PuzDSL({
         }
     }
 
-    context(ClayLocator)
+    context(locator: ClayLocator)
     fun flow(from: Int2 = Int2(500, 0)): Pair<MutableSet<Int2>, MutableSet<Int2>> {
         val falling = sortedSetOf(compareByDescending(Int2::y).thenBy(Int2::x), from)
         val flowing = mutableSetOf<Int2>()
@@ -124,7 +124,7 @@ object Day17 : PuzDSL({
 
         while (falling.isNotEmpty()) {
             val flow = falling.pollFirst() ?: break
-            if (flow.down in flowing || flow.y == yRange.last) {
+            if (flow.down in flowing || flow.y == locator.yRange.last) {
                 falling -= flow
                 flowing += flow
             } else if (flow.hasSupport()) {
@@ -146,4 +146,3 @@ object Day17 : PuzDSL({
         return static to flowing
     }
 }
-

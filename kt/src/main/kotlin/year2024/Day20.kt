@@ -2,6 +2,7 @@ package year2024
 
 import aok.PuzzleInput
 import aok.checkAll
+import aok.lines
 import aok.solveAll
 import aok.warmup
 import aoksp.AoKSolution
@@ -11,10 +12,11 @@ import kotlin.time.Duration.Companion.seconds
 
 @AoKSolution
 object Day20 {
-    context(PuzzleInput) fun part1() = track().solve(2)
-    context(PuzzleInput) fun part2() = track().solve(20)
+    context(_: PuzzleInput) fun part1() = track().solve(2)
+    context(_: PuzzleInput) fun part2() = track().solve(20)
 
-    private fun PuzzleInput.track() = buildList {
+    context(_: PuzzleInput)
+    private fun track() = buildList {
         val (start, end) = lines.ends()
         var at = start
         var dir = Dir.entries.first { lines[at + it] != '#' }.right

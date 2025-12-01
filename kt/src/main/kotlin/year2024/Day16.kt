@@ -2,6 +2,7 @@ package year2024
 
 import aok.PuzzleInput
 import aok.checkAll
+import aok.lines
 import aok.solveAll
 import aok.warmup
 import aoksp.AoKSolution
@@ -28,7 +29,7 @@ object Day16 {
 
     operator fun List<String>.get(p: Pt) = this.getOrNull(p.y)?.getOrNull(p.x) ?: '#'
 
-    context(PuzzleInput) fun part1(): Int {
+    context(_: PuzzleInput) fun part1(): Int {
         lateinit var start: Pt
         lateinit var end: Pt
         lines.forEachCharIndexed { x, y, c ->
@@ -60,7 +61,7 @@ object Day16 {
         return -1
     }
 
-    context(PuzzleInput) fun part2(): Int {
+    context(_: PuzzleInput) fun part2(): Int {
         lateinit var start: Pt
         lateinit var end: Pt
         lines.forEachCharIndexed { x, y, c ->

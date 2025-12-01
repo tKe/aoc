@@ -10,10 +10,10 @@ import arrow.fx.coroutines.parMap
 
 @AoKSolution
 object Day06Fast {
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1() = visitWorld { buildSet { walk(::add) }.size }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     suspend fun part2() = visitWorld {
         buildSet {
             walk(visit = ::add)
@@ -21,9 +21,10 @@ object Day06Fast {
         }.parMap { withObstruction(it).walk() }.count { it }
     }
 
-    inline fun <R> PuzzleInput.visitWorld(visit: World.() -> R): R {
-        val start = run {
-            lines.forEachIndexed { y, s ->
+    context(input: PuzzleInput)
+    inline fun <R> visitWorld(visit: World.() -> R): R {
+        val start = input.run {
+            input.lines.forEachIndexed { y, s ->
                 val x = s.indexOf('^')
                 if (x != -1) return@run Loc(x, y)
             }
@@ -32,7 +33,7 @@ object Day06Fast {
 
         return object : World {
             override val start = start
-            override fun obstruction(loc: Loc) = lines[loc.y][loc.x] == '#'
+            override fun obstruction(loc: Loc) = input.lines[loc.y][loc.x] == '#'
         }.visit()
     }
 

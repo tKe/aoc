@@ -2,6 +2,7 @@ package year2022
 
 import aok.PuzzleInput
 import aok.Warmup
+import aok.lines
 import aoksp.AoKSolution
 import arrow.fx.coroutines.parMapUnordered
 import kotlinx.coroutines.flow.asFlow
@@ -10,13 +11,13 @@ fun main() = solveDay(11, warmup = Warmup.iterations(200))
 
 @AoKSolution
 object Day11Multithreaded {
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     suspend fun part1(): Long {
         val (items, monkeys) = parse()
         return monkeys.conductBusiness(items, 20) { it / 3 }
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     suspend fun part2(): Long {
         val (items, monkeys) = parse()
         val factor = monkeys.fold(1) { f, m -> f * m.test }
@@ -30,7 +31,7 @@ object Day11Multithreaded {
         val monkeyFalse: Int,
     )
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun parse() = lines.drop(1).chunked(7) { (items, op, test, ifTrue, ifFalse) ->
         val monkeyItems = items.substringAfter(": ")
             .split(", ").map(String::toInt)

@@ -2,6 +2,7 @@ package year2024
 
 import aok.PuzzleInput
 import aok.checkAll
+import aok.lines
 import aok.solveAll
 import aok.warmup
 import aoksp.AoKSolution
@@ -10,17 +11,17 @@ import kotlin.time.Duration.Companion.seconds
 
 @AoKSolution
 object Day14 {
-    context(PuzzleInput) fun part1() = robotsInSpace { robots ->
+    context(_: PuzzleInput) fun part1() = robotsInSpace { robots ->
         robots.roam { seconds, positions -> if (seconds == 100) return@robotsInSpace positions.safetyScore() }
     }
 
-    context(PuzzleInput) fun part2() = robotsInSpace { robots ->
+    context(_: PuzzleInput) fun part2() = robotsInSpace { robots ->
         robots.roam { seconds, positions -> if (positions.isChristmasTree()) return@robotsInSpace seconds }
     }
 
-    context(Space)
+    context(space: Space)
     private fun List<Pt>.safetyScore() =
-        groupingBy { (x, y) -> x.compareTo(width / 2) to y.compareTo(height / 2) }.eachCount()
+        groupingBy { (x, y) -> x.compareTo(space.width / 2) to y.compareTo(space.height / 2) }.eachCount()
             .filterKeys { (qx, qy) -> qx != 0 && qy != 0 }
             .values.reduce(Int::times)
 
@@ -35,7 +36,8 @@ object Day14 {
         }
     }
 
-    private fun PuzzleInput.robots() = lines.map {
+    context(_: PuzzleInput)
+    private fun robots() = lines.map {
         it.splitIntsNotNull("=", ",", " ")
             .let { (px, py, vx, vy) -> Robot(Pt(px, py), Pt(vx, vy)) }
     }
@@ -45,7 +47,8 @@ object Day14 {
         else -> Space.Real
     }
 
-    private inline fun <R> PuzzleInput.robotsInSpace(block: Space.(List<Robot>) -> R): R =
+    context(_: PuzzleInput)
+    private inline fun <R> robotsInSpace(block: Space.(List<Robot>) -> R): R =
         robots().let { it.requiredSpace().run { block(it) } }
 
     private enum class Space(val width: Int, val height: Int) {
@@ -57,10 +60,10 @@ object Day14 {
 
     private data class Robot(var p: Pt, val v: Pt)
 
-    context(Space)
-    operator fun Pt.plus(v: Pt) = Pt(x = (x + v.x).mod(width), y = (y + v.y).mod(height))
+    context(space: Space)
+    private operator fun Pt.plus(v: Pt) = Pt(x = (x + v.x).mod(space.width), y = (y + v.y).mod(space.height))
 
-    context(Space)
+    context(_: Space)
     private inline fun List<Robot>.roam(v: (Int, List<Pt>) -> Unit): Nothing {
         var seconds = 0
         val positions = map { it.p }.toMutableList()

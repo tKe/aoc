@@ -5,6 +5,7 @@ import aok.PuzDSL
 import aoksp.AoKSolution
 import arrow.core.andThen
 import year2019.Day24.Counter.Companion.count
+import year2019.Day24.Counter.Companion.incIf
 
 fun main() = solveDay(
     24,
@@ -117,11 +118,16 @@ object Day24 : PuzDSL({
         }
 
         fun inc() = inc(1)
-        fun incIf(vararg condition: Boolean, by: Int = 1) = inc(condition.count { it } * by)
+
 
         companion object {
             inline fun count(block: context(Counter) () -> Unit) = Counter().apply(block).result
+
+            context(counter: Counter)
+            fun incIf(vararg condition: Boolean, by: Int = 1) =
+                counter.inc(condition.count { it } * by)
         }
     }
+
 
 }

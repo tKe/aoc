@@ -40,7 +40,7 @@ class Year2022Test : FreeSpec({
     }
 })
 
-context(InputProvider, FreeSpecContainerScope)
+context(input: InputProvider, spec: FreeSpecContainerScope)
 suspend inline fun Iterable<Puz<*, *>>.shouldAll(expected1: Any, expected2: Any) =
     shouldAll { input, puzzle ->
         with(input) {
@@ -53,17 +53,19 @@ suspend inline fun Iterable<Puz<*, *>>.shouldAll(expected1: Any, expected2: Any)
         }
     }
 
-context(FreeSpecContainerScope, InputProvider)
+context(spec: FreeSpecContainerScope, input: InputProvider)
 suspend fun <A, B> Iterable<Puz<A, B>>.shouldAll(test: suspend FreeSpecContainerScope.(PuzzleInput, Puz<A, B>) -> Unit) =
-    groupBy { it.year to it.day }
-        .forEach { (d, puzzles) ->
-            val (year, day) = d
-            "Year $year Day $day" - {
-                val input = forPuzzle(year, day)
-                puzzles.forEach { puzzle ->
-                    puzzle.variant - {
-                        test(input, puzzle)
+    spec.run {
+        groupBy { it.year to it.day }
+            .forEach { (d, puzzles) ->
+                val (year, day) = d
+                "Year $year Day $day" - {
+                    val input = input.forPuzzle(year, day)
+                    puzzles.forEach { puzzle ->
+                        puzzle.variant - {
+                            test(input, puzzle)
+                        }
                     }
                 }
             }
-        }
+    }

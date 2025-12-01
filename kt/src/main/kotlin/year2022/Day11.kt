@@ -2,6 +2,7 @@ package year2022
 
 import aok.PuzzleInput
 import aok.Warmup
+import aok.lines
 import aoksp.AoKSolution
 
 fun main() = solveDay(11, warmup = Warmup.iterations(200))
@@ -15,7 +16,7 @@ object Day11 {
         val monkeyFalse: Int,
     )
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun parse() = lines.drop(1).chunked(7) { (items, op, test, ifTrue, ifFalse) ->
         val monkeyItems = items.substringAfter(": ").split(", ").map(String::toInt)
         monkeyItems to Monkey(
@@ -60,13 +61,13 @@ object Day11 {
         return counts.sortedDescending().let { (a, b) -> a.toLong() * b }
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1(): Long {
         val (items, monkeys) = parse()
         return monkeys.conductBusiness(items, rounds = 20) { it / 3 }
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2(): Long {
         val (items, monkeys) = parse()
         val factor = monkeys.map(Monkey::test).reduce(Int::times)

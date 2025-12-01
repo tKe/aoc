@@ -3,7 +3,6 @@ package year2017
 import aok.PuzDSL
 import aok.PuzzleInput
 import aoksp.AoKSolution
-import year2017.Day23.Instr
 
 @AoKSolution
 object Day23 : PuzDSL({
@@ -38,18 +37,18 @@ object Day23 : PuzDSL({
 
 }) {
     sealed interface Value {
-        context(Executor)
+        context(_: Executor)
         val value: Long
 
         @JvmInline
         value class Const(private val const: Long) : Value {
-            context(Executor) override val value: Long
+            context(_: Executor) override val value: Long
                 get() = const
         }
         data class Register(val reg: Int) : Value {
-            context(Executor)
+            context(executor: Executor)
             override val value
-                get() = get(reg)
+                get() = executor.get(reg)
         }
 
         companion object {
@@ -87,15 +86,14 @@ object Day23 : PuzDSL({
 
         fun execute(instrs: List<Instr>): LongArray {
             while (instr in instrs.indices) {
-                instrs[instr].execute()
+                with(instrs[instr]) { execute() }
             }
             return regs.copyOf()
         }
     }
 
     fun interface Instr {
-        context(Executor)
-        fun execute()
+        fun Executor.execute()
     }
 
 }

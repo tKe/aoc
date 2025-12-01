@@ -11,6 +11,10 @@ import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.MemberName.Companion.member
+import com.squareup.kotlinpoet.ksp.toClassName
+import kotlin.metadata.ClassKind
 import kotlin.reflect.KProperty1
 
 @Target(AnnotationTarget.CLASS)
@@ -23,11 +27,11 @@ annotation class AoKSolution(
 
 private val annotationDefaults = AoKSolution()
 
-context(KSAnnotated)
+context(annotated: KSAnnotated)
 @OptIn(KspExperimental::class)
 fun <T : Any> KProperty1<AoKSolution, T>.resolve(fallback: () -> T? = { null }): T {
-    val annotation = getAnnotationsByType(AoKSolution::class).single()
-    val annotations = generateSequence(parent, KSNode::parent).flatMap {
+    val annotation = annotated.getAnnotationsByType(AoKSolution::class).single()
+    val annotations = generateSequence(annotated.parent, KSNode::parent).flatMap {
         (it as? KSAnnotated)?.getAnnotationsByType(AoKSolution::class).orEmpty()
     }.toList().toTypedArray()
 
@@ -38,26 +42,35 @@ fun <T : Any> KProperty1<AoKSolution, T>.resolve(fallback: () -> T? = { null }):
         ?: error("not specified: ${this.name}")
 }
 
-context(KSPLogger)
 internal fun Resolver.resolveSolutions() =
     getSymbolsWithAnnotation(AoKSolution::class.qualifiedName!!)
         .flatMap { annotated ->
             when (annotated) {
                 is KSClassDeclaration -> {
+                    require(annotated.classKind == com.google.devtools.ksp.symbol.ClassKind.OBJECT)
                     val deets = annotated.resolveSolutionDetails()
-                    val funcs = annotated.getAllFunctions().associateBy { it.resolvePart() }
-                    listOfNotNull(funcs[1], funcs[2]).map { deets to it }
+                    val funcs = annotated.getAllFunctions()
+                        .associateBy { it.resolvePart() }
+                    listOfNotNull(funcs[1], funcs[2]).map { Triple(annotated, deets, it) }
                 }
 
                 else -> emptyList()
             }
         }
-        .groupBy({ it.first }, { it.second })
+        .groupBy({ it.second }, { it.first to it.third })
         .map { (solution, functions) ->
-            val part1 = functions.firstOrNull { it.resolvePart() == 1 }
-            val part2 = functions.firstOrNull { it.resolvePart() == 2 }
-            Triple(solution, part1, part2)
+            val part1 = functions.firstOrNull { it.second.resolvePart() == 1 }
+            val part2 = functions.firstOrNull { it.second.resolvePart() == 2 }
+
+            Solution(solution, part1?.first ?: part2?.first, part1?.second, part2?.second)
         }
+
+data class Solution(
+    val key: PuzKey,
+    val parent: KSDeclaration?,
+    val part1: KSFunctionDeclaration?,
+    val part2: KSFunctionDeclaration?,
+)
 
 private fun KSDeclaration.resolveSolutionDetails(): PuzKey = PuzKey.of(
     year = AoKSolution::year.resolve {

@@ -3,16 +3,19 @@ package aoksp
 import aok.Puz
 import aok.PuzKey
 import aok.PuzzleInput
+import aok.Warmup
 import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.*
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.plusParameter
 import com.squareup.kotlinpoet.TypeSpec.Companion.classBuilder
 import com.squareup.kotlinpoet.TypeSpec.Companion.objectBuilder
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
+import java.lang.reflect.WildcardType
 
 private val String.upperCamel: String
     get() = split(' ').joinToString("") { it[0].uppercase() + it.drop(1) }
@@ -40,7 +43,7 @@ class AdventOfKotlinSymbolProcessor(
                     .addFunction(FunSpec.builder("queryDay")
                         .addParameter(ParameterSpec.builder("day", typeNameOf<Int?>()).defaultValue("null").build())
                         .addStatement("return %T::class.sealedObjects.filter { day == null || it.day == day }", yearClassName(year))
-                        .returns(typeNameOf<List<Puz<*, *>>>())
+                        .returns(List::class.asClassName().parameterizedBy(Puz::class.asClassName().parameterizedBy(STAR, STAR)))
                         .build())
                     .addFunction(FunSpec.builder("solveDay")
                         .addParameter(ParameterSpec.builder("day", typeNameOf<Int?>()).defaultValue("null").build())
@@ -55,8 +58,8 @@ class AdventOfKotlinSymbolProcessor(
 
                 days.forEachGroup({ (s) -> s.day }) { day, solutions ->
                     val dayFile = FileSpec.builder("year$year", "AoKDay${day.toString().padStart(2, '0')}")
-                    solutions.forEach { (def, part1, part2) ->
-                        dayFile.addType(def.generateSolutionClass(part1, part2))
+                    solutions.forEach { (def, instance, part1, part2) ->
+                        dayFile.addType(def.generateSolutionClass(instance, part1, part2))
                     }
                     dayFile.build().writeTo(codeGenerator, Dependencies.ALL_FILES)
                 }
@@ -99,6 +102,7 @@ class AdventOfKotlinSymbolProcessor(
 
     @OptIn(ExperimentalKotlinPoetApi::class)
     private fun PuzKey.generateSolutionClass(
+        parent: KSDeclaration?,
         part1: KSFunctionDeclaration?,
         part2: KSFunctionDeclaration?,
     ) = objectBuilder("PuzYear${year}Day$day${variant.upperCamel}").apply {
@@ -117,11 +121,11 @@ class AdventOfKotlinSymbolProcessor(
         addFunctions(
             listOfNotNull(part1?.to("part1"), part2?.to("part2")).map { (target, func) ->
                 val partImpl = FunSpec.builder(func)
-                    .contextReceivers(PuzzleInput::class.asTypeName())
+                    .contextParameter(PuzzleInput::class.asTypeName())
                     .returns(target.returnType?.unaliased()?.toTypeName() ?: ANY)
                     .addModifiers(KModifier.OVERRIDE)
 
-                val targetMember = when (val parent = target.parent) {
+                val targetMember = when (parent) {
                     is KSClassDeclaration ->
                         parent.toClassName().member(target.simpleName.asString())
 
@@ -132,7 +136,7 @@ class AdventOfKotlinSymbolProcessor(
                 }
 
                 if (targetMember == null) {
-                    partImpl.addStatement("return TODO(%S)", "Unable to call $target (unsupported parent)")
+                    partImpl.addStatement("return TODO(%S)", "Unable to call $target (unsupported parent ${target.parent})")
                 } else if (Modifier.SUSPEND in target.modifiers) {
                     partImpl.addStatement(
                         "return %M(%M) { %M() }",

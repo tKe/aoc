@@ -1,5 +1,3 @@
-import com.google.devtools.ksp.KspExperimental
-
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ksp)
@@ -7,7 +5,7 @@ plugins {
 }
 
 group = "com.github.tke"
-version = "0.0.2022"
+version = "0.0.2025"
 
 repositories {
     mavenCentral()
@@ -18,11 +16,12 @@ tasks.withType<Test> { useJUnitPlatform() }
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll(
-            "-Xcontext-receivers",
-//            "-Xwhen-guards", // performance?
-            "-opt-in=kotlinx.coroutines.FlowPreview",
-            "-opt-in=kotlin.time.ExperimentalTime",
-            "-opt-in=kotlin.ExperimentalStdlibApi"
+            "-Xcontext-parameters",
+        )
+        optIn.addAll(
+            "kotlinx.coroutines.FlowPreview",
+            "kotlin.time.ExperimentalTime",
+            "kotlin.ExperimentalStdlibApi"
         )
     }
     sourceSets.main {

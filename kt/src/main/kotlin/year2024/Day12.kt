@@ -2,6 +2,7 @@ package year2024
 
 import aok.PuzzleInput
 import aok.checkAll
+import aok.lines
 import aok.solveAll
 import aok.warmupEach
 import aoksp.AoKSolution
@@ -10,10 +11,10 @@ import kotlin.time.Duration.Companion.seconds
 
 @AoKSolution
 object Day12 {
-    context(PuzzleInput) fun part1() = totalPrice(::price)
-    context(PuzzleInput) fun part2() = totalPrice(::discountPrice)
+    context(_: PuzzleInput) fun part1() = totalPrice(::price)
+    context(_: PuzzleInput) fun part2() = totalPrice(::discountPrice)
 
-    context(PuzzleInput) inline fun totalPrice(price: (Set<Point>) -> Int): Int {
+    context(_: PuzzleInput) inline fun totalPrice(price: (Set<Point>) -> Int): Int {
         val farm = Farm(lines)
         var sum = 0
         val seen = mutableSetOf<Point>()
@@ -46,8 +47,8 @@ object Day12 {
     }
 
     inline fun Point.expand(predicate: (Point) -> Boolean) = buildSet {
-        add(this@Point)
-        val queue = mutableListOf(this@Point)
+        add(this@expand)
+        val queue = mutableListOf(this@expand)
         while (queue.isNotEmpty()) {
             for (neighbour in queue.removeFirst().neighbours)
                 if (predicate(neighbour) && add(neighbour))
@@ -88,8 +89,8 @@ object Day12 {
 
 @AoKSolution
 object Day12FenceWalker {
-    context(PuzzleInput) fun part1() = Day12.totalPrice(Day12::price)
-    context(PuzzleInput) fun part2() = Day12.totalPrice(::discountPrice)
+    context(_: PuzzleInput) fun part1() = Day12.totalPrice(Day12::price)
+    context(_: PuzzleInput) fun part2() = Day12.totalPrice(::discountPrice)
 
     private fun discountPrice(region: Set<Day12.Point>): Int {
         val edges = Day12.Direction.map { dir ->

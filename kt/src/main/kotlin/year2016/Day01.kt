@@ -1,12 +1,9 @@
 package year2016
 
-import aok.InputProvider
 import aok.PuzDSL
 import aok.PuzzleInput
 import aoksp.AoKSolution
-import arrow.core.andThen
 import arrow.core.compose
-import kotlinx.coroutines.yield
 import kotlin.math.absoluteValue
 
 @AoKSolution

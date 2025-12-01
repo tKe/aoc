@@ -32,19 +32,19 @@ class Day22Test : FreeSpec({
 
     "examples" - {
         "deal into new stack" {
-            shuffle(testCase.name.testName).toDeck()
+            shuffle(testCase.name.name).toDeck()
                 .shouldContainExactly(9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
         }
         "cut 3" {
-            shuffle(testCase.name.testName).toDeck()
+            shuffle(testCase.name.name).toDeck()
                 .shouldContainExactly(3, 4, 5, 6, 7, 8, 9, 0, 1, 2)
         }
         "cut -4" {
-            shuffle(testCase.name.testName).toDeck()
+            shuffle(testCase.name.name).toDeck()
                 .shouldContainExactly(6, 7, 8, 9, 0, 1, 2, 3, 4, 5)
         }
         "deal with increment 3" {
-            shuffle(testCase.name.testName).toDeck()
+            shuffle(testCase.name.name).toDeck()
                 .shouldContainExactly(0, 7, 4, 1, 8, 5, 2, 9, 6, 3)
         }
     }

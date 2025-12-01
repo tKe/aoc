@@ -2,13 +2,15 @@ package year2024
 
 import aok.PuzzleInput
 import aok.checkAll
+import aok.lines
 import aok.solveAll
 import aok.warmup
 import aoksp.AoKSolution
+import year2024.Day08Tidy.solve
 
 @AoKSolution
 object Day08 {
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1(): Int {
         val yr = lines.indices
         val xr = lines.first().indices
@@ -36,7 +38,7 @@ object Day08 {
         }
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2(): Int {
         val yr = lines.indices
         val xr = lines.first().indices
@@ -78,15 +80,15 @@ object Day08 {
 
 @AoKSolution
 object Day08Tidy {
-    context(PuzzleInput)
-    fun part1() = solve { a, b ->
+    context(input: PuzzleInput)
+    fun part1() = input.solve { a, b ->
         val delta = a - b
         invoke(b - delta)
         invoke(a + delta)
     }
 
-    context(PuzzleInput)
-    fun part2(): Int = solve { a, b ->
+    context(input: PuzzleInput)
+    fun part2(): Int = input.solve { a, b ->
         val delta = a - b
         var node = a
         while (invoke(node)) node -= delta
@@ -111,7 +113,7 @@ object Day08Tidy {
                         others.forEach { other ->
                             antinodes({
                                 when {
-                                    valid(it) -> add(it).let { true }
+                                    this@solve.valid(it) -> add(it).let { true }
                                     else -> false
                                 }
                             }, new, other)
@@ -126,11 +128,11 @@ object Day08Tidy {
 
 @AoKSolution
 object Day08Inline {
-    context(PuzzleInput)
-    fun part1() = solve()
+    context(input: PuzzleInput)
+    fun part1() = input.solve()
 
-    context(PuzzleInput)
-    fun part2(): Int = solve(true)
+    context(input: PuzzleInput)
+    fun part2(): Int = input.solve(true)
 
     private data class Pos(val x: Int, val y: Int) {
         operator fun plus(other: Pos) = Pos(x + other.x, y + other.y)

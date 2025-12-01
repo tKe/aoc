@@ -4,6 +4,7 @@ package year2022
 
 import aok.InputProvider
 import aok.PuzzleInput
+import aok.lines
 import aoksp.AoKSolution
 import aok.solveAll
 import aok.warmup
@@ -54,7 +55,7 @@ object Day18Points {
         }
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun parse() = lines
         .map { line ->
             line.split(',').map {
@@ -69,10 +70,10 @@ object Day18Points {
             }, yStride, zStride)
         }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1() = parse().surfaceArea()
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2(): Int = with(parse()) {
         val filled = BitSet().apply { set(1, data.length()) }
         val queue = ArrayDeque(listOf(0))
@@ -109,7 +110,7 @@ private typealias Grid = Array<Array<BooleanArray>>
 @AoKSolution
 object Day18 {
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun parse(): Grid = lines.map {
         it.split(',').map(String::toInt)
     }.let { points ->
@@ -123,10 +124,10 @@ object Day18 {
         }
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1() = parse().surfaceArea()
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2() = parse().filled().surfaceArea()
 
     private val Grid.dimensions

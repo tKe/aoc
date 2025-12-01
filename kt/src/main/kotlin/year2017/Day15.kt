@@ -3,9 +3,6 @@ package year2017
 import aok.PuzDSL
 import aok.Warmup
 import aoksp.AoKSolution
-import arrow.core.Validated
-import arrow.core.zip
-import arrow.typeclasses.Semigroup
 import kotlin.time.Duration.Companion.seconds
 
 @AoKSolution

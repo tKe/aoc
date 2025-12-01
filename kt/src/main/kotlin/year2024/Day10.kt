@@ -3,6 +3,7 @@ package year2024
 import aok.PuzDSL
 import aok.PuzzleInput
 import aok.checkAll
+import aok.lines
 import aok.solveAll
 import aok.warmupEach
 import aoksp.AoKSolution
@@ -111,7 +112,8 @@ object Day10Bitty {
             forEachCharIndexed { x, y, c -> it.maps[c.digitToInt()][Loc(x, y).raw] = true }
         }
 
-    private fun PuzzleInput.solve(unique: Boolean = false): Int {
+    context(_: PuzzleInput)
+    private fun solve(unique: Boolean = false): Int {
         val map = lines.heightMap()
         return buildSet {
             map.forEach(height = 0) { start ->
@@ -122,10 +124,10 @@ object Day10Bitty {
         }.size
     }
 
-    context(PuzzleInput)
-    fun part1() = solve(false)
+    context(_: PuzzleInput)
+    fun part1() = solve()
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2() = solve(true)
 }
 

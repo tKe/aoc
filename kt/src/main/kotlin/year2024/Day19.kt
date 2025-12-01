@@ -2,6 +2,7 @@ package year2024
 
 import aok.PuzzleInput
 import aok.checkAll
+import aok.input
 import aok.solveAll
 import aok.warmup
 import aoksp.AoKSolution
@@ -10,10 +11,10 @@ import kotlin.time.Duration.Companion.seconds
 
 @AoKSolution
 object Day19 {
-    context(PuzzleInput) fun parse() = input.split("\n\n", limit = 2)
+    context(_: PuzzleInput) fun parse() = input.split("\n\n", limit = 2)
         .let { (towels, patterns) -> towels.split(", ") to patterns.lines() }
 
-    context(PuzzleInput) fun part1(): Int {
+    context(_: PuzzleInput) fun part1(): Int {
         val (towels, patterns) = parse()
         val validate = towels.joinToString("|", prefix = "(", postfix = ")+").toRegex()
         return patterns.count {
@@ -21,7 +22,7 @@ object Day19 {
         }
     }
 
-    context(PuzzleInput) fun part2(): Long {
+    context(_: PuzzleInput) fun part2(): Long {
         val (towels, patterns) = parse()
         val solutions = CachedDeepRecursiveFunction<Pair<String, Int>, Long> { (pattern, idx) ->
             if (idx == pattern.length) return@CachedDeepRecursiveFunction 1L

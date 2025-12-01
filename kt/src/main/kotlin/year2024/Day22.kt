@@ -10,11 +10,11 @@ import kotlin.time.Duration.Companion.seconds
 
 @AoKSolution
 object Day22 {
-    context(PuzzleInput) fun part1() = Parsers.Longs().sumOf {
+    context(_: PuzzleInput) fun part1() = Parsers.Longs().sumOf {
         generateSequence(it) { it.evolve() }.elementAt(2000)
     }
 
-    context(PuzzleInput) fun part2() = Parsers.Longs()
+    context(_: PuzzleInput) fun part2() = Parsers.Longs()
         .flatMap { secret ->
             generateSequence(secret) { it.evolve() }
                 .map { it % 10 }.take(2001)
@@ -38,13 +38,13 @@ object Day22 {
 
 @AoKSolution
 object Day22Array {
-    context(PuzzleInput) fun part1() = Parsers.Longs().sumOf {
+    context(_: PuzzleInput) fun part1() = Parsers.Longs().sumOf {
         var s = it
         repeat(2000) { s = s.evolve() }
         s
     }
 
-    context(PuzzleInput) fun part2(): Int {
+    context(_: PuzzleInput) fun part2(): Int {
         val bananas = IntArray(0xFFFFF)
         val seen = IntArray(0xFFFFF) { -1 }
         var max = 0

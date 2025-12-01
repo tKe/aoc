@@ -2,17 +2,19 @@ package year2022
 
 import aok.PuzDSL
 import aok.PuzzleInput
+import aok.input
 import aoksp.AoKSolution
 import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
 
 @AoKSolution
 object Day01 {
-    private fun PuzzleInput.elves() = input.splitToSequence("(?:\r?\n){2}".toRegex())
+    context(_: PuzzleInput)
+    private fun elves() = input.splitToSequence("(?:\r?\n){2}".toRegex())
         .map { it.lines().mapNotNull(String::toIntOrNull).sum() }
 
-    context(PuzzleInput) fun part1() = elves().max()
-    context(PuzzleInput) fun part2() = elves().sortedDescending().take(3).sum()
+    context(_: PuzzleInput) fun part1() = elves().max()
+    context(_: PuzzleInput) fun part2() = elves().sortedDescending().take(3).sum()
 }
 
 @AoKSolution(variant = "NonEmptyList")

@@ -2,6 +2,8 @@ package year2024
 
 import aok.PuzzleInput
 import aok.checkAll
+import aok.lineSeq
+import aok.lines
 import aok.solveAll
 import aok.warmup
 import aoksp.AoKSolution
@@ -13,16 +15,16 @@ import kotlin.time.Duration.Companion.seconds
 
 @AoKSolution
 object Day18 {
-    context(PuzzleInput) fun part1(): Int {
+    context(_: PuzzleInput) fun part1(): Int {
         val (dim, count) = if (lines.size < 30) 6 to 12 else 70 to 1024
-        val bytes = lineSeq.take(count).map { it.splitOnce(",", String::toInt) }.toSet()
+        val bytes = lines.take(count).map { it.splitOnce(",", String::toInt) }.toSet()
         return bfs(0 to 0, { equals(dim to dim) }) { neighboursIn(dim) { it !in bytes } }
     }
 
-    context(PuzzleInput) fun part2(): String {
+    context(_: PuzzleInput) fun part2(): String {
         val (dim, count) = if (lines.size < 30) 6 to 12 else 70 to 1024
 
-        val byteStream = lineSeq.map { it.splitOnce(",", String::toInt) }.iterator()
+        val byteStream = lines.map { it.splitOnce(",", String::toInt) }.iterator()
         val bytes = mutableSetOf<Pair<Int, Int>>()
         repeat(count) { if (byteStream.hasNext()) bytes += byteStream.next() }
 
@@ -60,13 +62,13 @@ object Day18 {
 
 @AoKSolution
 object Day18BinarySearch {
-    context(PuzzleInput) fun part1(): Int {
+    context(_: PuzzleInput) fun part1(): Int {
         val (dim, count) = if (lines.size < 30) 6 to 12 else 70 to 1024
         val bytes = lineSeq.take(count).map { it.splitOnce(",", String::toInt) }.toSet()
         return bfs(0 to 0, { equals(dim to dim) }) { neighboursIn(dim) { it !in bytes } }
     }
 
-    context(PuzzleInput) fun part2(): String {
+    context(_: PuzzleInput) fun part2(): String {
         val (dim, count) = if (lines.size < 30) 6 to 12 else 70 to 1024
 
         val byteStream = lines.map { it.splitOnce(",", String::toInt) }

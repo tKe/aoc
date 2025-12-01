@@ -2,17 +2,17 @@ package year2016
 
 import aok.PuzDSL
 import aoksp.AoKSolution
-import arrow.core.unzip
 import year2016.Day23.inv
 import year2016.Day23.optimize
+import kotlin.collections.unzip
 
 @AoKSolution
 object Day23 : PuzDSL({
     val parseInstructions = parser {
-        lines.unzip { instr ->
+        lines.map { instr ->
             val (cmd, args) = instr.split(" ", limit = 2)
             Instruction.of(cmd) to args.split(" ").let { Argument.of(it.first()) to Argument.of(it.last()) }
-        }
+        }.unzip()
     }
 
     fun Pair<List<Instruction>, List<Pair<Argument, Argument>>>.execute(
@@ -57,19 +57,19 @@ object Day23 : PuzDSL({
     }
 
     sealed interface Argument {
-        context(State)
+        context(_: State)
         val value: Int
 
         data class Constant(val const: Int) : Argument {
             override fun toString() = "$const"
-            context(State) override val value: Int get() = const
+            context(_: State) override val value: Int get() = const
         }
 
         data class Register(private val id: Int) : Argument {
             override fun toString() = "${'a' + id}"
-            context(State) override var value
-                get() = get(id)
-                set(v) = set(id, v)
+            context(state: State) override var value
+                get() = state.get(id)
+                set(v) = state.set(id, v)
         }
 
         companion object {

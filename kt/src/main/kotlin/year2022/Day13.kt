@@ -2,6 +2,7 @@ package year2022
 
 import aok.InputProvider
 import aok.PuzzleInput
+import aok.input
 import aoksp.AoKSolution
 import arrow.core.compareTo
 import kotlinx.serialization.DeserializationStrategy
@@ -30,12 +31,12 @@ fun main(): Unit = with(InputProvider) {
 
 @AoKSolution
 object Day13 {
-    context (PuzzleInput)
+    context (_: PuzzleInput)
     fun part1() = packets()
         .mapIndexedNotNull { idx, (a, b) -> (idx + 1).takeIf { a <= b } }
         .sum()
 
-    context (PuzzleInput)
+    context (_: PuzzleInput)
     fun part2(): Int {
         val dividers = setOf(
             PacketList(PacketList(PacketInt(2))),
@@ -63,7 +64,7 @@ object Day13 {
         }
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun packets() = input.trimEnd().split("\n\n")
         .map { chunk -> chunk.split("\n").map { it.parsePacketList() } }
 
@@ -99,11 +100,11 @@ object Day13 {
 
 @AoKSolution
 object Day13Json {
-    context (PuzzleInput)
+    context (_: PuzzleInput)
     fun part1() = packets().chunked(2) { (a, b) -> a <= b }
         .withIndex().sumOf { (idx, it) -> if(it) idx + 1 else 0 }
 
-    context (PuzzleInput)
+    context (_: PuzzleInput)
     fun part2(): Int {
         val a = EL(EL(EI(2)))
         val b = EL(EL(EI(6)))
@@ -117,7 +118,7 @@ object Day13Json {
         return ia * ib
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     @OptIn(ExperimentalSerializationApi::class)
     private fun packets() = Json.decodeToSequence(input.byteInputStream(), ELSerializer, WHITESPACE_SEPARATED)
 

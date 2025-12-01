@@ -1,6 +1,7 @@
 package year2022
 
 import aok.PuzzleInput
+import aok.lines
 import aoksp.AoKSolution
 
 fun main() = solveDay(16)
@@ -13,7 +14,7 @@ object Day16 {
         val tunnels: List<Valve>
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun startValve() = buildMap<String, Valve> {
         lines.forEach {
             val parts = it.split(
@@ -27,7 +28,7 @@ object Day16 {
         }
     }.getValue("AA")
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1(): Int {
         val start = startValve()
         val routes = routes(start)
@@ -57,7 +58,7 @@ object Day16 {
         return process(start)
     }
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2(): Int {
         val start = startValve()
         val routes = routes(start)

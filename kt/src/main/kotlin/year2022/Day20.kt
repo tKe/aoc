@@ -2,6 +2,7 @@ package year2022
 
 import aok.PuzzleInput
 import aok.Warmup
+import aok.lines
 import aoksp.AoKSolution
 import kotlin.time.Duration.Companion.seconds
 
@@ -14,13 +15,13 @@ fun main(): Unit = solveDay(
 @AoKSolution
 object Day20 {
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1() = parse().decryptCoordinates()
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2() = parse().decryptCoordinates(811589153, 10)
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun parse() = lines.map(String::toInt).map(::Node).also {
         it.first().left = it.last()
         it.last().right = it.first()
@@ -85,13 +86,13 @@ object Day20 {
 
 @AoKSolution
 object Day20Array {
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part1() = parse().decryptCoordinates()
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     fun part2() = parse().decryptCoordinates(811589153, 10)
 
-    context(PuzzleInput)
+    context(_: PuzzleInput)
     private fun parse() = lines.map(String::toInt).toIntArray()
 
     private fun IntArray.decryptCoordinates(decryptionKey: Long = 1, rounds: Int = 1): Long {

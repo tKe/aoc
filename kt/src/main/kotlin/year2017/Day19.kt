@@ -31,7 +31,7 @@ object Day19 : PuzDSL({
     data class Pos(val x: Int, val y: Int, val dir: Dir = DOWN) {
         fun move(dir: Dir) = Pos(x + dir.dx, y + dir.dy, dir)
 
-        context(List<String>) fun move(): Pos? =
+        context(_: List<String>) fun move(): Pos? =
             when (char) {
                 // have to turn
                 '+' -> when (dir) {
@@ -44,9 +44,9 @@ object Day19 : PuzDSL({
 
     }
 
-    context(List<String>) val Pos.char get() = getOrElse(y) { "" }.getOrElse(x) { ' ' }
+    context(l: List<String>) val Pos.char get() = l.getOrElse(y) { "" }.getOrElse(x) { ' ' }
 
-    context(T)
+    context(_: T)
     fun <T> get() = this
 }
 

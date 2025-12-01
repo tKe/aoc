@@ -4,6 +4,7 @@ import aok.Parser
 import aok.PuzDSL
 import aoksp.AoKSolution
 import year2019.Day24.Counter.Companion.count
+import year2019.Day24.Counter.Companion.incIf
 
 fun main() = solveDay(
     11,
@@ -79,4 +80,3 @@ object Day11 : PuzDSL({
                     block(dx, dy)
     }
 }
-

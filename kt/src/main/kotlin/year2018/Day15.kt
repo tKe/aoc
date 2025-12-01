@@ -90,7 +90,7 @@ object Day15 : PuzDSL({
     sealed class Combatant(var pos: Int2, var ap: Int = 3, var hp: Int = 200) {
         open fun isEnemy(combatant: Combatant) = this::class != combatant::class
 
-        context(Cavern)
+        context(cavern: Cavern)
         fun turn(combatants: List<Combatant>) {
             if (hp <= 0) return
             moveTowardEnemy(combatants)
@@ -100,16 +100,16 @@ object Day15 : PuzDSL({
             if (enemy != null) enemy.hp -= ap
         }
 
-        context(Cavern)
+        context(cavern: Cavern)
         private val Int2.neighbours
             get() = sequenceOf(
                 copy(y = y - 1),
                 copy(x = x - 1),
                 copy(x = x + 1),
                 copy(y = y + 1),
-            ).filterNot(walls::contains)
+            ).filterNot(cavern.walls::contains)
 
-        context(Cavern)
+        context(cavern: Cavern)
         private fun moveTowardEnemy(combatants: List<Combatant>) {
             val (enemies, occupied) = combatantPositions(combatants)
             fun Int2.navigableNeighbours() = neighbours.filterNot(occupied::contains)
@@ -165,4 +165,3 @@ object Day15 : PuzDSL({
     class Elf(pos: Int2) : Combatant(pos)
 
 }
-
